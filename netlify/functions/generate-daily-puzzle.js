@@ -1,10 +1,8 @@
 const fetch = require('node-fetch');
-const fs = require('fs');
-const path = require('path');
 
 /**
  * Netlify Function to generate daily Etymon puzzles using OpenAI GPT
- * This can be called manually or scheduled to run daily
+ * Returns the puzzles as JSON response
  */
 exports.handler = async (event, context) => {
   try {
@@ -45,26 +43,16 @@ exports.handler = async (event, context) => {
       puzzles: puzzles
     };
 
-    // In Netlify, we'll write to the public folder which gets deployed
-    // This ensures the JSON is accessible at /daily-puzzle.json
-    const publicDir = path.join(__dirname, '..', '..', 'public');
-    if (!fs.existsSync(publicDir)) {
-      fs.mkdirSync(publicDir, { recursive: true });
-    }
-    
-    const filePath = path.join(publicDir, 'daily-puzzle.json');
-    fs.writeFileSync(filePath, JSON.stringify(dailyPuzzle, null, 2));
-
     console.log('Daily puzzles generated successfully!');
 
+    // Return the puzzles as JSON
     return {
       statusCode: 200,
-      body: JSON.stringify({ 
-        success: true, 
-        message: 'Daily puzzles generated',
-        date: dailyPuzzle.date,
-        puzzleCount: puzzles.length
-      })
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify(dailyPuzzle)
     };
 
   } catch (error) {
