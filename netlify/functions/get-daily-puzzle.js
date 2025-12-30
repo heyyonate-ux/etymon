@@ -49,26 +49,49 @@ exports.handler = async (event, context) => {
  */
 async function generateAllPuzzles(apiKey) {
   const difficulties = [
-    { level: 'novitiate', complexity: 'simple, common words with familiar Greek/Latin roots' },
-    { level: 'disciple', complexity: 'moderate difficulty words with recognizable etymology' },
-    { level: 'scholar', complexity: 'challenging words with less obvious etymological connections' },
-    { level: 'magister', complexity: 'advanced vocabulary with obscure Latin roots' },
-    { level: 'etymologus', complexity: 'highly sophisticated words with complex etymological origins' }
+    { level: 'novitiate', complexity: 'very simple words like BICYCLE, TELEPHONE, PHOTOGRAPH - roots should be obvious' },
+    { level: 'disciple', complexity: 'common words like DEMOCRACY, BIOGRAPHY, THERMOMETER - moderately familiar roots' },
+    { level: 'scholar', complexity: 'challenging words like PHILANTHROPY, CACOPHONY, METAMORPHOSIS - less obvious connections' },
+    { level: 'magister', complexity: 'difficult words like MAGNANIMOUS, VERISIMILITUDE, JUXTAPOSITION - obscure Latin roots' },
+    { level: 'etymologus', complexity: 'extremely difficult words like PERSPICACIOUS, PUSILLANIMOUS, OBFUSCATE - complex, uncommon vocabulary' }
   ];
 
-  // Generate all puzzles in parallel (much faster!)
-  const puzzlePromises = difficulties.map(difficulty => 
-    generatePuzzle(apiKey, difficulty)
-  );
+  const generatedWords = new Set();
+  const puzzles = [];
   
-  const puzzles = await Promise.all(puzzlePromises);
+  // Generate puzzles one at a time to check for duplicates
+  for (const difficulty of difficulties) {
+    let attempts = 0;
+    let puzzle = null;
+    
+    // Try up to 3 times to get a unique word
+    while (attempts < 3) {
+      puzzle = await generatePuzzle(apiKey, difficulty, generatedWords);
+      
+      if (!generatedWords.has(puzzle.word)) {
+        generatedWords.add(puzzle.word);
+        break;
+      }
+      
+      console.log(`Duplicate word detected: ${puzzle.word}, regenerating...`);
+      attempts++;
+    }
+    
+    if (puzzle) {
+      puzzles.push(puzzle);
+    }
+  }
+  
   return puzzles;
 }
 
 /**
  * Generate a single puzzle using GPT
  */
-async function generatePuzzle(apiKey, difficulty) {
+async function generatePuzzle(apiKey, difficulty, generatedWords = new Set()) {
+  const usedWords = Array.from(generatedWords);
+  const avoidClause = usedWords.length > 0 ? `\n\nIMPORTANT: Do NOT use these words that have already been generated: ${usedWords.join(', ')}` : '';
+  
   const prompt = `You are an expert etymologist creating a word puzzle. Generate a single word with its etymology for the difficulty level: "${difficulty.level}" (${difficulty.complexity}).
 
 Requirements:
@@ -76,7 +99,7 @@ Requirements:
 - The word should have clear Greek or Latin etymological roots
 - Provide exactly 2-3 root words (e.g., "Greek: tele, graphein" or "Latin: ob, fuscare")
 - Do not include definitions or meanings in the clue - ONLY the language and root words
-- Ensure the word can be guessed from its roots
+- Ensure the word can be guessed from its roots${avoidClause}
 
 Respond ONLY with valid JSON in this exact format:
 {
