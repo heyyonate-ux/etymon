@@ -734,7 +734,7 @@
             
             try {
                 // Fetch daily puzzle from Netlify function
-                const response = await fetch('/.netlify/functions/generate-daily-puzzle');
+                const response = await fetch('/.netlify/functions/get-daily-puzzle');
                 if (!response.ok) {
                     throw new Error('Failed to load daily puzzle');
                 }
