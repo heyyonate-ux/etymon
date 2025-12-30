@@ -704,6 +704,7 @@
         let wrongGuesses = 0;
         let startTime = null;
         let timerInterval = null;
+        let autoRevealInterval = null;  // Track auto-reveal interval
         let currentScore = 0;
         let totalScore = 0;
         let roundResults = [];
@@ -787,12 +788,22 @@
             }
 
             currentPuzzle = dailyPuzzles[currentRound];
-            revealedLetters = new Set();
-            guessedLetters = new Set();
+            
+            // CRITICAL: Clear all tracking between rounds
+            revealedLetters.clear();
+            guessedLetters.clear();
+            
+            // CRITICAL: Stop any running intervals from previous rounds
+            if (timerInterval) clearInterval(timerInterval);
+            if (autoRevealInterval) clearInterval(autoRevealInterval);
+            
             wrongGuesses = 0;
             currentScore = 0;
             startTime = Date.now();
-            selectedPosition = null; // Reset for final challenge
+            selectedPosition = null;
+            
+            console.log(`Starting Round ${currentRound + 1}: ${currentPuzzle.word}`);
+            console.log(`Cleared sets - Revealed: ${revealedLetters.size}, Guessed: ${guessedLetters.size}`);
 
             // Update challenge indicator
             const indicator = document.getElementById('challengeIndicator');
@@ -821,6 +832,11 @@
 
             renderWord();
             renderKeyboard();
+            
+            // Auto-select first position for final challenge
+            if (currentPuzzle.isFinalChallenge) {
+                selectNextUnrevealedPosition();
+            }
             
             // Only start timer and auto-reveal for speed rounds
             if (currentPuzzle.isSpeedRound) {
@@ -885,6 +901,23 @@
             renderWord();
         }
 
+        function selectNextUnrevealedPosition() {
+            if (!currentPuzzle.isFinalChallenge) return;
+            
+            // Find the first unrevealed position
+            for (let i = 0; i < currentPuzzle.word.length; i++) {
+                const letter = currentPuzzle.word[i];
+                if (letter === ' ') continue; // Skip spaces
+                
+                const posKey = `${i}-${letter}`;
+                if (!revealedLetters.has(posKey)) {
+                    selectedPosition = i;
+                    renderWord();
+                    return;
+                }
+            }
+        }
+
         function renderKeyboard() {
             const keyboard = document.getElementById('keyboard');
             keyboard.innerHTML = '';
@@ -934,16 +967,22 @@
                 const actualLetter = currentPuzzle.word[selectedPosition];
                 const posKey = `${selectedPosition}-${actualLetter}`;
                 
+                console.log(`Guessing '${letter}' at position ${selectedPosition}, actual letter is '${actualLetter}'`);
+                
                 if (actualLetter === letter) {
                     // Correct guess for this position
+                    console.log(`ADDING position key: ${posKey}`);
                     revealedLetters.add(posKey);
-                    selectedPosition = null;
+                    console.log(`RevealedLetters after add:`, Array.from(revealedLetters));
+                    
+                    // Auto-select next unrevealed position
+                    selectNextUnrevealedPosition();
+                    
                     renderWord();
                 } else {
-                    // Wrong guess
+                    // Wrong guess - keep current position selected
                     wrongGuesses++;
                     document.getElementById('wrongDisplay').textContent = wrongGuesses;
-                    selectedPosition = null;
                     renderWord();
                 }
                 
@@ -959,6 +998,7 @@
                 guessedLetters.add(letter);
                 
                 if (currentPuzzle.word.includes(letter)) {
+                    console.log(`[SPEED ROUND] Adding plain letter to revealedLetters: '${letter}'`);
                     revealedLetters.add(letter);
                     renderWord();
                 } else {
@@ -983,9 +1023,19 @@
         }
 
         function startAutoReveal() {
-            const revealInterval = setInterval(() => {
+            // Clear any existing auto-reveal interval
+            if (autoRevealInterval) clearInterval(autoRevealInterval);
+            
+            autoRevealInterval = setInterval(() => {
+                // Safety check: only run for speed rounds
+                if (!currentPuzzle || !currentPuzzle.isSpeedRound) {
+                    console.log('[AUTO-REVEAL] Stopping - not a speed round');
+                    clearInterval(autoRevealInterval);
+                    return;
+                }
+                
                 if (revealedLetters.size >= new Set(currentPuzzle.word.replace(/\s/g, '')).size) {
-                    clearInterval(revealInterval);
+                    clearInterval(autoRevealInterval);
                     return;
                 }
                 
@@ -996,6 +1046,7 @@
                     const randomLetter = unrevealedLetters[
                         Math.floor(Math.random() * unrevealedLetters.length)
                     ];
+                    console.log(`[AUTO-REVEAL] Adding plain letter to revealedLetters: '${randomLetter}'`);
                     revealedLetters.add(randomLetter);
                     renderWord();
                     checkCompletion();
@@ -1027,7 +1078,9 @@
         }
 
         function completeRound(isPassed = false) {
-            clearInterval(timerInterval);
+            // Stop all intervals
+            if (timerInterval) clearInterval(timerInterval);
+            if (autoRevealInterval) clearInterval(autoRevealInterval);
             
             const timeElapsed = Math.floor((Date.now() - startTime) / 1000);
             let baseScore = 0;
@@ -1119,10 +1172,12 @@
         document.getElementById('passButton').onclick = () => {
             if (confirm('Are you sure you want to skip this puzzle? You will receive 0 points.')) {
                 // Reveal the word by revealing all positions
+                console.log('[PASS BUTTON] Revealing all positions');
                 for (let i = 0; i < currentPuzzle.word.length; i++) {
                     const letter = currentPuzzle.word[i];
                     if (letter !== ' ') {
                         const posKey = `${i}-${letter}`;
+                        console.log(`[PASS] Adding position key: ${posKey}`);
                         revealedLetters.add(posKey);
                     }
                 }
