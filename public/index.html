@@ -897,11 +897,25 @@
                 key.onclick = () => guessLetter(letter);
                 
                 if (guessedLetters.has(letter)) {
-                    key.disabled = true;
-                    if (currentPuzzle.word.includes(letter)) {
-                        key.classList.add('correct');
+                    if (currentPuzzle.isFinalChallenge) {
+                        // For final challenge: show if used but DON'T disable
+                        // Just mark it visually so player knows they've tried it
+                        if (currentPuzzle.word.includes(letter)) {
+                            key.classList.add('correct');
+                            key.style.opacity = '0.7';
+                        } else {
+                            key.classList.add('incorrect');
+                            key.style.opacity = '0.7';
+                        }
+                        // Key stays enabled for reuse at different positions
                     } else {
-                        key.classList.add('incorrect');
+                        // Speed rounds: disable after use
+                        key.disabled = true;
+                        if (currentPuzzle.word.includes(letter)) {
+                            key.classList.add('correct');
+                        } else {
+                            key.classList.add('incorrect');
+                        }
                     }
                 }
                 
@@ -910,15 +924,10 @@
         }
 
         function guessLetter(letter) {
-            if (guessedLetters.has(letter)) return;
-            
-            guessedLetters.add(letter);
-            
             if (currentPuzzle.isFinalChallenge) {
-                // Final challenge: positional guessing
+                // Final challenge: positional guessing - letters can be reused
                 if (selectedPosition === null) {
                     alert('Please click a blank space first, then guess a letter for that position.');
-                    guessedLetters.delete(letter); // Don't count this guess
                     return;
                 }
                 
@@ -937,8 +946,18 @@
                     selectedPosition = null;
                     renderWord();
                 }
+                
+                // Track that we've tried this letter (for visual feedback only)
+                guessedLetters.add(letter);
+                renderKeyboard();
+                checkCompletion();
+                
             } else {
-                // Speed rounds: standard hangman
+                // Speed rounds: standard hangman - letters can only be guessed once
+                if (guessedLetters.has(letter)) return;
+                
+                guessedLetters.add(letter);
+                
                 if (currentPuzzle.word.includes(letter)) {
                     revealedLetters.add(letter);
                     renderWord();
@@ -946,10 +965,10 @@
                     wrongGuesses++;
                     document.getElementById('wrongDisplay').textContent = wrongGuesses;
                 }
+                
+                renderKeyboard();
+                checkCompletion();
             }
-            
-            renderKeyboard();
-            checkCompletion();
         }
 
         function startTimer() {
@@ -987,8 +1006,15 @@
         function checkCompletion() {
             if (currentPuzzle.isFinalChallenge) {
                 // For final challenge, check if all positions are revealed
-                const totalPositions = currentPuzzle.word.replace(/\s/g, '').length;
-                if (revealedLetters.size >= totalPositions) {
+                const wordWithoutSpaces = currentPuzzle.word.replace(/\s/g, '');
+                const totalPositions = wordWithoutSpaces.length;
+                const revealedCount = revealedLetters.size;
+                
+                console.log(`Final Challenge Check: ${revealedCount}/${totalPositions} positions revealed`);
+                console.log(`Word: ${currentPuzzle.word}`);
+                console.log(`Revealed keys:`, Array.from(revealedLetters));
+                
+                if (revealedCount >= totalPositions) {
                     completeRound();
                 }
             } else {

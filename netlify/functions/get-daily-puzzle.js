@@ -49,11 +49,26 @@ exports.handler = async (event, context) => {
  */
 async function generateAllPuzzles(apiKey) {
   const difficulties = [
-    { level: 'novitiate', complexity: 'very simple words like BICYCLE, TELEPHONE, PHOTOGRAPH - roots should be obvious' },
-    { level: 'disciple', complexity: 'common words like DEMOCRACY, BIOGRAPHY, THERMOMETER - moderately familiar roots' },
-    { level: 'scholar', complexity: 'challenging words like PHILANTHROPY, CACOPHONY, METAMORPHOSIS - less obvious connections' },
-    { level: 'magister', complexity: 'difficult words like MAGNANIMOUS, VERISIMILITUDE, JUXTAPOSITION - obscure Latin roots' },
-    { level: 'etymologus', complexity: 'extremely difficult words like PERSPICACIOUS, PUSILLANIMOUS, OBFUSCATE - complex, uncommon vocabulary' }
+    { 
+      level: 'novitiate', 
+      complexity: 'VERY EASY words that most people know: MICROSCOPE, TELEPHONE, BICYCLE, PHOTOGRAPH, TELEGRAPH. Roots should be extremely obvious and familiar.' 
+    },
+    { 
+      level: 'disciple', 
+      complexity: 'MODERATELY EASY words: GEOGRAPHY, BIOLOGY, THERMOMETER, AUTOBIOGRAPHY, AQUARIUM. Common words with recognizable roots, but slightly less obvious than novitiate level.' 
+    },
+    { 
+      level: 'scholar', 
+      complexity: 'CHALLENGING words: PHILANTHROPY, CLAUSTROPHOBIA, CACOPHONY, METAMORPHOSIS, SYNCHRONIZE. Less common vocabulary where roots are harder to connect.' 
+    },
+    { 
+      level: 'magister', 
+      complexity: 'DIFFICULT words with obscure Latin roots: MAGNANIMOUS, VERISIMILITUDE, PUSILLANIMOUS, JUXTAPOSITION, PULCHRITUDE. Advanced vocabulary that educated adults may not use regularly.' 
+    },
+    { 
+      level: 'etymologus', 
+      complexity: 'EXTREMELY DIFFICULT rare words: PERSPICACIOUS, LOQUACIOUS, RECALCITRANT, OBFUSCATE, TRUCULENT. Sophisticated academic vocabulary with complex, non-obvious etymological origins.' 
+    }
   ];
 
   const generatedWords = new Set();
@@ -64,16 +79,21 @@ async function generateAllPuzzles(apiKey) {
     let attempts = 0;
     let puzzle = null;
     
-    // Try up to 3 times to get a unique word
-    while (attempts < 3) {
+    // Try up to 5 times to get a unique, appropriate word
+    while (attempts < 5) {
       puzzle = await generatePuzzle(apiKey, difficulty, generatedWords);
       
-      if (!generatedWords.has(puzzle.word)) {
+      // Check for duplicates and inappropriate content
+      if (!generatedWords.has(puzzle.word) && isAppropriateWord(puzzle)) {
         generatedWords.add(puzzle.word);
         break;
       }
       
-      console.log(`Duplicate word detected: ${puzzle.word}, regenerating...`);
+      if (generatedWords.has(puzzle.word)) {
+        console.log(`Duplicate word detected: ${puzzle.word}, regenerating...`);
+      } else {
+        console.log(`Inappropriate word detected: ${puzzle.word}, regenerating...`);
+      }
       attempts++;
     }
     
@@ -83,6 +103,28 @@ async function generateAllPuzzles(apiKey) {
   }
   
   return puzzles;
+}
+
+/**
+ * Check if word and definition contain inappropriate content
+ */
+function isAppropriateWord(puzzle) {
+  const inappropriateTerms = [
+    'cannibal', 'anthropophag', 'kill', 'murder', 'death', 'corpse', 
+    'torture', 'violent', 'genocide', 'suicide', 'blood', 'gore',
+    'rape', 'sexual', 'erotic', 'pornograph', 'incest',
+    'feces', 'excrement', 'defecate', 'urinate', 'vomit'
+  ];
+  
+  const textToCheck = `${puzzle.word} ${puzzle.definition} ${puzzle.briefEtymology} ${puzzle.detailedEtymology}`.toLowerCase();
+  
+  for (const term of inappropriateTerms) {
+    if (textToCheck.includes(term)) {
+      return false;
+    }
+  }
+  
+  return true;
 }
 
 /**
@@ -99,7 +141,9 @@ Requirements:
 - The word should have clear Greek or Latin etymological roots
 - Provide exactly 2-3 root words (e.g., "Greek: tele, graphein" or "Latin: ob, fuscare")
 - Do not include definitions or meanings in the clue - ONLY the language and root words
-- Ensure the word can be guessed from its roots${avoidClause}
+- Ensure the word can be guessed from its roots
+- AVOID words related to: violence, death, cannibalism, sexual content, bodily functions, or other inappropriate topics
+- Choose neutral, educational vocabulary suitable for all ages${avoidClause}
 
 Respond ONLY with valid JSON in this exact format:
 {
