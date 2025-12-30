@@ -1,25 +1,7 @@
 [build]
-  # Build command (none needed for static HTML)
   command = "echo 'Build complete'"
-  
-  # Publish directory
   publish = "public"
-  
-  # Functions directory
   functions = "netlify/functions"
 
-# Scheduled function to generate daily puzzles at midnight UTC
-[[plugins]]
-  package = "@netlify/plugin-functions"
-
 [functions]
-  # Node version
   node_bundler = "esbuild"
-
-# Environment variables (set these in Netlify dashboard)
-# OPENAI_API_KEY = "your-key-here"
-
-# Scheduled function configuration
-[[functions."scheduled-generate"]]
-  # Run every day at midnight UTC
-  schedule = "0 0 * * *"
