@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etymon - Daily Word Origins Puzzle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --parchment: #f8f5ef;
+            --ink: #2c2416;
+            --accent: #c7956d;
+            --correct: #6b8e6f;
+            --incorrect: #a85751;
+            --shadow: rgba(44, 36, 22, 0.15);
+            --overlay: rgba(44, 36, 22, 0.85);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #f8f5ef 0%, #ede7dd 100%);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(199, 149, 109, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(107, 142, 111, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0 30px;
+            border-bottom: 2px solid var(--accent);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--ink);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+
+        .tagline {
+            font-size: 0.95rem;
+            color: var(--accent);
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .progress-bar {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--parchment);
+            border: 2px solid var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.completed {
+            background: var(--correct);
+            border-color: var(--correct);
+            transform: scale(1.1);
+        }
+
+        .progress-dot.current {
+            background: var(--accent);
+            transform: scale(1.3);
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 32px var(--shadow);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--correct));
+        }
+
+        .difficulty-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .difficulty-novitiate { background: #e8f4e8; color: #4a774a; }
+        .difficulty-disciple { background: #e6f3ff; color: #4a6b8b; }
+        .difficulty-scholar { background: #fff4e6; color: #8b6914; }
+        .difficulty-magister { background: #ffe6f0; color: #8b4a6b; }
+        .difficulty-etymologus { background: #f0e6ff; color: #6b4a8b; }
+
+        .etymology-clue {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: var(--ink);
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--parchment);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .word-display {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .letter-box {
+            width: 48px;
+            height: 56px;
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .letter-box.revealed {
+            background: var(--parchment);
+            border-color: var(--correct);
+            animation: revealLetter 0.4s ease;
+        }
+
+        @keyframes revealLetter {
+            0% { transform: rotateY(90deg); opacity: 0; }
+            100% { transform: rotateY(0); opacity: 1; }
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--parchment);
+            border-radius: 12px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--ink);
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+
+        .key {
+            padding: 12px 8px;
+            border: 2px solid var(--accent);
+            background: white;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+
+        .key:hover:not(:disabled) {
+            background: var(--parchment);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .key:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .key.correct {
+            background: var(--correct);
+            border-color: var(--correct);
+            color: white;
+        }
+
+        .key.incorrect {
+            background: var(--incorrect);
+            border-color: var(--incorrect);
+            color: white;
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 18px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .action-button:hover {
+            background: var(--ink);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--shadow);
+        }
+
+        .pass-button {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            color: var(--ink);
+            border: 2px solid var(--ink);
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 12px;
+            opacity: 0.7;
+        }
+
+        .pass-button:hover {
+            opacity: 1;
+            background: rgba(44, 36, 22, 0.05);
+        }
+
+        .final-challenge-banner {
+            background: linear-gradient(135deg, var(--ink), var(--accent));
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .speed-round-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--accent);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--overlay);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.4s ease;
+            text-align: center;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--ink);
+        }
+
+        .revealed-word {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 20px 0;
+            letter-spacing: 2px;
+        }
+
+        .word-definition {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--ink);
+            margin: 15px 0;
+            padding: 15px;
+            background: var(--parchment);
+            border-radius: 8px;
+            font-style: italic;
+            opacity: 0;
+            animation: fadeInDefinition 0.5s ease 2s forwards;
+        }
+
+        @keyframes fadeInDefinition {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brief-etymology {
+            font-size: 0.9rem;
+            color: var(--accent);
+            margin: 10px 0;
+            font-style: italic;
+        }
+
+        .detailed-etymology {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--ink);
+            margin-top: 10px;
+            padding: 15px;
+            background: rgba(199, 149, 109, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+            display: none;
+        }
+
+        .etymology-toggle {
+            display: inline-block;
+            font-size: 0.85rem;
+            color: var(--accent);
+            cursor: pointer;
+            margin-top: 5px;
+            font-weight: 600;
+            text-decoration: underline;
+            transition: opacity 0.2s;
+        }
+
+        .etymology-toggle:hover {
+            opacity: 0.7;
+        }
+
+        .score-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--correct);
+            margin: 20px 0;
+        }
+
+        .round-summary {
+            background: var(--parchment);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .share-button {
+            background: var(--ink);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .share-button:hover {
+            background: var(--accent);
+        }
+
+        .review-section {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-top: 20px;
+            text-align: left;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .review-section h3 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--ink);
+            text-align: center;
+        }
+
+        .review-item {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .review-item:last-child {
+            border-bottom: none;
+        }
+
+        .review-word {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .review-etymology {
+            font-size: 0.9rem;
+            color: var(--ink);
+            opacity: 0.7;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+
+        .review-definition {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--ink);
+        }
+
+        .ad-banner {
+            background: linear-gradient(135deg, #f0ebe3, #e8e1d5);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px dashed var(--accent);
+            opacity: 0.7;
+        }
+
+        .ad-banner p {
+            font-size: 0.85rem;
+            color: var(--ink);
+            opacity: 0.6;
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 2.5rem; }
+            .game-card { padding: 24px; }
+            .keyboard { grid-template-columns: repeat(7, 1fr); }
+            .letter-box { width: 40px; height: 48px; font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Etymon</h1>
+            <div class="tagline">Guess the Word from its Roots</div>
+        </header>
+
+        <div class="progress-bar" id="progressBar"></div>
+
+        <div class="game-card">
+            <div id="challengeIndicator"></div>
+            <div class="difficulty-badge" id="difficultyBadge"></div>
+            
+            <div class="etymology-clue" id="etymologyClue"></div>
+            
+            <div class="word-display" id="wordDisplay"></div>
+            
+            <div class="game-stats">
+                <div class="stat">
+                    <span class="stat-value" id="timerDisplay">0:00</span>
+                    <span class="stat-label">Time</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="scoreDisplay">0</span>
+                    <span class="stat-label">Score</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="wrongDisplay">0</span>
+                    <span class="stat-label">Wrong</span>
+                </div>
+            </div>
+            
+            <div class="keyboard" id="keyboard"></div>
+            
+            <button class="action-button" id="actionButton" style="display: none;">Next Puzzle</button>
+            <button class="pass-button" id="passButton" style="display: none;">Pass (Skip This Puzzle)</button>
+        </div>
+
+        <div class="ad-banner">
+            <p>Advertisement Space • Remove ads with Premium</p>
+        </div>
+    </div>
+
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Puzzle Complete!</h2>
+            <div class="revealed-word" id="modalWord"></div>
+            <div class="word-definition" id="modalDefinition"></div>
+            <div class="brief-etymology" id="modalBriefEtymology"></div>
+            <span class="etymology-toggle" id="etymologyToggle" style="display: none;">Read full etymology ▼</span>
+            <div class="detailed-etymology" id="modalDetailedEtymology"></div>
+            <div class="etymology-clue" id="modalClue" style="font-size: 0.85rem; margin-top: 15px; opacity: 0.6;"></div>
+            <div class="score-display" id="modalScore">+0</div>
+            <button class="share-button" id="continueButton">Continue</button>
+        </div>
+    </div>
+
+    <div class="modal" id="finalModal">
+        <div class="modal-content">
+            <h2>🎉 Daily Challenge Complete!</h2>
+            <div class="score-display" id="finalScore">0</div>
+            <div class="round-summary" id="roundSummary"></div>
+            <button class="share-button" id="shareButton">Share Results</button>
+            <button class="share-button" id="reviewButton" style="background: var(--correct); margin-top: 10px;">📚 Review Words</button>
+            <button class="share-button" id="playAgainButton" style="background: var(--accent); margin-top: 10px;">Play Practice Mode</button>
+            <div class="review-section" id="reviewSection" style="display: none;">
+                <h3>Word Review</h3>
+                <div id="reviewContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Puzzle database - both roots shown, difficulty via word/root obscurity
+        const puzzleBank = {
+            novitiate: [
+                { 
+                    word: "TELEGRAPH", 
+                    clue: "Greek: tele, graphein", 
+                    definition: "A system for transmitting messages from a distance using electrical signals.",
+                    briefEtymology: "From Greek tele (far) and graphein (to write)",
+                    detailedEtymology: "The word was coined in the 1790s to describe a system of sending messages across distances by writing. The roots literally mean 'far writing,' reflecting the revolutionary idea of instant long-distance communication. Early telegraphs used visual signals before the electrical telegraph was invented in the 1830s."
+                },
+                { word: "BICYCLE", clue: "Latin: bi; Greek: kyklos", definition: "A vehicle with two wheels propelled by pedals." },
+                { word: "MICROSCOPE", clue: "Greek: mikros, skopein", definition: "An instrument for viewing very small objects by magnifying them." },
+                { word: "TELEPHONE", clue: "Greek: tele, phone", definition: "A device for transmitting sound, especially speech, over a distance." },
+                { word: "GEOGRAPHY", clue: "Greek: geo, graphia", definition: "The study of Earth's physical features, climate, and populations." },
+            ],
+            disciple: [
+                { word: "DEMOCRACY", clue: "Greek: demos, kratos", definition: "A system of government in which power is vested in the people." },
+                { 
+                    word: "CHRONOMETER", 
+                    clue: "Greek: chronos, metron", 
+                    definition: "An instrument for measuring time with great accuracy.",
+                    briefEtymology: "From Greek chronos (time) and metron (measure)",
+                    detailedEtymology: "First used in the 1730s to describe precision timepieces used for navigation at sea. The ability to accurately measure time was crucial for determining longitude on long ocean voyages. The word combines chronos, the Greek personification of time, with metron, meaning a tool for measuring."
+                },
+                { word: "AQUEDUCT", clue: "Latin: aqua, ducere", definition: "A structure for conveying water, typically in the form of a bridge." },
+                { word: "THERMOMETER", clue: "Greek: therme, metron", definition: "An instrument for measuring temperature." },
+                { word: "AUTOBIOGRAPHY", clue: "Greek: autos, bios, graphia", definition: "An account of a person's life written by that person." },
+            ],
+            scholar: [
+                { 
+                    word: "PHILANTHROPY", 
+                    clue: "Greek: philos, anthropos", 
+                    definition: "The desire to promote the welfare of others, expressed through generous donations.",
+                    briefEtymology: "From Greek philos (loving) and anthropos (human)",
+                    detailedEtymology: "Literally meaning 'love of humanity,' this word entered English in the early 1600s. It was originally used to describe benevolence toward all humans, particularly through charitable acts. The concept dates back to ancient Greek philosophy, where philanthropia was considered a virtue of caring for fellow human beings."
+                },
+                { word: "CLAUSTROPHOBIA", clue: "Latin: claustrum; Greek: phobos", definition: "Extreme fear of being in enclosed or confined spaces." },
+                { word: "OMNISCIENT", clue: "Latin: omnis, sciens", definition: "Having complete or unlimited knowledge; all-knowing." },
+                { word: "METAMORPHOSIS", clue: "Greek: meta, morphe", definition: "A transformation from one form or state to another." },
+                { word: "CACOPHONY", clue: "Greek: kakos, phone", definition: "A harsh, discordant mixture of sounds." },
+            ],
+            magister: [
+                { word: "PUSILLANIMOUS", clue: "Latin: pusillus, animus", definition: "Showing a lack of courage or determination; timid." },
+                { word: "VERISIMILITUDE", clue: "Latin: verus, similitudo", definition: "The appearance of being true or real; plausibility." },
+                { word: "JUXTAPOSITION", clue: "Latin: juxta, positio", definition: "The fact of two things being placed close together for contrasting effect." },
+                { word: "MAGNANIMOUS", clue: "Latin: magnus, animus", definition: "Generous or forgiving, especially toward a rival or less powerful person." },
+                { word: "PULCHRITUDE", clue: "Latin: pulchritudo", definition: "Beauty; physical comeliness." },
+            ],
+            etymologus: [
+                { 
+                    word: "OBFUSCATE", 
+                    clue: "Latin: ob, fuscare", 
+                    definition: "To render obscure, unclear, or unintelligible; to bewilder or confuse.",
+                    briefEtymology: "From Latin ob (over) and fuscare (to darken)",
+                    detailedEtymology: "Entering English in the late 1500s, this word literally means 'to darken over.' It comes from the Latin fuscus, meaning dark or dusky. Originally used in a literal sense to describe making something dark, it evolved to mean making ideas or arguments deliberately unclear or confusing, often to deceive or avoid clarity."
+                },
+                { word: "PERSPICACIOUS", clue: "Latin: per, spicere", definition: "Having a ready insight into and understanding of things; mentally sharp." },
+                { word: "SOLIPSISM", clue: "Latin: solus, ipse", definition: "The philosophical view that only one's own mind is certain to exist." },
+                { word: "PUSILLANIMOUS", clue: "Latin: pusillus, animus", definition: "Showing a lack of courage or determination; timid." },
+                { word: "GRANDILOQUENT", clue: "Latin: grandis, loqui", definition: "Pompous or extravagant in language, style, or manner." },
+            ]
+        };
+
+        // Game state
+        let currentRound = 0;
+        let dailyPuzzles = [];
+        let currentPuzzle = null;
+        let revealedLetters = new Set();
+        let guessedLetters = new Set();
+        let wrongGuesses = 0;
+        let startTime = null;
+        let timerInterval = null;
+        let currentScore = 0;
+        let totalScore = 0;
+        let roundResults = [];
+        let selectedPosition = null; // For final round positional guessing
+
+        // Difficulty multipliers
+        const multipliers = { 
+            novitiate: 1, 
+            disciple: 1.3, 
+            scholar: 1.6, 
+            magister: 2, 
+            etymologus: 3 
+        };
+
+        // Display names for difficulties
+        const difficultyNames = {
+            novitiate: 'Novitiate',
+            disciple: 'Disciple', 
+            scholar: 'Scholar',
+            magister: 'Magister',
+            etymologus: 'Etymologus Maximus'
+        };
+
+        // Initialize game
+        async function initGame() {
+            // Show loading state
+            document.getElementById('etymologyClue').textContent = 'Loading today\'s puzzles...';
+            
+            try {
+                // Fetch daily puzzle from Netlify function
+                const response = await fetch('/.netlify/functions/get-daily-puzzle');
+                if (!response.ok) {
+                    throw new Error('Failed to load daily puzzle');
+                }
+                
+                const data = await response.json();
+                dailyPuzzles = data.puzzles;
+                
+                console.log(`Loaded puzzles for ${data.date}`);
+                
+                renderProgressBar();
+                startRound();
+            } catch (error) {
+                console.error('Error loading puzzles:', error);
+                
+                // Fallback to demo puzzles if fetch fails
+                console.log('Using fallback demo puzzles');
+                generateDailyPuzzles();
+                renderProgressBar();
+                startRound();
+            }
+        }
+
+        function generateDailyPuzzles() {
+            // Fallback demo puzzles (only used if JSON fetch fails)
+            dailyPuzzles = [
+                { ...puzzleBank.novitiate[0], difficulty: 'novitiate', isSpeedRound: true },
+                { ...puzzleBank.disciple[0], difficulty: 'disciple', isSpeedRound: true },
+                { ...puzzleBank.scholar[0], difficulty: 'scholar', isSpeedRound: true },
+                { ...puzzleBank.magister[0], difficulty: 'magister', isSpeedRound: true },
+                { ...puzzleBank.etymologus[0], difficulty: 'etymologus', isSpeedRound: false, isFinalChallenge: true }
+            ];
+        }
+
+        function renderProgressBar() {
+            const bar = document.getElementById('progressBar');
+            bar.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'progress-dot';
+                if (i < currentRound) dot.classList.add('completed');
+                if (i === currentRound) dot.classList.add('current');
+                bar.appendChild(dot);
+            }
+        }
+
+        function startRound() {
+            if (currentRound >= dailyPuzzles.length) {
+                showFinalResults();
+                return;
+            }
+
+            currentPuzzle = dailyPuzzles[currentRound];
+            
+            // CRITICAL: Clear all tracking between rounds
+            revealedLetters.clear();
+            guessedLetters.clear();
+            
+            wrongGuesses = 0;
+            currentScore = 0;
+            startTime = Date.now();
+            selectedPosition = null;
+            
+            console.log(`Starting Round ${currentRound + 1}: ${currentPuzzle.word}`);
+            console.log(`Cleared sets - Revealed: ${revealedLetters.size}, Guessed: ${guessedLetters.size}`);
+
+            // Update challenge indicator
+            const indicator = document.getElementById('challengeIndicator');
+            if (currentPuzzle.isFinalChallenge) {
+                indicator.innerHTML = '<div class="final-challenge-banner">🎓 Etymologus Maximus - Click a blank, then guess the letter</div>';
+            } else if (currentPuzzle.isSpeedRound) {
+                indicator.innerHTML = '<div class="speed-round-indicator">⚡ Speed Round</div>';
+            } else {
+                indicator.innerHTML = '';
+            }
+
+            document.getElementById('difficultyBadge').textContent = difficultyNames[currentPuzzle.difficulty];
+            document.getElementById('difficultyBadge').className = `difficulty-badge difficulty-${currentPuzzle.difficulty}`;
+            document.getElementById('etymologyClue').textContent = currentPuzzle.clue;
+            document.getElementById('scoreDisplay').textContent = '0';
+            document.getElementById('wrongDisplay').textContent = '0';
+            document.getElementById('actionButton').style.display = 'none';
+            
+            // Show pass button only for final challenge
+            const passButton = document.getElementById('passButton');
+            if (currentPuzzle.isFinalChallenge) {
+                passButton.style.display = 'block';
+            } else {
+                passButton.style.display = 'none';
+            }
+
+            renderWord();
+            renderKeyboard();
+            
+            // Only start timer and auto-reveal for speed rounds
+            if (currentPuzzle.isSpeedRound) {
+                startTimer();
+                startAutoReveal();
+            } else {
+                // For final challenge, show timer but don't auto-reveal
+                startTimer();
+                document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
+            }
+        }
+
+        function renderWord() {
+            const display = document.getElementById('wordDisplay');
+            display.innerHTML = '';
+            
+            for (let i = 0; i < currentPuzzle.word.length; i++) {
+                const letter = currentPuzzle.word[i];
+                const box = document.createElement('div');
+                box.className = 'letter-box';
+                box.dataset.position = i;
+                
+                // For final challenge, track individual positions
+                if (currentPuzzle.isFinalChallenge) {
+                    // Check if this specific position has been revealed
+                    const posKey = `${i}-${letter}`;
+                    if (revealedLetters.has(posKey) || letter === ' ') {
+                        box.textContent = letter;
+                        box.classList.add('revealed');
+                    } else {
+                        // Make clickable for position selection
+                        box.style.cursor = 'pointer';
+                        box.onclick = () => selectPosition(i);
+                        if (selectedPosition === i) {
+                            box.style.borderColor = 'var(--ink)';
+                            box.style.borderWidth = '3px';
+                            box.style.background = 'var(--parchment)';
+                        }
+                    }
+                } else {
+                    // Speed rounds: standard hangman style
+                    if (revealedLetters.has(letter) || letter === ' ') {
+                        box.textContent = letter;
+                        box.classList.add('revealed');
+                    }
+                }
+                
+                display.appendChild(box);
+            }
+        }
+
+        function selectPosition(position) {
+            if (!currentPuzzle.isFinalChallenge) return;
+            
+            const letter = currentPuzzle.word[position];
+            const posKey = `${position}-${letter}`;
+            
+            // Don't allow selecting already revealed positions
+            if (revealedLetters.has(posKey)) return;
+            
+            selectedPosition = position;
+            renderWord();
+        }
+
+        function renderKeyboard() {
+            const keyboard = document.getElementById('keyboard');
+            keyboard.innerHTML = '';
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            
+            for (let letter of letters) {
+                const key = document.createElement('button');
+                key.className = 'key';
+                key.textContent = letter;
+                key.onclick = () => guessLetter(letter);
+                
+                if (guessedLetters.has(letter)) {
+                    if (currentPuzzle.isFinalChallenge) {
+                        // For final challenge: show if used but DON'T disable
+                        // Just mark it visually so player knows they've tried it
+                        if (currentPuzzle.word.includes(letter)) {
+                            key.classList.add('correct');
+                            key.style.opacity = '0.7';
+                        } else {
+                            key.classList.add('incorrect');
+                            key.style.opacity = '0.7';
+                        }
+                        // Key stays enabled for reuse at different positions
+                    } else {
+                        // Speed rounds: disable after use
+                        key.disabled = true;
+                        if (currentPuzzle.word.includes(letter)) {
+                            key.classList.add('correct');
+                        } else {
+                            key.classList.add('incorrect');
+                        }
+                    }
+                }
+                
+                keyboard.appendChild(key);
+            }
+        }
+
+        function guessLetter(letter) {
+            if (currentPuzzle.isFinalChallenge) {
+                // Final challenge: positional guessing - letters can be reused
+                if (selectedPosition === null) {
+                    alert('Please click a blank space first, then guess a letter for that position.');
+                    return;
+                }
+                
+                const actualLetter = currentPuzzle.word[selectedPosition];
+                const posKey = `${selectedPosition}-${actualLetter}`;
+                
+                if (actualLetter === letter) {
+                    // Correct guess for this position
+                    revealedLetters.add(posKey);
+                    selectedPosition = null;
+                    renderWord();
+                } else {
+                    // Wrong guess
+                    wrongGuesses++;
+                    document.getElementById('wrongDisplay').textContent = wrongGuesses;
+                    selectedPosition = null;
+                    renderWord();
+                }
+                
+                // Track that we've tried this letter (for visual feedback only)
+                guessedLetters.add(letter);
+                renderKeyboard();
+                checkCompletion();
+                
+            } else {
+                // Speed rounds: standard hangman - letters can only be guessed once
+                if (guessedLetters.has(letter)) return;
+                
+                guessedLetters.add(letter);
+                
+                if (currentPuzzle.word.includes(letter)) {
+                    revealedLetters.add(letter);
+                    renderWord();
+                } else {
+                    wrongGuesses++;
+                    document.getElementById('wrongDisplay').textContent = wrongGuesses;
+                }
+                
+                renderKeyboard();
+                checkCompletion();
+            }
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('timerDisplay').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function startAutoReveal() {
+            const revealInterval = setInterval(() => {
+                if (revealedLetters.size >= new Set(currentPuzzle.word.replace(/\s/g, '')).size) {
+                    clearInterval(revealInterval);
+                    return;
+                }
+                
+                const unrevealedLetters = [...new Set(currentPuzzle.word)]
+                    .filter(l => l !== ' ' && !revealedLetters.has(l));
+                
+                if (unrevealedLetters.length > 0) {
+                    const randomLetter = unrevealedLetters[
+                        Math.floor(Math.random() * unrevealedLetters.length)
+                    ];
+                    revealedLetters.add(randomLetter);
+                    renderWord();
+                    checkCompletion();
+                }
+            }, 12000); // Reveal a letter every 12 seconds
+        }
+
+        function checkCompletion() {
+            if (currentPuzzle.isFinalChallenge) {
+                // For final challenge, check if all positions are revealed
+                const wordWithoutSpaces = currentPuzzle.word.replace(/\s/g, '');
+                const totalPositions = wordWithoutSpaces.length;
+                const revealedCount = revealedLetters.size;
+                
+                console.log(`Final Challenge Check: ${revealedCount}/${totalPositions} positions revealed`);
+                console.log(`Word: ${currentPuzzle.word}`);
+                console.log(`Revealed keys:`, Array.from(revealedLetters));
+                
+                if (revealedCount >= totalPositions) {
+                    completeRound();
+                }
+            } else {
+                // For speed rounds, check if all unique letters are revealed
+                const uniqueLetters = new Set(currentPuzzle.word.replace(/\s/g, ''));
+                if (revealedLetters.size >= uniqueLetters.size) {
+                    completeRound();
+                }
+            }
+        }
+
+        function completeRound(isPassed = false) {
+            clearInterval(timerInterval);
+            
+            const timeElapsed = Math.floor((Date.now() - startTime) / 1000);
+            let baseScore = 0;
+            let penalty = 0;
+            
+            if (isPassed) {
+                // Passed the final challenge - 0 points
+                currentScore = 0;
+            } else if (currentPuzzle.isSpeedRound) {
+                // Speed round scoring: aggressive time penalty (-20 pts every 2 seconds)
+                baseScore = 1500; // Higher base to accommodate aggressive penalties
+                const timePenalty = Math.floor(timeElapsed / 2) * 20; // -20 points every 2 seconds
+                const wrongPenalty = wrongGuesses * 50;
+                penalty = timePenalty + wrongPenalty;
+                const multiplier = multipliers[currentPuzzle.difficulty];
+                currentScore = Math.max(Math.round((baseScore - penalty) * multiplier), 50);
+            } else {
+                // Final challenge (Etymologus Maximus): same time model but higher stakes
+                baseScore = 5000; // Much higher base for final challenge
+                const timePenalty = Math.floor(timeElapsed / 2) * 20; // Same -20 pts every 2 seconds
+                const wrongPenalty = wrongGuesses * 150; // Steeper penalty for wrong guesses
+                penalty = timePenalty + wrongPenalty;
+                currentScore = Math.max(baseScore - penalty, 200); // Minimum 200 points for completion
+            }
+            
+            totalScore += currentScore;
+            
+            roundResults.push({
+                word: currentPuzzle.word,
+                difficulty: currentPuzzle.difficulty,
+                difficultyName: difficultyNames[currentPuzzle.difficulty],
+                time: timeElapsed,
+                wrong: wrongGuesses,
+                score: currentScore,
+                passed: isPassed,
+                isFinalChallenge: currentPuzzle.isFinalChallenge
+            });
+            
+            document.getElementById('scoreDisplay').textContent = currentScore;
+            
+            // Show result modal
+            if (isPassed) {
+                document.getElementById('modalTitle').textContent = 'Puzzle Skipped';
+            } else {
+                document.getElementById('modalTitle').textContent = currentPuzzle.isFinalChallenge ? '🎓 Etymologus Maximus Complete!' : 'Puzzle Complete!';
+            }
+            document.getElementById('modalWord').textContent = currentPuzzle.word;
+            document.getElementById('modalDefinition').textContent = currentPuzzle.definition || '';
+            document.getElementById('modalBriefEtymology').textContent = currentPuzzle.briefEtymology || '';
+            
+            // Handle detailed etymology toggle
+            const toggleBtn = document.getElementById('etymologyToggle');
+            const detailedEtym = document.getElementById('modalDetailedEtymology');
+            
+            if (currentPuzzle.detailedEtymology) {
+                toggleBtn.style.display = 'inline-block';
+                detailedEtym.textContent = currentPuzzle.detailedEtymology;
+                detailedEtym.style.display = 'none'; // Reset to closed
+                toggleBtn.textContent = 'Read full etymology ▼';
+            } else {
+                toggleBtn.style.display = 'none';
+                detailedEtym.style.display = 'none';
+            }
+            
+            document.getElementById('modalClue').textContent = `Clue: ${currentPuzzle.clue}`;
+            document.getElementById('modalScore').textContent = isPassed ? '0 pts (Passed)' : `+${currentScore}`;
+            document.getElementById('resultModal').classList.add('active');
+        }
+
+        document.getElementById('continueButton').onclick = () => {
+            document.getElementById('resultModal').classList.remove('active');
+            currentRound++;
+            renderProgressBar();
+            startRound();
+        };
+
+        // Etymology toggle functionality
+        document.getElementById('etymologyToggle').onclick = function() {
+            const detailedEtym = document.getElementById('modalDetailedEtymology');
+            if (detailedEtym.style.display === 'none') {
+                detailedEtym.style.display = 'block';
+                this.textContent = 'Hide etymology ▲';
+            } else {
+                detailedEtym.style.display = 'none';
+                this.textContent = 'Read full etymology ▼';
+            }
+        };
+
+        document.getElementById('passButton').onclick = () => {
+            if (confirm('Are you sure you want to skip this puzzle? You will receive 0 points.')) {
+                // Reveal the word by revealing all positions
+                for (let i = 0; i < currentPuzzle.word.length; i++) {
+                    const letter = currentPuzzle.word[i];
+                    if (letter !== ' ') {
+                        const posKey = `${i}-${letter}`;
+                        revealedLetters.add(posKey);
+                    }
+                }
+                renderWord();
+                
+                // Complete with pass flag
+                setTimeout(() => {
+                    completeRound(true);
+                }, 500);
+            }
+        };
+
+        function showFinalResults() {
+            const summary = document.getElementById('roundSummary');
+            summary.innerHTML = roundResults.map((result, i) => {
+                const emoji = result.passed ? '⏭️' : 
+                             result.isFinalChallenge ? '🏆' :
+                             result.score >= 800 ? '⚡' : 
+                             result.score >= 500 ? '✓' : '○';
+                const label = result.passed ? 'PASSED' : `+${result.score}`;
+                return `
+                    <div class="summary-item">
+                        <span>${emoji} Round ${i + 1}: ${result.word}</span>
+                        <span style="font-weight: 700; color: ${result.passed ? 'var(--ink)' : 'var(--accent)'};">${label}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('finalScore').textContent = totalScore;
+            document.getElementById('finalModal').classList.add('active');
+        }
+
+        document.getElementById('shareButton').onclick = () => {
+            const emoji = roundResults.map((r, i) => {
+                if (r.passed) return '⏭️';
+                if (r.isFinalChallenge) {
+                    return r.score >= 1500 ? '🏆' : r.score >= 1000 ? '🥈' : r.score > 0 ? '🥉' : '○';
+                }
+                return r.score >= 800 ? '⚡' : r.score >= 500 ? '✓' : '○';
+            }).join('');
+            
+            const completedCount = roundResults.filter(r => !r.passed).length;
+            const text = `Etymon Daily ${new Date().toLocaleDateString()}\nScore: ${totalScore} (${completedCount}/5)\n${emoji}\n\nGuess words from their roots!\nPlay at etymon.game`;
+            
+            if (navigator.share) {
+                navigator.share({ text });
+            } else {
+                navigator.clipboard.writeText(text);
+                alert('Results copied to clipboard!');
+            }
+        };
+
+        document.getElementById('reviewButton').onclick = () => {
+            const reviewSection = document.getElementById('reviewSection');
+            const reviewContent = document.getElementById('reviewContent');
+            
+            if (reviewSection.style.display === 'none') {
+                // Build review content with etymologies
+                reviewContent.innerHTML = roundResults.map((result, i) => {
+                    const puzzle = dailyPuzzles[i];
+                    const hasDetailed = puzzle.detailedEtymology ? true : false;
+                    const detailedId = `detailed-${i}`;
+                    const toggleId = `toggle-${i}`;
+                    
+                    return `
+                        <div class="review-item">
+                            <div class="review-word">${result.word}</div>
+                            <div class="review-definition">${puzzle.definition}</div>
+                            ${puzzle.briefEtymology ? `<div class="brief-etymology" style="margin-top: 10px;">${puzzle.briefEtymology}</div>` : ''}
+                            ${hasDetailed ? `
+                                <span class="etymology-toggle" id="${toggleId}" onclick="toggleReviewEtymology('${detailedId}', '${toggleId}')">Read full etymology ▼</span>
+                                <div class="detailed-etymology" id="${detailedId}">${puzzle.detailedEtymology}</div>
+                            ` : ''}
+                            <div class="review-etymology" style="margin-top: 10px;">Clue: ${puzzle.clue}</div>
+                        </div>
+                    `;
+                }).join('');
+                reviewSection.style.display = 'block';
+                document.getElementById('reviewButton').textContent = '✕ Close Review';
+            } else {
+                reviewSection.style.display = 'none';
+                document.getElementById('reviewButton').textContent = '📚 Review Words';
+            }
+        };
+
+        // Global function for review etymology toggles
+        window.toggleReviewEtymology = function(detailedId, toggleId) {
+            const detailed = document.getElementById(detailedId);
+            const toggle = document.getElementById(toggleId);
+            if (detailed.style.display === 'none' || !detailed.style.display) {
+                detailed.style.display = 'block';
+                toggle.textContent = 'Hide etymology ▲';
+            } else {
+                detailed.style.display = 'none';
+                toggle.textContent = 'Read full etymology ▼';
+            }
+        };
+
+        document.getElementById('playAgainButton').onclick = () => {
+            alert('Practice mode coming soon! This will let you play unlimited puzzles.');
+        };
+
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>
