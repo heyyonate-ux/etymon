@@ -109,6 +109,12 @@ async function generateAllPuzzles(apiKey) {
  * Check if word and definition contain inappropriate content
  */
 function isAppropriateWord(puzzle) {
+  // Check word length - reject words longer than 15 characters
+  if (puzzle.word.length > 15) {
+    console.log(`Word too long: ${puzzle.word} (${puzzle.word.length} letters)`);
+    return false;
+  }
+  
   const inappropriateTerms = [
     'cannibal', 'anthropophag', 'kill', 'murder', 'death', 'corpse', 
     'torture', 'violent', 'genocide', 'suicide', 'blood', 'gore',
@@ -138,20 +144,43 @@ async function generatePuzzle(apiKey, difficulty, generatedWords = new Set()) {
 
 Requirements:
 - Choose ONE word appropriate for this difficulty level
+- Word must be 15 letters or fewer
 - The word should have clear Greek or Latin etymological roots
-- Provide exactly 2-3 root words (e.g., "Greek: tele, graphein" or "Latin: ob, fuscare")
-- Do not include definitions or meanings in the clue - ONLY the language and root words
-- Ensure the word can be guessed from its roots
 - AVOID words related to: violence, death, cannibalism, sexual content, bodily functions, or other inappropriate topics
 - Choose neutral, educational vocabulary suitable for all ages${avoidClause}
+
+CRITICAL for clue format:
+- Do NOT show the actual root words (no "tele, graphein" or "philos, anthropos")
+- Instead, describe what the roots MEAN in English
+- Keep it challenging but fair - describe the meaning, not the word itself
+- Format: "Greek/Latin roots meaning: [description of meanings]"
+
+Examples of GOOD clues:
+- "Greek roots meaning: far, to write" (for TELEGRAPH)
+- "Greek roots meaning: love, human" (for PHILANTHROPY)  
+- "Latin roots meaning: great, soul" (for MAGNANIMOUS)
+- "Greek roots meaning: through, to look" (for PERSPICACIOUS)
+
+Examples of BAD clues (too specific):
+- "Greek: tele, graphein" (reveals the actual roots)
+- "An instrument for distant viewing" (describes the word, not roots)
+
+CRITICAL for detailedEtymology:
+- MUST trace the word's path through languages (e.g., "Entered English in the 1600s from Greek philanthropia through Latin philanthropia")
+- Include when the word entered English
+- Mention intermediate languages if applicable (Greek → Latin → French → English)
+- Add 1-2 interesting historical facts about the word's usage or meaning evolution
+
+Example detailedEtymology format:
+"First recorded in English in 1610-20, this word traveled from Greek 'tele' (far) and 'skopein' (to look) through New Latin 'telescopium.' Galileo popularized the term when he improved the spyglass design, revolutionizing astronomy by allowing observation of distant celestial objects."
 
 Respond ONLY with valid JSON in this exact format:
 {
   "word": "WORD_IN_CAPS",
-  "clue": "Greek: root1, root2" or "Latin: root1, root2",
+  "clue": "Greek/Latin roots meaning: [description]",
   "definition": "Brief dictionary definition",
   "briefEtymology": "From Greek/Latin root1 (meaning) and root2 (meaning)",
-  "detailedEtymology": "2-3 sentences with historical context and interesting facts about the word's origin"
+  "detailedEtymology": "2-3 sentences following the format above - MUST include date and language progression"
 }`;
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -219,7 +248,7 @@ function fallbackPuzzles() {
       puzzles: [
         {
           word: "TELESCOPE",
-          clue: "Greek: tele, skopein",
+          clue: "Greek roots meaning: far, to look or see",
           definition: "An optical instrument designed to make distant objects appear nearer.",
           briefEtymology: "From Greek tele (far) and skopein (to look)",
           detailedEtymology: "First coined in the early 1600s when Galileo improved upon the spyglass design. The word combines tele, meaning 'far off,' with skopein, 'to look at.' The telescope revolutionized astronomy by allowing humans to observe distant celestial objects.",
@@ -229,7 +258,7 @@ function fallbackPuzzles() {
         },
         {
           word: "DEMOCRACY",
-          clue: "Greek: demos, kratos",
+          clue: "Greek roots meaning: people, power or rule",
           definition: "A system of government by the whole population.",
           briefEtymology: "From Greek demos (people) and kratos (power)",
           detailedEtymology: "Originating in ancient Athens around 508 BCE, democracy literally means 'rule by the people.' The demos referred to the common people of Athens, while kratos signified strength or power.",
@@ -239,7 +268,7 @@ function fallbackPuzzles() {
         },
         {
           word: "PHILANTHROPY",
-          clue: "Greek: philos, anthropos",
+          clue: "Greek roots meaning: loving, human being",
           definition: "The desire to promote the welfare of others through generous donation.",
           briefEtymology: "From Greek philos (loving) and anthropos (human)",
           detailedEtymology: "Entering English in the 1600s, philanthropy literally translates to 'love of humanity.' The concept dates back to ancient Greek philosophy where philanthropia was considered a fundamental virtue.",
@@ -249,7 +278,7 @@ function fallbackPuzzles() {
         },
         {
           word: "MAGNANIMOUS",
-          clue: "Latin: magnus, animus",
+          clue: "Latin roots meaning: great, soul or spirit",
           definition: "Generous or forgiving, showing nobility of spirit.",
           briefEtymology: "From Latin magnus (great) and animus (soul)",
           detailedEtymology: "This word entered English in the 1580s. It literally means 'great-souled' and was used in classical philosophy to describe the virtue of having a generous and noble disposition.",
@@ -259,7 +288,7 @@ function fallbackPuzzles() {
         },
         {
           word: "PERSPICACIOUS",
-          clue: "Latin: per, spicere",
+          clue: "Latin roots meaning: through, to look",
           definition: "Having a ready insight into things; acutely perceptive.",
           briefEtymology: "From Latin per (through) and spicere (to look)",
           detailedEtymology: "Dating from the 1610s, perspicacious derives from perspicax, the Latin word for 'sharp-sighted.' The prefix per- intensifies spicere (to look), suggesting the ability to see through appearances to underlying truths.",

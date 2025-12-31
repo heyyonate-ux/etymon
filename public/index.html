@@ -1139,7 +1139,7 @@
                 toggleBtn.style.display = 'inline-block';
                 detailedEtym.textContent = currentPuzzle.detailedEtymology;
                 detailedEtym.style.display = 'none'; // Reset to closed
-                toggleBtn.textContent = 'Read full etymology ▼';
+                toggleBtn.textContent = 'Read full story ▼';
             } else {
                 toggleBtn.style.display = 'none';
                 detailedEtym.style.display = 'none';
@@ -1162,10 +1162,10 @@
             const detailedEtym = document.getElementById('modalDetailedEtymology');
             if (detailedEtym.style.display === 'none') {
                 detailedEtym.style.display = 'block';
-                this.textContent = 'Hide etymology ▲';
+                this.textContent = 'Hide full story ▲';
             } else {
                 detailedEtym.style.display = 'none';
-                this.textContent = 'Read full etymology ▼';
+                this.textContent = 'Read full story ▼';
             }
         };
 
@@ -1235,23 +1235,25 @@
             const reviewContent = document.getElementById('reviewContent');
             
             if (reviewSection.style.display === 'none') {
-                // Build review content with etymologies
+                // Build review content with expandable etymologies
                 reviewContent.innerHTML = roundResults.map((result, i) => {
                     const puzzle = dailyPuzzles[i];
                     const hasDetailed = puzzle.detailedEtymology ? true : false;
-                    const detailedId = `detailed-${i}`;
-                    const toggleId = `toggle-${i}`;
+                    const detailedId = `review-detailed-${i}`;
+                    const toggleId = `review-toggle-${i}`;
                     
                     return `
                         <div class="review-item">
                             <div class="review-word">${result.word}</div>
-                            <div class="review-definition">${puzzle.definition}</div>
-                            ${puzzle.briefEtymology ? `<div class="brief-etymology" style="margin-top: 10px;">${puzzle.briefEtymology}</div>` : ''}
-                            ${hasDetailed ? `
-                                <span class="etymology-toggle" id="${toggleId}" onclick="toggleReviewEtymology('${detailedId}', '${toggleId}')">Read full etymology ▼</span>
-                                <div class="detailed-etymology" id="${detailedId}">${puzzle.detailedEtymology}</div>
+                            ${puzzle.briefEtymology ? `
+                                <div class="review-etymology" style="margin-top: 8px; font-style: italic;">${puzzle.briefEtymology}</div>
                             ` : ''}
-                            <div class="review-etymology" style="margin-top: 10px;">Clue: ${puzzle.clue}</div>
+                            ${hasDetailed ? `
+                                <span class="etymology-toggle" id="${toggleId}" onclick="toggleReviewEtymology('${detailedId}', '${toggleId}')" style="margin-top: 8px;">Read full story ▼</span>
+                                <div class="detailed-etymology" id="${detailedId}" style="margin-top: 12px;">${puzzle.detailedEtymology}</div>
+                            ` : ''}
+                            <div class="review-definition" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1);"><strong>Definition:</strong> ${puzzle.definition}</div>
+                            <div class="review-etymology" style="margin-top: 10px; opacity: 0.6; font-size: 0.9rem;">Clue: ${puzzle.clue}</div>
                         </div>
                     `;
                 }).join('');
@@ -1260,6 +1262,19 @@
             } else {
                 reviewSection.style.display = 'none';
                 document.getElementById('reviewButton').textContent = '📚 Review Words';
+            }
+        };
+
+        // Global function for review etymology toggles
+        window.toggleReviewEtymology = function(detailedId, toggleId) {
+            const detailed = document.getElementById(detailedId);
+            const toggle = document.getElementById(toggleId);
+            if (detailed.style.display === 'none' || !detailed.style.display) {
+                detailed.style.display = 'block';
+                toggle.textContent = 'Hide full story ▲';
+            } else {
+                detailed.style.display = 'none';
+                toggle.textContent = 'Read full story ▼';
             }
         };
 
