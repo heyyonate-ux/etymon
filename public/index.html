@@ -603,16 +603,18 @@
     </div>
 
     <div class="modal" id="resultModal">
-        <div class="modal-content">
-            <h2 id="modalTitle">Puzzle Complete!</h2>
-            <div class="revealed-word" id="modalWord"></div>
-            <div class="word-definition" id="modalDefinition"></div>
-            <div class="brief-etymology" id="modalBriefEtymology"></div>
-            <span class="etymology-toggle" id="etymologyToggle" style="display: none;">Read full etymology ▼</span>
-            <div class="detailed-etymology" id="modalDetailedEtymology"></div>
-            <div class="etymology-clue" id="modalClue" style="font-size: 0.85rem; margin-top: 15px; opacity: 0.6;"></div>
-            <div class="score-display" id="modalScore">+0</div>
-            <button class="share-button" id="continueButton">Continue</button>
+        <div class="modal-content" style="max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;">
+            <h2 id="modalTitle" style="flex-shrink: 0;">Puzzle Complete!</h2>
+            <div style="overflow-y: auto; flex: 1; margin: 15px 0;">
+                <div class="revealed-word" id="modalWord"></div>
+                <div class="word-definition" id="modalDefinition"></div>
+                <div class="brief-etymology" id="modalBriefEtymology"></div>
+                <span class="etymology-toggle" id="etymologyToggle" style="display: none;">Read full etymology ▼</span>
+                <div class="detailed-etymology" id="modalDetailedEtymology"></div>
+                <div class="etymology-clue" id="modalClue" style="font-size: 0.85rem; margin-top: 15px; opacity: 0.6;"></div>
+                <div class="score-display" id="modalScore">+0</div>
+            </div>
+            <button class="share-button" id="continueButton" style="flex-shrink: 0;">Continue</button>
         </div>
     </div>
 
@@ -621,7 +623,7 @@
             <div style="position: sticky; top: 0; background: var(--parchment); z-index: 100; padding-bottom: 15px; border-bottom: 2px solid var(--ink);">
                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
                     <h2 style="margin: 0;">🎉 Daily Challenge Complete!</h2>
-                    <button onclick="document.getElementById('finalModal').classList.remove('active')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1; color: var(--ink); opacity: 0.6;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">✕</button>
+                    <button id="closeFinalModal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1; color: var(--ink); opacity: 0.6;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">✕</button>
                 </div>
                 <div id="scoreClassification" style="text-align: center; font-size: 1rem; color: var(--accent); font-weight: 600; margin-bottom: 8px;"></div>
                 <div class="score-display" id="finalScore" style="margin: 10px 0;">0</div>
@@ -728,6 +730,8 @@
         let totalScore = 0;
         let roundResults = [];
         let selectedPosition = null; // For final round positional guessing
+        let gameCompleted = false; // Track if today's game is done
+        let roundStarted = false; // Track if current round has been started
 
         // Difficulty multipliers
         const multipliers = { 
@@ -749,17 +753,29 @@
 
         // Initialize game
         async function initGame() {
-            // Show loading state
-            document.getElementById('etymologyClue').textContent = 'Loading today\'s puzzles...';
+            // Show loading state with visual indicator
+            const clueElement = document.getElementById('etymologyClue');
+            clueElement.innerHTML = '<div style="text-align: center;"><div style="display: inline-block; width: 20px; height: 20px; border: 3px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div><br><span style="margin-top: 10px; display: inline-block;">Loading today\'s puzzles...</span></div>';
+            
+            // Add spinner animation
+            const style = document.createElement('style');
+            style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+            document.head.appendChild(style);
             
             try {
+                console.log('Fetching daily puzzles from API...');
                 // Fetch daily puzzle from Netlify function
                 const response = await fetch('/.netlify/functions/get-daily-puzzle');
+                console.log('Response status:', response.status, response.statusText);
+                
                 if (!response.ok) {
-                    throw new Error('Failed to load daily puzzle');
+                    const errorText = await response.text();
+                    console.error('API Error Response:', errorText);
+                    throw new Error(`Failed to load daily puzzle: ${response.status} ${response.statusText}`);
                 }
                 
                 const data = await response.json();
+                console.log('Successfully loaded puzzles:', data);
                 dailyPuzzles = data.puzzles;
                 
                 console.log(`Loaded puzzles for ${data.date}`);
@@ -768,9 +784,11 @@
                 startRound();
             } catch (error) {
                 console.error('Error loading puzzles:', error);
+                console.error('Error details:', error.message, error.stack);
                 
                 // Fallback to demo puzzles if fetch fails
                 console.log('Using fallback demo puzzles');
+                alert('Could not load daily puzzles from server. Using demo puzzles instead. Please check your internet connection or try again later.');
                 generateDailyPuzzles();
                 renderProgressBar();
                 startRound();
@@ -802,11 +820,13 @@
 
         function startRound() {
             if (currentRound >= dailyPuzzles.length) {
+                gameCompleted = true;
                 showFinalResults();
                 return;
             }
 
             currentPuzzle = dailyPuzzles[currentRound];
+            roundStarted = false; // Reset for new round
             
             // CRITICAL: Clear all tracking between rounds
             revealedLetters.clear();
@@ -818,7 +838,7 @@
             
             wrongGuesses = 0;
             currentScore = 0;
-            startTime = Date.now();
+            startTime = null; // Don't start timer yet
             selectedPosition = null;
             
             console.log(`Starting Round ${currentRound + 1}: ${currentPuzzle.word}`);
@@ -839,7 +859,7 @@
             document.getElementById('etymologyClue').textContent = currentPuzzle.clue;
             document.getElementById('scoreDisplay').textContent = '0';
             document.getElementById('wrongDisplay').textContent = '0';
-            document.getElementById('actionButton').style.display = 'none';
+            document.getElementById('timerDisplay').textContent = '0:00';
             
             // Show pass button only for final challenge
             const passButton = document.getElementById('passButton');
@@ -857,14 +877,51 @@
                 selectNextUnrevealedPosition();
             }
             
-            // Only start timer and auto-reveal for speed rounds
-            if (currentPuzzle.isSpeedRound) {
-                startTimer();
-                startAutoReveal();
+            // Show READY screen with instructions
+            showReadyScreen();
+        }
+        
+        function showReadyScreen() {
+            const actionButton = document.getElementById('actionButton');
+            
+            // Only show Start button on Round 1 (currentRound === 0)
+            // All other rounds auto-start
+            if (currentRound === 0) {
+                actionButton.style.display = 'block';
+                
+                if (currentPuzzle.isSpeedRound) {
+                    actionButton.textContent = '⏱️ Start Speed Round';
+                    actionButton.onclick = () => {
+                        roundStarted = true;
+                        startTime = Date.now();
+                        startTimer();
+                        startAutoReveal();
+                        actionButton.style.display = 'none';
+                    };
+                } else {
+                    actionButton.textContent = '🎯 Start Final Challenge';
+                    actionButton.onclick = () => {
+                        roundStarted = true;
+                        startTime = Date.now();
+                        startTimer();
+                        document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
+                        actionButton.style.display = 'none';
+                    };
+                }
             } else {
-                // For final challenge, show timer but don't auto-reveal
-                startTimer();
-                document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
+                // Rounds 2-5: Auto-start immediately
+                actionButton.style.display = 'none';
+                roundStarted = true;
+                startTime = Date.now();
+                
+                if (currentPuzzle.isSpeedRound) {
+                    startTimer();
+                    startAutoReveal();
+                } else {
+                    // Final challenge
+                    startTimer();
+                    document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
+                }
             }
         }
 
@@ -946,7 +1003,21 @@
                 const key = document.createElement('button');
                 key.className = 'key';
                 key.textContent = letter;
-                key.onclick = () => guessLetter(letter);
+                key.onclick = () => {
+                    // Auto-start on first click in Round 1
+                    if (!roundStarted && currentRound === 0) {
+                        const actionButton = document.getElementById('actionButton');
+                        if (actionButton.style.display === 'block') {
+                            actionButton.click();
+                            // Wait a tiny bit for the round to actually start
+                            setTimeout(() => {
+                                guessLetter(letter);
+                            }, 50);
+                        }
+                    } else {
+                        guessLetter(letter);
+                    }
+                };
                 
                 if (guessedLetters.has(letter)) {
                     if (currentPuzzle.isFinalChallenge) {
@@ -976,6 +1047,11 @@
         }
 
         function guessLetter(letter) {
+            // Prevent guessing before round has started
+            if (!roundStarted) {
+                return;
+            }
+            
             if (currentPuzzle.isFinalChallenge) {
                 // Final challenge: positional guessing - letters can be reused
                 if (selectedPosition === null) {
@@ -1148,37 +1224,75 @@
             }
             document.getElementById('modalWord').textContent = currentPuzzle.word;
             
-            // Show detailed etymology first (always visible, no toggle)
+            // Show score prominently at top
+            document.getElementById('modalScore').textContent = isPassed ? '0 pts (Passed)' : `+${currentScore}`;
+            document.getElementById('modalScore').style.order = '-1'; // Move to top
+            document.getElementById('modalScore').style.marginBottom = '15px';
+            
+            // Show collapsible etymology preview
             const detailedEtymDiv = document.getElementById('modalDetailedEtymology');
             const briefEtymDiv = document.getElementById('modalBriefEtymology');
             const toggleBtn = document.getElementById('etymologyToggle');
             
             if (currentPuzzle.detailedEtymology) {
-                detailedEtymDiv.textContent = currentPuzzle.detailedEtymology;
-                detailedEtymDiv.style.display = 'block';
-                detailedEtymDiv.style.fontStyle = 'italic';
-                detailedEtymDiv.style.marginTop = '15px';
-                toggleBtn.style.display = 'none'; // No toggle in result modal
+                // Show preview (first ~15 words)
+                const words = currentPuzzle.detailedEtymology.split(' ');
+                const previewWords = words.slice(0, 15).join(' ');
+                const restWords = words.slice(15).join(' ');
+                
+                if (words.length > 15) {
+                    briefEtymDiv.innerHTML = `<span style="font-style: italic;">${previewWords}<span id="etymDots">...</span><span id="etymRest" style="display: none;"> ${restWords}</span></span>`;
+                    briefEtymDiv.style.opacity = '0.85';
+                    briefEtymDiv.style.fontSize = '0.95rem';
+                    briefEtymDiv.style.lineHeight = '1.5';
+                    briefEtymDiv.style.marginTop = '15px';
+                    toggleBtn.style.display = 'block';
+                    toggleBtn.textContent = 'Read more ▼';
+                    toggleBtn.onclick = function() {
+                        const dots = document.getElementById('etymDots');
+                        const rest = document.getElementById('etymRest');
+                        if (rest.style.display === 'none') {
+                            rest.style.display = 'inline';
+                            dots.style.display = 'none';
+                            this.textContent = 'Show less ▲';
+                        } else {
+                            rest.style.display = 'none';
+                            dots.style.display = 'inline';
+                            this.textContent = 'Read more ▼';
+                        }
+                    };
+                } else {
+                    briefEtymDiv.innerHTML = `<span style="font-style: italic;">${currentPuzzle.detailedEtymology}</span>`;
+                    briefEtymDiv.style.opacity = '0.85';
+                    briefEtymDiv.style.fontSize = '0.95rem';
+                    toggleBtn.style.display = 'none';
+                }
+                
+                detailedEtymDiv.style.display = 'none';
             } else {
                 detailedEtymDiv.style.display = 'none';
+                briefEtymDiv.style.display = 'none';
                 toggleBtn.style.display = 'none';
             }
             
             // Definition comes after etymology
             document.getElementById('modalDefinition').textContent = currentPuzzle.definition || '';
             
-            // Brief etymology and clue at bottom (dimmed)
-            briefEtymDiv.textContent = currentPuzzle.briefEtymology || '';
-            briefEtymDiv.style.opacity = '0.7';
-            briefEtymDiv.style.fontSize = '0.9rem';
-            
+            // Clue at bottom (dimmed)
             document.getElementById('modalClue').textContent = `Clue: ${currentPuzzle.clue}`;
-            document.getElementById('modalScore').textContent = isPassed ? '0 pts (Passed)' : `+${currentScore}`;
+            
             document.getElementById('resultModal').classList.add('active');
         }
 
         document.getElementById('continueButton').onclick = () => {
             document.getElementById('resultModal').classList.remove('active');
+            
+            // If game is already completed, just reopen final results
+            if (gameCompleted) {
+                document.getElementById('finalModal').classList.add('active');
+                return;
+            }
+            
             currentRound++;
             renderProgressBar();
             startRound();
@@ -1264,11 +1378,13 @@
                 
                 // Truncate to ~15 words for compact preview
                 let etymPreview = '';
+                let etymRest = '';
                 let hasMore = false;
                 if (puzzle.detailedEtymology) {
                     const words = puzzle.detailedEtymology.split(' ');
                     if (words.length > 15) {
-                        etymPreview = words.slice(0, 15).join(' ') + '...';
+                        etymPreview = words.slice(0, 15).join(' ');
+                        etymRest = words.slice(15).join(' ');
                         hasMore = true;
                     } else {
                         etymPreview = puzzle.detailedEtymology;
@@ -1287,8 +1403,7 @@
                             ${etymPreview ? `
                                 <div style="cursor: pointer;" onclick="toggleFinalDetails('${expandId}', '${toggleId}', '${headerId}')">
                                     <div style="font-style: italic; color: var(--ink); opacity: 0.75; line-height: 1.5; font-size: 0.9rem;">
-                                        <span id="${expandId}-preview">${etymPreview}</span>
-                                        <span id="${expandId}-rest" style="display: none;">${puzzle.detailedEtymology ? puzzle.detailedEtymology.substring(etymPreview.length - 3) : ''}</span>
+                                        <span id="${expandId}-preview">${etymPreview}</span><span id="${expandId}-dots" style="display: ${hasMore ? 'inline' : 'none'};">...</span><span id="${expandId}-rest" style="display: none;"> ${etymRest}</span>
                                         <span id="${toggleId}" class="final-toggle" style="color: var(--accent); font-size: 1.1rem; font-weight: 700; margin-left: 6px;">▼</span>
                                     </div>
                                     <div id="${expandId}" class="final-expand" style="display: none; margin-top: 12px; padding: 14px; background: rgba(199, 149, 109, 0.06); border-radius: 8px;">
@@ -1320,6 +1435,7 @@
             const toggle = document.getElementById(toggleId);
             const header = document.getElementById(headerId);
             const restText = document.getElementById(expandId + '-rest');
+            const dots = document.getElementById(expandId + '-dots');
             
             // Close all other expanded sections (accordion behavior)
             document.querySelectorAll('.final-expand').forEach(el => {
@@ -1328,10 +1444,15 @@
                 }
             });
             
-            // Hide all other "rest" text spans
+            // Hide all other "rest" text spans and show their dots
             document.querySelectorAll('[id$="-rest"]').forEach(span => {
                 if (span.id !== expandId + '-rest') {
                     span.style.display = 'none';
+                }
+            });
+            document.querySelectorAll('[id$="-dots"]').forEach(span => {
+                if (span.id !== expandId + '-dots') {
+                    span.style.display = 'inline';
                 }
             });
             
@@ -1353,8 +1474,9 @@
             
             // Toggle current section
             if (expanded.style.display === 'none') {
-                // Expand: show rest of text inline AND show details box
+                // Expand: show rest of text inline AND show details box, hide dots
                 if (restText) restText.style.display = 'inline';
+                if (dots) dots.style.display = 'none';
                 expanded.style.display = 'block';
                 toggle.textContent = '▲';
                 // Make header sticky with high z-index and visual barrier
@@ -1364,8 +1486,9 @@
                 header.style.boxShadow = '0 8px 16px rgba(0,0,0,0.2)';
                 header.style.borderBottom = '3px solid var(--ink)';
             } else {
-                // Collapse: hide rest of text and details box
+                // Collapse: hide rest of text and details box, show dots
                 if (restText) restText.style.display = 'none';
+                if (dots) dots.style.display = 'inline';
                 expanded.style.display = 'none';
                 toggle.textContent = '▼';
                 header.style.position = 'relative';
@@ -1480,25 +1603,87 @@
         };
 
         // DEBUG: Press 'F' key anywhere to jump straight to final results modal for testing
+        // Keyboard support for typing letters
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'F' || e.key === 'f') {
-                console.log('DEBUG: Showing final results modal');
+            // Enter key for Continue button on result modal
+            if ((e.key === 'Enter' || e.key === 'Return') && 
+                document.getElementById('resultModal').classList.contains('active')) {
+                e.preventDefault();
+                document.getElementById('continueButton').click();
+                return;
+            }
+            
+            // Enter key for Start button (Round 1 only)
+            if ((e.key === 'Enter' || e.key === 'Return') && 
+                document.getElementById('actionButton').style.display === 'block' &&
+                !roundStarted) {
+                e.preventDefault();
+                document.getElementById('actionButton').click();
+                return;
+            }
+            
+            // Letter guessing with physical keyboard (A-Z only, during active gameplay)
+            if (!currentPuzzle) return; // No active game
+            if (document.getElementById('resultModal').classList.contains('active')) return; // Modal open
+            if (document.getElementById('finalModal').classList.contains('active')) return; // Final modal open
+            
+            const key = e.key.toUpperCase();
+            if (key.length === 1 && key >= 'A' && key <= 'Z') {
+                e.preventDefault(); // Prevent default browser behavior
                 
-                // Create fake round results with the loaded puzzles
-                if (dailyPuzzles.length > 0) {
-                    roundResults = [
-                        { word: dailyPuzzles[0].word, score: 1360, time: 45, wrong: 2, passed: false, isFinalChallenge: false },
-                        { word: dailyPuzzles[1].word, score: 1768, time: 38, wrong: 1, passed: false, isFinalChallenge: false },
-                        { word: dailyPuzzles[2].word, score: 2112, time: 52, wrong: 3, passed: false, isFinalChallenge: false },
-                        { word: dailyPuzzles[3].word, score: 2420, time: 61, wrong: 4, passed: false, isFinalChallenge: false },
-                        { word: dailyPuzzles[4].word, score: 4840, time: 88, wrong: 1, passed: false, isFinalChallenge: true }
-                    ];
-                    totalScore = roundResults.reduce((sum, r) => sum + r.score, 0);
-                    
-                    showFinalResults();
+                // Auto-start on first keypress in Round 1
+                if (!roundStarted && currentRound === 0) {
+                    document.getElementById('actionButton').click();
+                    // Wait a tiny bit for the round to actually start
+                    setTimeout(() => {
+                        guessLetter(key);
+                    }, 50);
+                } else if (roundStarted) {
+                    guessLetter(key);
                 }
             }
         });
+
+        // Make final results reopenable
+        let finalResultsAvailable = false;
+        const originalShowFinalResults = showFinalResults;
+        showFinalResults = function() {
+            originalShowFinalResults();
+            finalResultsAvailable = true;
+        };
+        
+        // Handle closing final modal - don't allow going back to game if completed
+        document.getElementById('closeFinalModal').onclick = () => {
+            if (gameCompleted) {
+                // Game is done - just hide the modal, don't go back to game
+                document.getElementById('finalModal').classList.remove('active');
+                // The View Results button will allow reopening
+            } else {
+                // Shouldn't happen, but if somehow we close before completion, allow it
+                document.getElementById('finalModal').classList.remove('active');
+            }
+        };
+        
+        // Add button to game screen to reopen final results if available
+        const reopenButton = document.createElement('button');
+        reopenButton.textContent = '📊 View Results';
+        reopenButton.className = 'share-button';
+        reopenButton.style.cssText = 'position: fixed; bottom: 20px; right: 20px; display: none; padding: 10px 16px; font-size: 0.9rem;';
+        reopenButton.onclick = () => {
+            if (finalResultsAvailable) {
+                document.getElementById('finalModal').classList.add('active');
+            }
+        };
+        document.body.appendChild(reopenButton);
+        
+        // Show reopen button when final results are available and modal is closed
+        setInterval(() => {
+            if (finalResultsAvailable && !document.getElementById('finalModal').classList.contains('active')) {
+                reopenButton.style.display = 'block';
+            } else {
+                reopenButton.style.display = 'none';
+            }
+        }, 100);
 
         // Start the game
         initGame();
