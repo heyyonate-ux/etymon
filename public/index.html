@@ -715,6 +715,20 @@
             h1 { font-size: 2.2rem; }
             .game-card { padding: 16px; }
             .keyboard { display: none; }
+            
+            #mobileKeyboardInput {
+                font-size: 1.1rem !important;
+                padding: 14px !important;
+                margin: 12px 0 !important;
+                border: 2px solid var(--accent) !important;
+                background: white !important;
+            }
+            
+            #mobileKeyboardInput::placeholder {
+                color: var(--accent);
+                opacity: 0.6;
+            }
+            
             .letter-box { 
                 width: 32px; 
                 height: 40px; 
@@ -872,7 +886,7 @@
             
             <div class="letter-tracker" id="letterTracker"></div>
             
-            <!-- Hidden input to trigger mobile keyboard -->
+            <!-- Mobile keyboard input - visible but styled to blend in -->
             <input 
                 type="text" 
                 id="mobileKeyboardInput"
@@ -880,7 +894,19 @@
                 autocorrect="off"
                 autocapitalize="characters"
                 spellcheck="false"
-                style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;"
+                placeholder="Type here..."
+                style="
+                    width: 100%;
+                    padding: 12px;
+                    margin: 10px 0;
+                    border: 2px dashed var(--accent);
+                    border-radius: 8px;
+                    background: rgba(199, 149, 109, 0.05);
+                    font-size: 1rem;
+                    text-align: center;
+                    color: var(--ink);
+                    font-family: 'DM Sans', sans-serif;
+                "
                 maxlength="1"
             />
             
@@ -1197,7 +1223,6 @@
         
         function showReadyScreen() {
             const actionButton = document.getElementById('actionButton');
-            const mobileInput = document.getElementById('mobileKeyboardInput');
             
             // Only show Start button on Round 1 (currentRound === 0)
             // All other rounds auto-start
@@ -1212,8 +1237,6 @@
                         startTimer();
                         startAutoReveal();
                         actionButton.style.display = 'none';
-                        // Focus mobile keyboard input
-                        setTimeout(() => mobileInput.focus(), 100);
                     };
                 } else {
                     actionButton.textContent = '🎯 Start Final Challenge';
@@ -1223,8 +1246,6 @@
                         startTimer();
                         document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
                         actionButton.style.display = 'none';
-                        // Focus mobile keyboard input
-                        setTimeout(() => mobileInput.focus(), 100);
                     };
                 }
             } else {
@@ -1241,9 +1262,6 @@
                     startTimer();
                     document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
                 }
-                
-                // Focus mobile keyboard input for auto-started rounds
-                setTimeout(() => mobileInput.focus(), 100);
             }
         }
 
@@ -1649,8 +1667,10 @@
             const modalContent = document.querySelector('#resultModal .modal-content > div[style*="overflow-y"]');
             if (modalContent) modalContent.scrollTop = 0;
             
-            // Blur mobile keyboard input
-            document.getElementById('mobileKeyboardInput').blur();
+            // Clear and blur mobile keyboard input
+            const mobileInput = document.getElementById('mobileKeyboardInput');
+            mobileInput.value = '';
+            mobileInput.blur();
             
             document.getElementById('resultModal').classList.add('active');
         }
@@ -2003,33 +2023,14 @@
                         setTimeout(() => {
                             guessLetter(value);
                             mobileInput.value = ''; // Clear for next input
-                            mobileInput.focus(); // Keep keyboard open
                         }, 100);
                     }
                 } else if (roundStarted) {
                     guessLetter(value);
                     mobileInput.value = ''; // Clear for next input
-                    mobileInput.focus(); // Keep keyboard open
                 }
             } else {
                 mobileInput.value = ''; // Clear invalid input
-            }
-        });
-
-        // Scroll to show letter tracker when keyboard appears
-        mobileInput.addEventListener('focus', () => {
-            setTimeout(() => {
-                const letterTracker = document.getElementById('letterTracker');
-                if (letterTracker) {
-                    letterTracker.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }, 300);
-        });
-
-        // Keep focus on mobile input when tapping the game area
-        document.querySelector('.game-card').addEventListener('click', (e) => {
-            if (roundStarted && !document.getElementById('resultModal').classList.contains('active')) {
-                mobileInput.focus();
             }
         });
 
@@ -2097,14 +2098,6 @@
         document.getElementById('startGameButton').onclick = () => {
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'block';
-            
-            // Focus mobile keyboard input after a short delay
-            setTimeout(() => {
-                const mobileInput = document.getElementById('mobileKeyboardInput');
-                if (mobileInput) {
-                    mobileInput.focus();
-                }
-            }, 300);
         };
         
         document.getElementById('reviewResultsButton').onclick = () => {
