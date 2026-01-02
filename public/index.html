@@ -873,26 +873,39 @@
             
             <div class="letter-tracker" id="letterTracker"></div>
             
-            <!-- Contenteditable div for mobile keyboard - iOS might allow auto-focus -->
-            <div
+            <!-- Mobile keyboard activation button - always visible, styled as part of UI -->
+            <button id="mobileKeyboardButton" style="
+                display: none;
+                width: 100%;
+                padding: 16px;
+                margin: 12px 0;
+                background: linear-gradient(135deg, var(--accent), #d4a574);
+                color: white;
+                border: none;
+                border-radius: 12px;
+                font-size: 1.1rem;
+                font-weight: 700;
+                text-align: center;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(199, 149, 109, 0.3);
+                font-family: 'DM Sans', sans-serif;
+                transition: transform 0.2s, box-shadow 0.2s;
+            " onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+                ⌨️ Tap to Type
+            </button>
+            
+            <!-- Hidden input for keyboard -->
+            <input 
+                type="text" 
                 id="mobileKeyboardInput"
-                contenteditable="true"
                 autocomplete="off"
                 autocorrect="off"
                 autocapitalize="characters"
                 spellcheck="false"
                 inputmode="text"
-                style="
-                    position: fixed;
-                    bottom: -100px;
-                    left: 0;
-                    width: 1px;
-                    height: 1px;
-                    opacity: 0.01;
-                    overflow: hidden;
-                    pointer-events: none;
-                "
-            ></div>
+                style="position: absolute; opacity: 0; pointer-events: none; height: 0; width: 0;"
+                maxlength="1"
+            />
             
             <div class="keyboard" id="keyboard"></div>
             
@@ -1207,6 +1220,12 @@
         
         function showReadyScreen() {
             const actionButton = document.getElementById('actionButton');
+            const keyboardButton = document.getElementById('mobileKeyboardButton');
+            
+            // Show keyboard button on mobile
+            if (window.innerWidth <= 640 && keyboardButton) {
+                keyboardButton.style.display = 'block';
+            }
             
             // Only show Start button on Round 1 (currentRound === 0)
             // All other rounds auto-start
@@ -1221,8 +1240,6 @@
                         startTimer();
                         startAutoReveal();
                         actionButton.style.display = 'none';
-                        // Try to focus keyboard on mobile after slight delay
-                        setTimeout(() => tryFocusMobileInput(), 100);
                     };
                 } else {
                     actionButton.textContent = '🎯 Start Final Challenge';
@@ -1232,8 +1249,6 @@
                         startTimer();
                         document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
                         actionButton.style.display = 'none';
-                        // Try to focus keyboard on mobile after slight delay
-                        setTimeout(() => tryFocusMobileInput(), 100);
                     };
                 }
             } else {
@@ -1250,9 +1265,6 @@
                     startTimer();
                     document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
                 }
-                
-                // Try to focus keyboard on mobile after slight delay
-                setTimeout(() => tryFocusMobileInput(), 100);
             }
         }
 
@@ -1678,6 +1690,14 @@
                 return;
             }
             
+            // Show keyboard button for next round on mobile
+            if (window.innerWidth <= 640) {
+                const keyboardButton = document.getElementById('mobileKeyboardButton');
+                if (keyboardButton) {
+                    keyboardButton.style.display = 'block';
+                }
+            }
+            
             currentRound++;
             renderProgressBar();
             startRound();
@@ -2001,51 +2021,49 @@
             alert('Practice mode coming soon! This will let you play unlimited puzzles.');
         };
 
-        // Mobile keyboard handler using contenteditable
+        // Mobile keyboard handler
         const mobileInput = document.getElementById('mobileKeyboardInput');
+        const keyboardButton = document.getElementById('mobileKeyboardButton');
         
-        function tryFocusMobileInput() {
-            if (window.innerWidth <= 640 && mobileInput) {
+        // Button click activates keyboard
+        if (keyboardButton) {
+            keyboardButton.onclick = () => {
                 mobileInput.focus();
-            }
+                // Hide button after keyboard opens
+                keyboardButton.style.display = 'none';
+            };
         }
         
-        // Handle both input and keydown events for contenteditable
-        function handleMobileInput() {
-            const text = mobileInput.textContent || '';
-            const lastChar = text.slice(-1).toUpperCase();
-            
-            if (lastChar && lastChar >= 'A' && lastChar <= 'Z') {
+        // Handle input
+        mobileInput.addEventListener('input', (e) => {
+            const value = e.target.value.toUpperCase();
+            if (value && value.length === 1 && value >= 'A' && value <= 'Z') {
                 // Auto-start on first keypress in Round 1
                 if (!roundStarted && currentRound === 0) {
                     const actionButton = document.getElementById('actionButton');
                     if (actionButton.style.display === 'block') {
                         actionButton.click();
                         setTimeout(() => {
-                            guessLetter(lastChar);
-                            mobileInput.textContent = ''; // Clear
+                            guessLetter(value);
+                            mobileInput.value = ''; // Clear for next input
                         }, 100);
-                        return;
                     }
+                } else if (roundStarted) {
+                    guessLetter(value);
+                    mobileInput.value = ''; // Clear for next input
                 }
-                
-                if (roundStarted) {
-                    guessLetter(lastChar);
-                    mobileInput.textContent = ''; // Clear for next input
-                }
-            } else if (text) {
-                // Clear invalid input
-                mobileInput.textContent = '';
+            } else {
+                mobileInput.value = ''; // Clear invalid input
             }
-        }
+        });
         
-        // Listen to multiple events for better compatibility
-        mobileInput.addEventListener('input', handleMobileInput);
-        mobileInput.addEventListener('keyup', handleMobileInput);
-        
-        // Prevent default paste behavior
-        mobileInput.addEventListener('paste', (e) => {
-            e.preventDefault();
+        // When keyboard loses focus, show button again
+        mobileInput.addEventListener('blur', () => {
+            if (window.innerWidth <= 640 && keyboardButton && roundStarted) {
+                setTimeout(() => {
+                    keyboardButton.style.display = 'block';
+                }, 100);
+            }
         });
 
         // DEBUG: Press 'F' key anywhere to jump straight to final results modal for testing
