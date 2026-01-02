@@ -2031,6 +2031,18 @@
                 mobileInput.focus();
                 // Hide button after keyboard opens
                 keyboardButton.style.display = 'none';
+                
+                // Scroll to show letter tracker above keyboard
+                setTimeout(() => {
+                    const letterTracker = document.getElementById('letterTracker');
+                    if (letterTracker && window.innerWidth <= 640) {
+                        letterTracker.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'end',
+                            inline: 'nearest'
+                        });
+                    }
+                }, 300); // Wait for keyboard animation
             };
         }
         
