@@ -58,22 +58,22 @@
 
         header {
             text-align: center;
-            padding: 40px 0 30px;
+            padding: 20px 0 15px;
             border-bottom: 2px solid var(--accent);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         h1 {
             font-family: 'Crimson Pro', serif;
-            font-size: 3.5rem;
+            font-size: 3rem;
             font-weight: 700;
             color: var(--ink);
             letter-spacing: -1px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .tagline {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             color: var(--accent);
             font-weight: 500;
             letter-spacing: 2px;
@@ -84,7 +84,7 @@
             display: flex;
             gap: 8px;
             justify-content: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .progress-dot {
@@ -110,9 +110,9 @@
         .game-card {
             background: white;
             border-radius: 16px;
-            padding: 40px;
+            padding: 24px;
             box-shadow: 0 8px 32px var(--shadow);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             position: relative;
             overflow: hidden;
         }
@@ -129,13 +129,12 @@
 
         .difficulty-badge {
             display: inline-block;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            padding: 7px 16px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
+            letter-spacing: 0.8px;
         }
 
         .difficulty-novitiate { background: #e8f4e8; color: #4a774a; }
@@ -146,11 +145,12 @@
 
         .etymology-clue {
             font-family: 'Crimson Pro', serif;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             line-height: 1.6;
             color: var(--ink);
-            margin-bottom: 30px;
-            padding: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding: 16px;
             background: var(--parchment);
             border-radius: 8px;
             border-left: 4px solid var(--accent);
@@ -220,7 +220,7 @@
         }
 
         .keyboard {
-            display: grid;
+            display: none; /* Hidden - replaced by letter tracker */
             grid-template-columns: repeat(9, 1fr);
             gap: 6px;
             margin-bottom: 20px;
@@ -310,27 +310,26 @@
         .final-challenge-banner {
             background: linear-gradient(135deg, var(--ink), var(--accent));
             color: white;
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 20px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            text-align: right;
             font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+            font-size: 0.65rem;
+            line-height: 1.2;
+            display: inline-block;
         }
 
         .speed-round-indicator {
             display: inline-block;
-            padding: 8px 16px;
+            padding: 4px 10px;
             background: var(--accent);
             color: white;
-            border-radius: 20px;
-            font-size: 0.75rem;
+            border-radius: 12px;
+            font-size: 0.65rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
+            letter-spacing: 0.3px;
         }
 
         .modal {
@@ -399,8 +398,8 @@
             background: var(--parchment);
             border-radius: 8px;
             font-style: italic;
-            opacity: 0;
-            animation: fadeInDefinition 0.5s ease 2s forwards;
+            opacity: 1;
+            transition: none !important;
         }
 
         @keyframes fadeInDefinition {
@@ -410,7 +409,8 @@
 
         .brief-etymology {
             font-size: 0.9rem;
-            color: var(--accent);
+            color: var(--ink);
+            opacity: 0.85;
             margin: 10px 0;
             font-style: italic;
         }
@@ -551,16 +551,293 @@
             opacity: 0.6;
         }
 
+        .letter-tracker {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px 8px;
+            margin: 20px auto 10px;
+            max-width: 600px;
+            padding: 12px;
+            background: rgba(199, 149, 109, 0.05);
+            border-radius: 8px;
+        }
+
+        .letter-tracker span {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--ink);
+            opacity: 1;
+            transition: all 0.3s ease;
+            min-width: 18px;
+            text-align: center;
+            padding: 4px 6px;
+            border-radius: 4px;
+        }
+
+        .letter-tracker span.correct {
+            background: #4a7c59;
+            color: white;
+            font-weight: 700;
+        }
+
+        .letter-tracker span.wrong {
+            background: #8b2e2e;
+            color: white;
+            opacity: 0.35;
+        }
+
+        .landing-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .landing-container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .landing-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 10px;
+        }
+
+        .landing-tagline {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
+        }
+
+        .landing-button {
+            background: var(--ink);
+            color: white;
+            border: none;
+            padding: 18px 48px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'DM Sans', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 10px;
+        }
+
+        .landing-button:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .landing-button.secondary {
+            background: white;
+            color: var(--ink);
+            border: 2px solid var(--ink);
+        }
+
+        .landing-button.secondary:hover {
+            background: var(--parchment);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .how-to-play {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-top: 40px;
+            text-align: left;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        .how-to-play h3 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--ink);
+            text-align: center;
+        }
+
+        .how-to-play ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .how-to-play li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            line-height: 1.6;
+        }
+
+        .how-to-play li:last-child {
+            border-bottom: none;
+        }
+
+        .completion-summary {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        .completion-summary h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 4rem;
+            color: #4a7c59;
+            margin-bottom: 10px;
+        }
+
+        .completion-summary p {
+            font-size: 1.5rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .landing-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         @media (max-width: 640px) {
-            h1 { font-size: 2.5rem; }
-            .game-card { padding: 24px; }
-            .keyboard { grid-template-columns: repeat(7, 1fr); }
-            .letter-box { width: 40px; height: 48px; font-size: 1.4rem; }
+            h1 { font-size: 2.2rem; }
+            .game-card { padding: 16px; }
+            .keyboard { display: none; }
+            .letter-box { 
+                width: 32px; 
+                height: 40px; 
+                font-size: 1.2rem;
+                margin: 2px;
+            }
+            .letter-tracker { 
+                gap: 2px 4px; 
+                padding: 6px;
+                margin: 10px auto 5px;
+            }
+            .letter-tracker span {
+                font-size: 0.7rem;
+                min-width: 16px;
+                padding: 3px 4px;
+            }
+            .landing-title {
+                font-size: 3rem;
+            }
+            .landing-button {
+                padding: 16px 32px;
+                font-size: 1rem;
+            }
+            .game-stats {
+                gap: 15px;
+                margin: 12px 0;
+            }
+            .stat-value {
+                font-size: 1.3rem;
+            }
+            .stat-label {
+                font-size: 0.75rem;
+            }
+            .etymology-clue {
+                font-size: 1.1rem;
+                margin-bottom: 12px;
+                padding: 12px;
+            }
+            .difficulty-badge {
+                font-size: 0.75rem;
+                padding: 5px 12px;
+            }
+            .challenge-indicator {
+                font-size: 0.75rem;
+                margin-bottom: 10px;
+            }
+            header {
+                margin-bottom: 12px;
+                padding: 15px 0 10px;
+            }
+            .tagline {
+                font-size: 0.75rem;
+            }
+            .progress-bar {
+                margin-bottom: 12px;
+            }
+            
+            /* Result modal mobile optimization */
+            .modal-content {
+                padding: 20px;
+            }
+            .revealed-word {
+                font-size: 1.8rem !important;
+            }
+            .score-display {
+                font-size: 2rem !important;
+            }
+            .modal-content h2 {
+                font-size: 1.2rem !important;
+            }
+            
+            /* Final results mobile */
+            #finalModal .modal-content h2 {
+                font-size: 1.1rem !important;
+            }
+            #finalModal .score-display {
+                font-size: 2.5rem !important;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Landing Page -->
+    <div class="landing-page" id="landingPage">
+        <div class="landing-container">
+            <h1 class="landing-title">Etymon</h1>
+            <p class="landing-tagline">Guess the Word from its Roots</p>
+            
+            <div id="landingContent">
+                <!-- Before game starts -->
+                <div id="welcomeView">
+                    <button class="landing-button" id="startGameButton">Start Game</button>
+                    
+                    <div class="how-to-play">
+                        <h3>How to Play</h3>
+                        <ul>
+                            <li><strong>5 Rounds:</strong> 4 speed rounds + 1 final challenge</li>
+                            <li><strong>Speed Rounds:</strong> Correct letters revealed in all spots, new letters appear every 12 seconds</li>
+                            <li><strong>Final Challenge:</strong> No auto-reveal, place each letter in its exact spot</li>
+                            <li><strong>After Game:</strong> Review stats and etymology of each word</li>
+                            <li><strong>Scoring:</strong> Faster, correct guesses = higher scores</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- After game completion -->
+                <div id="completedView" style="display: none;">
+                    <div class="completion-summary">
+                        <h2 id="landingFinalScore">8246</h2>
+                        <p id="landingClassification">Scholar</p>
+                    </div>
+                    
+                    <div class="landing-buttons">
+                        <button class="landing-button" id="reviewResultsButton">Review Results</button>
+                        <button class="landing-button secondary" id="shareResultsButton">Share Results</button>
+                        <button class="landing-button secondary" id="practiceModeButton">Practice Mode</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="gameContainer" style="display: none;">
         <header>
             <h1>Etymon</h1>
             <div class="tagline">Guess the Word from its Roots</div>
@@ -569,8 +846,10 @@
         <div class="progress-bar" id="progressBar"></div>
 
         <div class="game-card">
-            <div id="challengeIndicator"></div>
-            <div class="difficulty-badge" id="difficultyBadge"></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; min-height: 32px;">
+                <div class="difficulty-badge" id="difficultyBadge" style="margin: 0;"></div>
+                <div id="challengeIndicator" style="flex-shrink: 0;"></div>
+            </div>
             
             <div class="etymology-clue" id="etymologyClue"></div>
             
@@ -591,6 +870,8 @@
                 </div>
             </div>
             
+            <div class="letter-tracker" id="letterTracker"></div>
+            
             <div class="keyboard" id="keyboard"></div>
             
             <button class="action-button" id="actionButton" style="display: none;">Next Puzzle</button>
@@ -603,45 +884,59 @@
     </div>
 
     <div class="modal" id="resultModal">
-        <div class="modal-content" style="max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;">
-            <h2 id="modalTitle" style="flex-shrink: 0;">Puzzle Complete!</h2>
-            <div style="overflow-y: auto; flex: 1; margin: 15px 0;">
-                <div class="revealed-word" id="modalWord"></div>
-                <div class="word-definition" id="modalDefinition"></div>
-                <div class="brief-etymology" id="modalBriefEtymology"></div>
-                <span class="etymology-toggle" id="etymologyToggle" style="display: none;">Read full etymology ▼</span>
-                <div class="detailed-etymology" id="modalDetailedEtymology"></div>
-                <div class="etymology-clue" id="modalClue" style="font-size: 0.85rem; margin-top: 15px; opacity: 0.6;"></div>
-                <div class="score-display" id="modalScore">+0</div>
+        <div class="modal-content" style="max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; padding: 24px;">
+            <div style="flex-shrink: 0; padding-bottom: 12px;">
+                <h2 id="modalTitle" style="font-size: 1.3rem; margin: 0 0 8px 0;">Puzzle Complete!</h2>
+                <div class="revealed-word" id="modalWord" style="font-size: 2rem; margin: 8px 0; word-wrap: break-word;"></div>
+                <div class="score-display" id="modalScore" style="font-size: 2.5rem; margin: 8px 0;">+0</div>
             </div>
-            <button class="share-button" id="continueButton" style="flex-shrink: 0;">Continue</button>
+            
+            <div style="overflow-y: auto; flex: 1; padding-right: 4px; margin-right: -4px;">
+                <!-- Etymology preview/expand -->
+                <div class="brief-etymology" id="modalBriefEtymology" style="word-wrap: break-word; overflow-wrap: break-word;"></div>
+                <span class="etymology-toggle" id="etymologyToggle" style="display: none;">Read more ▼</span>
+                <div class="detailed-etymology" id="modalDetailedEtymology" style="word-wrap: break-word; overflow-wrap: break-word;"></div>
+                
+                <!-- Collapsible definition -->
+                <div style="margin: 12px 0;">
+                    <button id="defToggle" style="width: 100%; background: rgba(199, 149, 109, 0.1); border: 1px solid var(--accent); border-radius: 8px; padding: 10px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; color: var(--ink); font-size: 0.9rem;">
+                        Show Definition ▼
+                    </button>
+                    <div class="word-definition" id="modalDefinition" style="display: none; margin-top: 10px; padding: 12px; background: rgba(199, 149, 109, 0.06); border-radius: 8px; word-wrap: break-word; overflow-wrap: break-word;"></div>
+                </div>
+                
+                <div class="etymology-clue" id="modalClue" style="font-size: 0.95rem; margin-top: 10px; opacity: 0.7; word-wrap: break-word; font-weight: 500;"></div>
+            </div>
+            
+            <button class="share-button" id="continueButton" style="flex-shrink: 0; margin-top: 12px;">Continue</button>
         </div>
     </div>
 
     <div class="modal" id="finalModal">
-        <div class="modal-content" style="max-height: 85vh; display: flex; flex-direction: column;">
-            <div style="position: sticky; top: 0; background: var(--parchment); z-index: 100; padding-bottom: 15px; border-bottom: 2px solid var(--ink);">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                    <h2 style="margin: 0;">🎉 Daily Challenge Complete!</h2>
-                    <button id="closeFinalModal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1; color: var(--ink); opacity: 0.6;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">✕</button>
+        <div class="modal-content" style="max-height: 90vh; display: flex; flex-direction: column; padding: 16px;">
+            <div style="position: sticky; top: 0; background: var(--parchment); z-index: 100; padding-bottom: 8px; border-bottom: 2px solid var(--ink);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <h2 style="margin: 0; font-size: 1.1rem;">🎉 Complete!</h2>
+                    <button id="closeFinalModal" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 0; line-height: 1; color: var(--ink); opacity: 0.6;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">✕</button>
                 </div>
-                <div id="scoreClassification" style="text-align: center; font-size: 1rem; color: var(--accent); font-weight: 600; margin-bottom: 8px;"></div>
-                <div class="score-display" id="finalScore" style="margin: 10px 0;">0</div>
-                <div style="display: flex; gap: 30px; justify-content: center; font-size: 1rem;">
+                <div id="scoreClassification" style="text-align: center; font-size: 0.85rem; color: var(--accent); font-weight: 600; line-height: 1.3; margin-bottom: 4px;"></div>
+                <div class="score-display" id="finalScore" style="margin: 4px 0; font-size: 2.2rem;">0</div>
+                <div style="display: flex; gap: 15px; justify-content: center; font-size: 0.85rem; line-height: 1;">
                     <div style="font-weight: 600;"><span style="opacity: 0.7;">Time:</span> <span id="finalTime" style="color: var(--ink);">0:00</span></div>
                     <div style="font-weight: 600;"><span style="opacity: 0.7;">Errors:</span> <span id="finalWrong" style="color: var(--ink);">0</span></div>
                 </div>
             </div>
             
-            <div style="overflow-y: auto; flex: 1; padding: 0;">
+            <div style="overflow-y: auto; flex: 1; padding: 0; margin: 0;">
                 <div class="round-summary" id="roundSummary"></div>
             </div>
             
-            <div style="position: sticky; bottom: 0; background: var(--parchment); padding-top: 15px; border-top: 2px solid var(--ink); z-index: 100;">
-                <div style="display: flex; gap: 10px;">
-                    <button class="share-button" id="shareButton" style="flex: 1;">Share Results</button>
-                    <button class="share-button" id="playAgainButton" style="background: var(--accent); flex: 1;">Play Practice Mode</button>
+            <div style="position: sticky; bottom: 0; background: var(--parchment); padding-top: 8px; border-top: 2px solid var(--ink); z-index: 100;">
+                <div style="display: flex; gap: 6px; margin-bottom: 4px;">
+                    <button class="share-button" id="shareButton" style="flex: 1; padding: 10px; font-size: 0.85rem; margin: 0;">Share</button>
+                    <button class="share-button" id="playAgainButton" style="background: var(--accent); flex: 1; padding: 10px; font-size: 0.85rem; margin: 0;">Practice</button>
                 </div>
+                <button class="share-button" id="homeButton" style="background: white; color: var(--ink); border: 2px solid var(--ink); width: 100%; padding: 10px; font-size: 0.85rem; margin: 0;">🏠 Home</button>
             </div>
             
             <button class="share-button" id="reviewButton" style="display: none;">📚 Review Words</button>
@@ -755,7 +1050,7 @@
         async function initGame() {
             // Show loading state with visual indicator
             const clueElement = document.getElementById('etymologyClue');
-            clueElement.innerHTML = '<div style="text-align: center;"><div style="display: inline-block; width: 20px; height: 20px; border: 3px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div><br><span style="margin-top: 10px; display: inline-block;">Loading today\'s puzzles...</span></div>';
+            clueElement.innerHTML = '<div style="text-align: center; padding: 20px;"><div style="display: inline-block; width: 24px; height: 24px; border: 4px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div><br><span style="margin-top: 10px; display: inline-block; font-weight: 600; font-size: 1rem;">Loading puzzles...</span></div>';
             
             // Add spinner animation
             const style = document.createElement('style');
@@ -826,6 +1121,12 @@
             }
 
             currentPuzzle = dailyPuzzles[currentRound];
+            
+            // Normalize word to fix any typos or inconsistencies
+            if (currentPuzzle.word) {
+                currentPuzzle.word = currentPuzzle.word.toUpperCase().trim();
+            }
+            
             roundStarted = false; // Reset for new round
             
             // CRITICAL: Clear all tracking between rounds
@@ -847,7 +1148,7 @@
             // Update challenge indicator
             const indicator = document.getElementById('challengeIndicator');
             if (currentPuzzle.isFinalChallenge) {
-                indicator.innerHTML = '<div class="final-challenge-banner">🎓 Etymologus Maximus - Click a blank, then guess the letter</div>';
+                indicator.innerHTML = '<div class="final-challenge-banner">🎓 Final Round - Click blank, then guess</div>';
             } else if (currentPuzzle.isSpeedRound) {
                 indicator.innerHTML = '<div class="speed-round-indicator">⚡ Speed Round</div>';
             } else {
@@ -871,6 +1172,7 @@
 
             renderWord();
             renderKeyboard();
+            renderLetterTracker();
             
             // Auto-select first position for final challenge
             if (currentPuzzle.isFinalChallenge) {
@@ -994,6 +1296,30 @@
             }
         }
 
+        function renderLetterTracker() {
+            const tracker = document.getElementById('letterTracker');
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            
+            tracker.innerHTML = '';
+            
+            for (let letter of letters) {
+                const span = document.createElement('span');
+                span.textContent = letter;
+                
+                // Check if letter was guessed
+                if (guessedLetters.has(letter)) {
+                    // Check if it's in the word (correct) or not (wrong)
+                    if (currentPuzzle.word.includes(letter)) {
+                        span.classList.add('correct');
+                    } else {
+                        span.classList.add('wrong');
+                    }
+                }
+                
+                tracker.appendChild(span);
+            }
+        }
+
         function renderKeyboard() {
             const keyboard = document.getElementById('keyboard');
             keyboard.innerHTML = '';
@@ -1084,6 +1410,7 @@
                 // Track that we've tried this letter (for visual feedback only)
                 guessedLetters.add(letter);
                 renderKeyboard();
+                renderLetterTracker();
                 checkCompletion();
                 
             } else {
@@ -1102,6 +1429,7 @@
                 }
                 
                 renderKeyboard();
+                renderLetterTracker();
                 checkCompletion();
             }
         }
@@ -1217,19 +1545,19 @@
             document.getElementById('scoreDisplay').textContent = currentScore;
             
             // Show result modal
+            const modalTitle = document.getElementById('modalTitle');
             if (isPassed) {
-                document.getElementById('modalTitle').textContent = 'Puzzle Skipped';
+                modalTitle.textContent = 'Skipped';
+            } else if (currentPuzzle.isFinalChallenge) {
+                modalTitle.textContent = '🎓 Final Complete!';
             } else {
-                document.getElementById('modalTitle').textContent = currentPuzzle.isFinalChallenge ? '🎓 Etymologus Maximus Complete!' : 'Puzzle Complete!';
+                modalTitle.textContent = 'Complete!';
             }
+            
             document.getElementById('modalWord').textContent = currentPuzzle.word;
+            document.getElementById('modalScore').textContent = isPassed ? '0 pts' : `+${currentScore}`;
             
-            // Show score prominently at top
-            document.getElementById('modalScore').textContent = isPassed ? '0 pts (Passed)' : `+${currentScore}`;
-            document.getElementById('modalScore').style.order = '-1'; // Move to top
-            document.getElementById('modalScore').style.marginBottom = '15px';
-            
-            // Show collapsible etymology preview
+            // Show collapsible etymology preview (no delay on mobile)
             const detailedEtymDiv = document.getElementById('modalDetailedEtymology');
             const briefEtymDiv = document.getElementById('modalBriefEtymology');
             const toggleBtn = document.getElementById('etymologyToggle');
@@ -1243,9 +1571,9 @@
                 if (words.length > 15) {
                     briefEtymDiv.innerHTML = `<span style="font-style: italic;">${previewWords}<span id="etymDots">...</span><span id="etymRest" style="display: none;"> ${restWords}</span></span>`;
                     briefEtymDiv.style.opacity = '0.85';
-                    briefEtymDiv.style.fontSize = '0.95rem';
+                    briefEtymDiv.style.fontSize = '0.9rem';
                     briefEtymDiv.style.lineHeight = '1.5';
-                    briefEtymDiv.style.marginTop = '15px';
+                    briefEtymDiv.style.marginTop = '10px';
                     toggleBtn.style.display = 'block';
                     toggleBtn.textContent = 'Read more ▼';
                     toggleBtn.onclick = function() {
@@ -1264,7 +1592,9 @@
                 } else {
                     briefEtymDiv.innerHTML = `<span style="font-style: italic;">${currentPuzzle.detailedEtymology}</span>`;
                     briefEtymDiv.style.opacity = '0.85';
-                    briefEtymDiv.style.fontSize = '0.95rem';
+                    briefEtymDiv.style.fontSize = '0.9rem';
+                    briefEtymDiv.style.lineHeight = '1.5';
+                    briefEtymDiv.style.marginTop = '10px';
                     toggleBtn.style.display = 'none';
                 }
                 
@@ -1275,17 +1605,38 @@
                 toggleBtn.style.display = 'none';
             }
             
-            // Definition comes after etymology
-            document.getElementById('modalDefinition').textContent = currentPuzzle.definition || '';
+            // Definition - collapsible (no delay)
+            const defDiv = document.getElementById('modalDefinition');
+            const defToggle = document.getElementById('defToggle');
+            defDiv.textContent = currentPuzzle.definition || '';
+            defDiv.style.display = 'none'; // Start collapsed
+            defDiv.style.transition = 'none'; // No animation delay
+            defToggle.textContent = 'Show Definition ▼';
+            defToggle.onclick = function() {
+                if (defDiv.style.display === 'none') {
+                    defDiv.style.display = 'block';
+                    this.textContent = 'Hide Definition ▲';
+                } else {
+                    defDiv.style.display = 'none';
+                    this.textContent = 'Show Definition ▼';
+                }
+            };
             
             // Clue at bottom (dimmed)
             document.getElementById('modalClue').textContent = `Clue: ${currentPuzzle.clue}`;
+            
+            // Reset scroll position to top
+            const modalContent = document.querySelector('#resultModal .modal-content > div[style*="overflow-y"]');
+            if (modalContent) modalContent.scrollTop = 0;
             
             document.getElementById('resultModal').classList.add('active');
         }
 
         document.getElementById('continueButton').onclick = () => {
             document.getElementById('resultModal').classList.remove('active');
+            
+            // Reset scroll position of game container
+            window.scrollTo(0, 0);
             
             // If game is already completed, just reopen final results
             if (gameCompleted) {
@@ -1357,8 +1708,8 @@
             
             // Update stats and classification
             document.getElementById('scoreClassification').innerHTML = `
-                <div style="font-size: 1.3rem; font-weight: 700; color: var(--accent); margin-bottom: 4px;">${classification}</div>
-                <div style="font-size: 0.95rem; font-weight: 500; opacity: 0.85;">${message}</div>
+                <div style="font-size: 1rem; font-weight: 700; color: var(--accent);">${classification}</div>
+                <div style="font-size: 0.75rem; font-weight: 600; color: var(--ink); opacity: 0.8; margin-top: 2px;">${message}</div>
             `;
             document.getElementById('finalScore').textContent = totalScore;
             document.getElementById('finalTime').textContent = `${Math.floor(totalTime / 60)}:${(totalTime % 60).toString().padStart(2, '0')}`;
@@ -1392,30 +1743,30 @@
                 }
                 
                 return `
-                    <div class="summary-item" style="display: block !important; padding: 0; border-bottom: 2px solid rgba(94, 78, 67, 0.2);">
-                        <div id="${headerId}" style="background: var(--parchment); padding: 20px; margin: 0; position: relative; z-index: 10;">
+                    <div class="summary-item" style="display: block !important; padding: 0; border-bottom: 1px solid rgba(94, 78, 67, 0.15);">
+                        <div id="${headerId}" style="background: var(--parchment); padding: 12px; margin: 0; position: relative; z-index: 10;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="font-weight: 600; font-size: 1.05rem;">${emoji} Round ${i + 1}: ${result.word}</span>
-                                <span style="font-weight: 700; color: ${result.passed ? 'var(--ink)' : 'var(--accent)'}; font-size: 1.05rem;">${label}</span>
+                                <span style="font-weight: 600; font-size: 0.95rem;">${emoji} Round ${i + 1}: ${result.word}</span>
+                                <span style="font-weight: 700; color: ${result.passed ? 'var(--ink)' : 'var(--accent)'}; font-size: 0.95rem;">${label}</span>
                             </div>
                         </div>
-                        <div style="padding: 10px 20px 16px 20px; position: relative;">
+                        <div style="padding: 8px 12px 12px 12px; position: relative;">
                             ${etymPreview ? `
                                 <div style="cursor: pointer;" onclick="toggleFinalDetails('${expandId}', '${toggleId}', '${headerId}')">
-                                    <div style="font-style: italic; color: var(--ink); opacity: 0.75; line-height: 1.5; font-size: 0.9rem;">
+                                    <div style="font-style: italic; color: var(--ink); opacity: 0.75; line-height: 1.4; font-size: 0.85rem;">
                                         <span id="${expandId}-preview">${etymPreview}</span><span id="${expandId}-dots" style="display: ${hasMore ? 'inline' : 'none'};">...</span><span id="${expandId}-rest" style="display: none;"> ${etymRest}</span>
-                                        <span id="${toggleId}" class="final-toggle" style="color: var(--accent); font-size: 1.1rem; font-weight: 700; margin-left: 6px;">▼</span>
+                                        <span id="${toggleId}" class="final-toggle" style="color: var(--accent); font-size: 1rem; font-weight: 700; margin-left: 4px;">▼</span>
                                     </div>
-                                    <div id="${expandId}" class="final-expand" style="display: none; margin-top: 12px; padding: 14px; background: rgba(199, 149, 109, 0.06); border-radius: 8px;">
-                                        <div style="margin-top: 0; padding-top: 0; font-size: 0.95rem;">
+                                    <div id="${expandId}" class="final-expand" style="display: none; margin-top: 8px; padding: 10px; background: rgba(199, 149, 109, 0.06); border-radius: 6px;">
+                                        <div style="margin-top: 0; padding-top: 0; font-size: 0.85rem; line-height: 1.4;">
                                             <strong>Definition:</strong> ${puzzle.definition}
                                         </div>
                                         ${puzzle.briefEtymology ? `
-                                            <div style="margin-top: 10px; opacity: 0.75; font-size: 0.85rem;">
+                                            <div style="margin-top: 8px; opacity: 0.75; font-size: 0.8rem; line-height: 1.3;">
                                                 ${puzzle.briefEtymology}
                                             </div>
                                         ` : ''}
-                                        <div style="margin-top: 8px; opacity: 0.65; font-size: 0.85rem;">
+                                        <div style="margin-top: 6px; opacity: 0.65; font-size: 0.8rem;">
                                             Clue: ${puzzle.clue}
                                         </div>
                                     </div>
@@ -1485,6 +1836,20 @@
                 header.style.zIndex = '90';
                 header.style.boxShadow = '0 8px 16px rgba(0,0,0,0.2)';
                 header.style.borderBottom = '3px solid var(--ink)';
+                
+                // Scroll to show the header at the top of the scrollable area
+                setTimeout(() => {
+                    const modalScrollContainer = document.querySelector('#finalModal .modal-content > div[style*="overflow-y"]');
+                    if (modalScrollContainer && header) {
+                        // Get the header's position relative to the scroll container
+                        const headerTop = header.offsetTop;
+                        // Scroll the container so header is at the top
+                        modalScrollContainer.scrollTo({
+                            top: headerTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                }, 100);
             } else {
                 // Collapse: hide rest of text and details box, show dots
                 if (restText) restText.style.display = 'none';
@@ -1650,43 +2015,65 @@
         showFinalResults = function() {
             originalShowFinalResults();
             finalResultsAvailable = true;
+            
+            // Update landing page with results
+            document.getElementById('landingFinalScore').textContent = totalScore;
+            let classification = '';
+            if (totalScore >= 12001) classification = 'Etymologus Maximus';
+            else if (totalScore >= 9001) classification = 'Magister';
+            else if (totalScore >= 6001) classification = 'Scholar';
+            else if (totalScore >= 3001) classification = 'Disciple';
+            else classification = 'Novitiate';
+            document.getElementById('landingClassification').textContent = classification;
         };
         
-        // Handle closing final modal - don't allow going back to game if completed
+        // Landing page handlers
+        document.getElementById('startGameButton').onclick = () => {
+            document.getElementById('landingPage').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+        };
+        
+        document.getElementById('reviewResultsButton').onclick = () => {
+            document.getElementById('finalModal').classList.add('active');
+        };
+        
+        document.getElementById('shareResultsButton').onclick = () => {
+            document.getElementById('shareButton').click();
+        };
+        
+        document.getElementById('practiceModeButton').onclick = () => {
+            document.getElementById('playAgainButton').click();
+        };
+        
+        // Home button in final results modal
+        document.getElementById('homeButton').onclick = () => {
+            document.getElementById('closeFinalModal').click();
+        };
+        
+        // Handle closing final modal - go back to landing if game complete
         document.getElementById('closeFinalModal').onclick = () => {
+            document.getElementById('finalModal').classList.remove('active');
             if (gameCompleted) {
-                // Game is done - just hide the modal, don't go back to game
-                document.getElementById('finalModal').classList.remove('active');
-                // The View Results button will allow reopening
-            } else {
-                // Shouldn't happen, but if somehow we close before completion, allow it
-                document.getElementById('finalModal').classList.remove('active');
+                // Show landing page with completed view
+                document.getElementById('gameContainer').style.display = 'none';
+                document.getElementById('landingPage').style.display = 'flex';
+                document.getElementById('welcomeView').style.display = 'none';
+                document.getElementById('completedView').style.display = 'block';
             }
         };
         
-        // Add button to game screen to reopen final results if available
-        const reopenButton = document.createElement('button');
-        reopenButton.textContent = '📊 View Results';
-        reopenButton.className = 'share-button';
-        reopenButton.style.cssText = 'position: fixed; bottom: 20px; right: 20px; display: none; padding: 10px 16px; font-size: 0.9rem;';
-        reopenButton.onclick = () => {
-            if (finalResultsAvailable) {
-                document.getElementById('finalModal').classList.add('active');
-            }
-        };
-        document.body.appendChild(reopenButton);
-        
-        // Show reopen button when final results are available and modal is closed
-        setInterval(() => {
-            if (finalResultsAvailable && !document.getElementById('finalModal').classList.contains('active')) {
-                reopenButton.style.display = 'block';
-            } else {
-                reopenButton.style.display = 'none';
-            }
-        }, 100);
+        // Remove the floating View Results button (replaced by landing page)
+        // (Keeping code in case needed for debugging)
 
-        // Start the game
-        initGame();
+        // Don't start the game immediately - wait for user to click Start
+        // initGame() is now called when Start Game button is clicked
+        
+        // Update Start Game button to also init the game
+        document.getElementById('startGameButton').addEventListener('click', () => {
+            if (!dailyPuzzles.length) {
+                initGame();
+            }
+        });
     </script>
 </body>
 </html>
