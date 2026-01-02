@@ -872,6 +872,18 @@
             
             <div class="letter-tracker" id="letterTracker"></div>
             
+            <!-- Hidden input to trigger mobile keyboard -->
+            <input 
+                type="text" 
+                id="mobileKeyboardInput"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;"
+                maxlength="1"
+            />
+            
             <div class="keyboard" id="keyboard"></div>
             
             <button class="action-button" id="actionButton" style="display: none;">Next Puzzle</button>
@@ -1185,6 +1197,7 @@
         
         function showReadyScreen() {
             const actionButton = document.getElementById('actionButton');
+            const mobileInput = document.getElementById('mobileKeyboardInput');
             
             // Only show Start button on Round 1 (currentRound === 0)
             // All other rounds auto-start
@@ -1199,6 +1212,8 @@
                         startTimer();
                         startAutoReveal();
                         actionButton.style.display = 'none';
+                        // Focus mobile keyboard input
+                        setTimeout(() => mobileInput.focus(), 100);
                     };
                 } else {
                     actionButton.textContent = '🎯 Start Final Challenge';
@@ -1208,6 +1223,8 @@
                         startTimer();
                         document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
                         actionButton.style.display = 'none';
+                        // Focus mobile keyboard input
+                        setTimeout(() => mobileInput.focus(), 100);
                     };
                 }
             } else {
@@ -1224,6 +1241,9 @@
                     startTimer();
                     document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
                 }
+                
+                // Focus mobile keyboard input for auto-started rounds
+                setTimeout(() => mobileInput.focus(), 100);
             }
         }
 
@@ -1629,6 +1649,9 @@
             const modalContent = document.querySelector('#resultModal .modal-content > div[style*="overflow-y"]');
             if (modalContent) modalContent.scrollTop = 0;
             
+            // Blur mobile keyboard input
+            document.getElementById('mobileKeyboardInput').blur();
+            
             document.getElementById('resultModal').classList.add('active');
         }
 
@@ -1966,6 +1989,39 @@
         document.getElementById('playAgainButton').onclick = () => {
             alert('Practice mode coming soon! This will let you play unlimited puzzles.');
         };
+
+        // Mobile keyboard input handler
+        const mobileInput = document.getElementById('mobileKeyboardInput');
+        mobileInput.addEventListener('input', (e) => {
+            const value = e.target.value.toUpperCase();
+            if (value && value.length === 1 && value >= 'A' && value <= 'Z') {
+                // Auto-start on first keypress in Round 1
+                if (!roundStarted && currentRound === 0) {
+                    const actionButton = document.getElementById('actionButton');
+                    if (actionButton.style.display === 'block') {
+                        actionButton.click();
+                        setTimeout(() => {
+                            guessLetter(value);
+                            mobileInput.value = ''; // Clear for next input
+                            mobileInput.focus(); // Keep keyboard open
+                        }, 100);
+                    }
+                } else if (roundStarted) {
+                    guessLetter(value);
+                    mobileInput.value = ''; // Clear for next input
+                    mobileInput.focus(); // Keep keyboard open
+                }
+            } else {
+                mobileInput.value = ''; // Clear invalid input
+            }
+        });
+
+        // Keep focus on mobile input when tapping the game area
+        document.querySelector('.game-card').addEventListener('click', (e) => {
+            if (roundStarted && !document.getElementById('resultModal').classList.contains('active')) {
+                mobileInput.focus();
+            }
+        });
 
         // DEBUG: Press 'F' key anywhere to jump straight to final results modal for testing
         // Keyboard support for typing letters
