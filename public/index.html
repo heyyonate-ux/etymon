@@ -1896,7 +1896,7 @@
             }).join('');
             
             const completedCount = roundResults.filter(r => !r.passed).length;
-            const text = `Etymon Daily ${new Date().toLocaleDateString()}\nScore: ${totalScore} (${completedCount}/5)\n${emoji}\n\nGuess words from their roots!\nPlay at etymon.game`;
+            const text = `Etymon Daily ${new Date().toLocaleDateString()}\nScore: ${totalScore} (${completedCount}/5)\n${emoji}\n\nGuess words from their roots!\nPlay at etymon-game.netlify.app`;
             
             if (navigator.share) {
                 navigator.share({ text });
