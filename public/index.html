@@ -2036,11 +2036,20 @@
                 setTimeout(() => {
                     const letterTracker = document.getElementById('letterTracker');
                     if (letterTracker && window.innerWidth <= 640) {
+                        // Scroll letter tracker to center of viewport for better visibility
                         letterTracker.scrollIntoView({ 
                             behavior: 'smooth', 
-                            block: 'end',
+                            block: 'center',
                             inline: 'nearest'
                         });
+                        
+                        // Additional scroll up to ensure it's well above keyboard
+                        setTimeout(() => {
+                            window.scrollBy({
+                                top: -80,
+                                behavior: 'smooth'
+                            });
+                        }, 400);
                     }
                 }, 300); // Wait for keyboard animation
             };
