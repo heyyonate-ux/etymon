@@ -716,19 +716,6 @@
             .game-card { padding: 16px; }
             .keyboard { display: none; }
             
-            #mobileKeyboardInput {
-                font-size: 1.1rem !important;
-                padding: 14px !important;
-                margin: 12px 0 !important;
-                border: 2px solid var(--accent) !important;
-                background: white !important;
-            }
-            
-            #mobileKeyboardInput::placeholder {
-                color: var(--accent);
-                opacity: 0.6;
-            }
-            
             .letter-box { 
                 width: 32px; 
                 height: 40px; 
@@ -886,29 +873,26 @@
             
             <div class="letter-tracker" id="letterTracker"></div>
             
-            <!-- Mobile keyboard input - visible but styled to blend in -->
-            <input 
-                type="text" 
+            <!-- Contenteditable div for mobile keyboard - iOS might allow auto-focus -->
+            <div
                 id="mobileKeyboardInput"
+                contenteditable="true"
                 autocomplete="off"
                 autocorrect="off"
                 autocapitalize="characters"
                 spellcheck="false"
-                placeholder="Type here..."
+                inputmode="text"
                 style="
-                    width: 100%;
-                    padding: 12px;
-                    margin: 10px 0;
-                    border: 2px dashed var(--accent);
-                    border-radius: 8px;
-                    background: rgba(199, 149, 109, 0.05);
-                    font-size: 1rem;
-                    text-align: center;
-                    color: var(--ink);
-                    font-family: 'DM Sans', sans-serif;
+                    position: fixed;
+                    bottom: -100px;
+                    left: 0;
+                    width: 1px;
+                    height: 1px;
+                    opacity: 0.01;
+                    overflow: hidden;
+                    pointer-events: none;
                 "
-                maxlength="1"
-            />
+            ></div>
             
             <div class="keyboard" id="keyboard"></div>
             
@@ -1237,6 +1221,8 @@
                         startTimer();
                         startAutoReveal();
                         actionButton.style.display = 'none';
+                        // Try to focus keyboard on mobile after slight delay
+                        setTimeout(() => tryFocusMobileInput(), 100);
                     };
                 } else {
                     actionButton.textContent = '🎯 Start Final Challenge';
@@ -1246,6 +1232,8 @@
                         startTimer();
                         document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
                         actionButton.style.display = 'none';
+                        // Try to focus keyboard on mobile after slight delay
+                        setTimeout(() => tryFocusMobileInput(), 100);
                     };
                 }
             } else {
@@ -1262,6 +1250,9 @@
                     startTimer();
                     document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
                 }
+                
+                // Try to focus keyboard on mobile after slight delay
+                setTimeout(() => tryFocusMobileInput(), 100);
             }
         }
 
@@ -2010,28 +2001,51 @@
             alert('Practice mode coming soon! This will let you play unlimited puzzles.');
         };
 
-        // Mobile keyboard input handler
+        // Mobile keyboard handler using contenteditable
         const mobileInput = document.getElementById('mobileKeyboardInput');
-        mobileInput.addEventListener('input', (e) => {
-            const value = e.target.value.toUpperCase();
-            if (value && value.length === 1 && value >= 'A' && value <= 'Z') {
+        
+        function tryFocusMobileInput() {
+            if (window.innerWidth <= 640 && mobileInput) {
+                mobileInput.focus();
+            }
+        }
+        
+        // Handle both input and keydown events for contenteditable
+        function handleMobileInput() {
+            const text = mobileInput.textContent || '';
+            const lastChar = text.slice(-1).toUpperCase();
+            
+            if (lastChar && lastChar >= 'A' && lastChar <= 'Z') {
                 // Auto-start on first keypress in Round 1
                 if (!roundStarted && currentRound === 0) {
                     const actionButton = document.getElementById('actionButton');
                     if (actionButton.style.display === 'block') {
                         actionButton.click();
                         setTimeout(() => {
-                            guessLetter(value);
-                            mobileInput.value = ''; // Clear for next input
+                            guessLetter(lastChar);
+                            mobileInput.textContent = ''; // Clear
                         }, 100);
+                        return;
                     }
-                } else if (roundStarted) {
-                    guessLetter(value);
-                    mobileInput.value = ''; // Clear for next input
                 }
-            } else {
-                mobileInput.value = ''; // Clear invalid input
+                
+                if (roundStarted) {
+                    guessLetter(lastChar);
+                    mobileInput.textContent = ''; // Clear for next input
+                }
+            } else if (text) {
+                // Clear invalid input
+                mobileInput.textContent = '';
             }
+        }
+        
+        // Listen to multiple events for better compatibility
+        mobileInput.addEventListener('input', handleMobileInput);
+        mobileInput.addEventListener('keyup', handleMobileInput);
+        
+        // Prevent default paste behavior
+        mobileInput.addEventListener('paste', (e) => {
+            e.preventDefault();
         });
 
         // DEBUG: Press 'F' key anywhere to jump straight to final results modal for testing
