@@ -2016,6 +2016,16 @@
             }
         });
 
+        // Scroll to show letter tracker when keyboard appears
+        mobileInput.addEventListener('focus', () => {
+            setTimeout(() => {
+                const letterTracker = document.getElementById('letterTracker');
+                if (letterTracker) {
+                    letterTracker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 300);
+        });
+
         // Keep focus on mobile input when tapping the game area
         document.querySelector('.game-card').addEventListener('click', (e) => {
             if (roundStarted && !document.getElementById('resultModal').classList.contains('active')) {
@@ -2087,6 +2097,14 @@
         document.getElementById('startGameButton').onclick = () => {
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'block';
+            
+            // Focus mobile keyboard input after a short delay
+            setTimeout(() => {
+                const mobileInput = document.getElementById('mobileKeyboardInput');
+                if (mobileInput) {
+                    mobileInput.focus();
+                }
+            }, 300);
         };
         
         document.getElementById('reviewResultsButton').onclick = () => {
