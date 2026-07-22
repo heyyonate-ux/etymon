@@ -903,7 +903,7 @@
                 autocapitalize="characters"
                 spellcheck="false"
                 inputmode="text"
-                style="position: absolute; opacity: 0; pointer-events: none; height: 0; width: 0;"
+                style="position: absolute; opacity: 0; pointer-events: none; height: 1px; width: 1px; font-size: 16px;"
                 maxlength="1"
             />
             
@@ -1235,6 +1235,10 @@
                 if (currentPuzzle.isSpeedRound) {
                     actionButton.textContent = '⏱️ Start Speed Round';
                     actionButton.onclick = () => {
+                        // Must be the first thing that happens on tap: on iOS/Android the
+                        // on-screen keyboard only opens during a genuine user gesture, and
+                        // that gesture "budget" can expire once other work runs first.
+                        activateMobileKeyboard();
                         roundStarted = true;
                         startTime = Date.now();
                         startTimer();
@@ -1244,6 +1248,7 @@
                 } else {
                     actionButton.textContent = '🎯 Start Final Challenge';
                     actionButton.onclick = () => {
+                        activateMobileKeyboard();
                         roundStarted = true;
                         startTime = Date.now();
                         startTimer();
@@ -1257,6 +1262,12 @@
                 roundStarted = true;
                 startTime = Date.now();
                 
+                // This still runs inside the same synchronous call stack as the
+                // "Continue" tap that led here (startRound() has no awaits), so the
+                // tap's gesture is still "live" and .focus() can open the keyboard
+                // without requiring a separate "Tap to Type" step.
+                activateMobileKeyboard();
+                
                 if (currentPuzzle.isSpeedRound) {
                     startTimer();
                     startAutoReveal();
@@ -1266,6 +1277,18 @@
                     document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
                 }
             }
+        }
+        
+        // Focuses the hidden mobile input so the on-screen keyboard opens, then lets
+        // the input's own 'focus' listener (further down) handle hiding the fallback
+        // button and scrolling the letter tracker into view. No-op on desktop.
+        // IMPORTANT: only ever call this synchronously from inside a real tap/click
+        // handler — that's the only context in which iOS/Android allow a script to
+        // open the on-screen keyboard.
+        function activateMobileKeyboard() {
+            if (window.innerWidth > 640) return;
+            const input = document.getElementById('mobileKeyboardInput');
+            if (input) input.focus();
         }
 
         function renderWord() {
@@ -2025,35 +2048,44 @@
         const mobileInput = document.getElementById('mobileKeyboardInput');
         const keyboardButton = document.getElementById('mobileKeyboardButton');
         
-        // Button click activates keyboard
+        // Manual fallback: if auto-focus (from the Start/Continue tap) didn't manage
+        // to open the keyboard on this browser, this button is still visible and a
+        // direct tap here is its own fresh user gesture.
         if (keyboardButton) {
             keyboardButton.onclick = () => {
                 mobileInput.focus();
-                // Hide button after keyboard opens
-                keyboardButton.style.display = 'none';
-                
-                // Scroll to show letter tracker above keyboard
-                setTimeout(() => {
-                    const letterTracker = document.getElementById('letterTracker');
-                    if (letterTracker && window.innerWidth <= 640) {
-                        // Scroll letter tracker to center of viewport for better visibility
-                        letterTracker.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'center',
-                            inline: 'nearest'
-                        });
-                        
-                        // Additional scroll up to ensure it's well above keyboard
-                        setTimeout(() => {
-                            window.scrollBy({
-                                top: -80,
-                                behavior: 'smooth'
-                            });
-                        }, 400);
-                    }
-                }, 300); // Wait for keyboard animation
             };
         }
+        
+        // Fires whenever mobileInput actually receives focus, regardless of whether
+        // that came from the fallback button or from an auto-focus call elsewhere
+        // (Start Speed Round, Start Final Challenge, or the rounds 2-5 auto-start).
+        // Keeping this in one place avoids duplicating the hide/scroll logic per call site.
+        mobileInput.addEventListener('focus', () => {
+            // Hide the fallback button now that the keyboard has (or should have) opened
+            if (keyboardButton) keyboardButton.style.display = 'none';
+            
+            // Scroll to show letter tracker above keyboard
+            setTimeout(() => {
+                const letterTracker = document.getElementById('letterTracker');
+                if (letterTracker && window.innerWidth <= 640) {
+                    // Scroll letter tracker to center of viewport for better visibility
+                    letterTracker.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center',
+                        inline: 'nearest'
+                    });
+                    
+                    // Additional scroll up to ensure it's well above keyboard
+                    setTimeout(() => {
+                        window.scrollBy({
+                            top: -80,
+                            behavior: 'smooth'
+                        });
+                    }, 400);
+                }
+            }, 300); // Wait for keyboard animation
+        });
         
         // Handle input
         mobileInput.addEventListener('input', (e) => {
