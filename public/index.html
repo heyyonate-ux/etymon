@@ -159,21 +159,31 @@
         .word-display {
             display: flex;
             justify-content: center;
-            gap: 8px;
+            /* Never wrap — long words shrink their boxes instead of spilling
+               onto a second line. --letters is set by renderWord(). */
+            flex-wrap: nowrap;
+            gap: clamp(2px, 1vw, 8px);
             margin-bottom: 30px;
-            flex-wrap: wrap;
+            width: 100%;
         }
 
         .letter-box {
-            width: 48px;
-            height: 56px;
+            /* Equal share of the row, shrinking as needed, capped so short
+               words don't blow up into giant boxes. */
+            flex-grow: 1;
+            flex-shrink: 1;
+            flex-basis: 0;
+            min-width: 0;
+            max-width: 48px;
+            aspect-ratio: 6 / 7;
             border: 2px solid var(--accent);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Crimson Pro', serif;
-            font-size: 1.8rem;
+            /* Scales with how many letters share the row, capped both ends. */
+            font-size: clamp(0.7rem, calc(46vw / var(--letters, 9)), 1.8rem);
             font-weight: 600;
             background: white;
             transition: all 0.3s ease;
@@ -384,10 +394,16 @@
             justify-content: center;
             z-index: 1000;
             padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .modal.active {
             display: flex;
+            /* flex-start + margin:auto on the child. With align-items:center,
+               content taller than the viewport overflows in BOTH directions and
+               the top becomes unreachable — which hid the close button. */
+            align-items: flex-start;
             animation: fadeIn 0.3s ease;
         }
 
@@ -405,6 +421,11 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             animation: slideUp 0.4s ease;
             text-align: center;
+            position: relative;
+            margin: auto; /* still centres when there IS room */
+            max-height: calc(100vh - 40px);
+            max-height: calc(100dvh - 40px); /* dvh accounts for mobile browser chrome */
+            overflow-y: auto;
         }
 
         @keyframes slideUp {
@@ -692,6 +713,100 @@
             color: var(--accent);
         }
 
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            line-height: 1;
+            padding: 0 4px;
+            cursor: pointer;
+            color: var(--ink);
+            opacity: 0.5;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-close:hover {
+            opacity: 1;
+        }
+
+        .menu-header {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(44, 36, 22, 0.12);
+        }
+
+        .menu-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .rank-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+        }
+
+        .rank-list .rank-score {
+            font-variant-numeric: tabular-nums;
+            opacity: 0.6;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .rank-list li.rank-earned .rank-name {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .menu-button {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 900; /* below modals (1000) so it can't overlap them */
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            border: 1px solid rgba(44, 36, 22, 0.15);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(6px);
+            color: var(--ink);
+            font-size: 1.2rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .menu-button:hover {
+            background: #fff;
+        }
+
+        .menu-content {
+            max-width: 520px;
+            text-align: left;
+        }
+
+        .menu-actions {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .how-to-lead {
+            font-size: 0.95rem;
+            line-height: 1.55;
+            margin-bottom: 14px;
+            opacity: 0.9;
+        }
+
         .how-to-play {
             background: white;
             padding: 30px;
@@ -757,10 +872,8 @@
             .keyboard { display: none; }
             
             .letter-box { 
-                width: 32px; 
-                height: 40px; 
-                font-size: 1.2rem;
-                margin: 2px;
+                max-width: 40px;
+                margin: 0;
             }
             .letter-tracker { 
                 gap: 2px 4px; 
@@ -814,7 +927,15 @@
             }
             
             /* Result modal mobile optimization */
+            .modal {
+                padding: 10px;
+            }
             .modal-content {
+                padding: 20px;
+                max-height: calc(100vh - 20px);
+                max-height: calc(100dvh - 20px);
+            }
+            .menu-content {
                 padding: 20px;
             }
             .revealed-word {
@@ -838,46 +959,46 @@
     </style>
 </head>
 <body>
-    <!-- Landing Page -->
-    <div class="landing-page" id="landingPage">
-        <div class="landing-container">
-            <h1 class="landing-title">Etymon</h1>
-            <p class="landing-tagline">Guess the Word from its Roots</p>
-            
-            <div id="landingContent">
-                <!-- Before game starts -->
-                <div id="welcomeView">
-                    <button class="landing-button" id="startGameButton">Start Game</button>
-                    
-                    <div class="how-to-play">
-                        <h3>How to Play</h3>
-                        <ul>
-                            <li><strong>The clue</strong> tells you what the word's Greek or Latin roots <em>mean</em> — not the word itself.</li>
-                            <li><strong>Guess letters</strong> to fill in the word. A correct letter appears everywhere it occurs.</li>
-                            <li><strong>5 rounds</strong>, each harder than the last. Your score starts at the round's maximum and falls as time passes, on wrong guesses, and when you buy a hint.</li>
-                            <li><strong>After each round</strong>, read where the word actually came from.</li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <!-- After game completion -->
-                <div id="completedView" style="display: none;">
-                    <div class="completion-summary">
-                        <h2 id="landingFinalScore">8246</h2>
-                        <p id="landingClassification">Scholar</p>
-                    </div>
-                    
-                    <div class="landing-buttons">
-                        <button class="landing-button" id="reviewResultsButton">Review Results</button>
-                        <button class="landing-button secondary" id="shareResultsButton">Share Results</button>
-                        <button class="landing-button secondary" id="practiceModeButton">Practice Mode</button>
-                    </div>
-                </div>
+    <!-- Menu (available on every screen) -->
+    <button class="menu-button" id="menuButton" aria-label="Menu">☰</button>
+
+    <div class="modal" id="menuModal">
+        <div class="modal-content menu-content">
+            <div class="menu-header">
+                <h2>Etymon</h2>
+                <button class="modal-close" id="closeMenu" aria-label="Close">&times;</button>
+            </div>
+
+            <div class="how-to-play">
+                <h3>How to Play</h3>
+                <p class="how-to-lead">
+                    Five words, each harder than the last. Every clue tells you what
+                    the word's Greek or Latin roots <em>mean</em> &mdash; never the word
+                    itself. Quicker, cleaner guesses score higher, and the clock stops
+                    between rounds so you can read where each word came from.
+                </p>
+                <ul>
+                    <li><strong>Guess letters.</strong> A correct letter fills every spot it appears in.</li>
+                    <li><strong>Your score</strong> starts at the round's maximum and falls as the clock runs, on wrong guesses, and when you buy a hint.</li>
+                    <li><strong>Stuck?</strong> A hint reveals a random letter for a cost. Pass skips the word for zero.</li>
+                </ul>
+
+                <h3 style="margin-top: 22px;">Ranks</h3>
+                <p class="how-to-lead" style="margin-bottom: 10px;">
+                    Your five round scores add up to a final rank.
+                </p>
+                <ul class="rank-list" id="rankList"></ul>
+            </div>
+
+            <div class="menu-actions" id="menuActions" style="display: none;">
+                <button class="landing-button" id="reviewResultsButton">Today's Results</button>
+                <button class="landing-button secondary" id="shareResultsButton">Share</button>
+                <button class="landing-button secondary" id="practiceModeButton">Practice Mode</button>
             </div>
         </div>
     </div>
 
-    <div class="container" id="gameContainer" style="display: none;">
+    <div class="container" id="gameContainer">
         <header>
             <h1>Etymon</h1>
             <div class="tagline">Guess the Word from its Roots</div>
@@ -959,7 +1080,7 @@
     </div>
 
     <div class="modal" id="resultModal">
-        <div class="modal-content" style="max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; padding: 24px;">
+        <div class="modal-content" style="display: flex; flex-direction: column; overflow: hidden; padding: 24px;">
             <div style="flex-shrink: 0; padding-bottom: 12px;">
                 <h2 id="modalTitle" style="font-size: 1.3rem; margin: 0 0 8px 0;">Puzzle Complete!</h2>
                 <div class="revealed-word" id="modalWord" style="font-size: 2rem; margin: 8px 0; word-wrap: break-word;"></div>
@@ -988,7 +1109,7 @@
     </div>
 
     <div class="modal" id="finalModal">
-        <div class="modal-content" style="max-height: 90vh; display: flex; flex-direction: column; padding: 16px;">
+        <div class="modal-content" style="display: flex; flex-direction: column; padding: 16px; overflow: hidden;">
             <div style="position: sticky; top: 0; background: var(--parchment); z-index: 100; padding-bottom: 8px; border-bottom: 2px solid var(--ink);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                     <h2 style="margin: 0; font-size: 1.1rem;">🎉 Complete!</h2>
@@ -1012,7 +1133,7 @@
                     <button class="share-button" id="shareButton" style="flex: 1; padding: 10px; font-size: 0.85rem; margin: 0;">Share</button>
                     <button class="share-button" id="playAgainButton" style="background: var(--accent); flex: 1; padding: 10px; font-size: 0.85rem; margin: 0;">Practice</button>
                 </div>
-                <button class="share-button" id="homeButton" style="background: white; color: var(--ink); border: 2px solid var(--ink); width: 100%; padding: 10px; font-size: 0.85rem; margin: 0;">🏠 Home</button>
+                <button class="share-button" id="homeButton" style="background: white; color: var(--ink); border: 2px solid var(--ink); width: 100%; padding: 10px; font-size: 0.85rem; margin: 0;">Close</button>
             </div>
             
             <button class="share-button" id="reviewButton" style="display: none;">📚 Review Words</button>
@@ -1134,6 +1255,25 @@
 
         function hintCost() {
             return Math.round(roundConfig().base * HINT_COST_PCT);
+        }
+
+        // The best possible total: every round at its base, zero time elapsed.
+        // Derived from ROUND_CONFIG so retuning the bases retunes the ranks too.
+        const MAX_TOTAL = Object.values(ROUND_CONFIG).reduce((sum, c) => sum + c.base, 0);
+
+        // Thresholds are fractions of MAX_TOTAL, not raw scores — raw cutoffs
+        // silently break whenever the bases change.
+        const CLASSIFICATIONS = [
+            { at: 0.90, name: 'Etymologus Maximus', message: "Legendary! You're an etymology expert!" },
+            { at: 0.80, name: 'Magister',           message: "Exceptional! You're mastering the roots!" },
+            { at: 0.68, name: 'Scholar',            message: 'Impressive! Your knowledge is showing.' },
+            { at: 0.50, name: 'Disciple',           message: "Well done! You're learning the roots." },
+            { at: 0,    name: 'Novitiate',          message: 'A solid start! Keep exploring etymologies.' }
+        ];
+
+        function classify(score) {
+            const pct = score / MAX_TOTAL;
+            return CLASSIFICATIONS.find(c => pct >= c.at);
         }
 
         /** How well a finished round scored, as a fraction of its own maximum. */
@@ -1338,6 +1478,10 @@
         function renderWord() {
             const display = document.getElementById('wordDisplay');
             display.innerHTML = '';
+            
+            // Drives the font-size clamp in CSS so longer words get smaller
+            // type rather than wrapping to a second line.
+            display.style.setProperty('--letters', currentPuzzle.word.length);
             
             for (let i = 0; i < currentPuzzle.word.length; i++) {
                 const letter = currentPuzzle.word[i];
@@ -1721,24 +1865,9 @@
             const totalHints = roundResults.reduce((sum, r) => sum + (r.hints || 0), 0);
             
             // Determine score classification
-            let classification = '';
-            let message = '';
-            if (totalScore >= 12001) {
-                classification = 'Etymologus Maximus';
-                message = 'Legendary! You\'re an etymology expert!';
-            } else if (totalScore >= 9001) {
-                classification = 'Magister';
-                message = 'Exceptional! You\'re mastering the roots!';
-            } else if (totalScore >= 6001) {
-                classification = 'Scholar';
-                message = 'Impressive! Your knowledge is showing.';
-            } else if (totalScore >= 3001) {
-                classification = 'Disciple';
-                message = 'Well done! You\'re learning the roots.';
-            } else {
-                classification = 'Novitiate';
-                message = 'A solid start! Keep exploring etymologies.';
-            }
+            const rank = classify(totalScore);
+            const classification = rank.name;
+            const message = rank.message;
             
             // Update stats and classification
             document.getElementById('scoreClassification').innerHTML = `
@@ -2126,65 +2255,91 @@
         showFinalResults = function() {
             originalShowFinalResults();
             finalResultsAvailable = true;
+            // Results, Share and Practice only make sense once today's game is done.
+            document.getElementById('menuActions').style.display = 'flex';
+        };
+
+        // ---- Menu -------------------------------------------------------
+        const menuModal = document.getElementById('menuModal');
+
+        /**
+         * Render the rank ladder from CLASSIFICATIONS + MAX_TOTAL, rather than
+         * hardcoding numbers that would silently drift if ROUND_CONFIG changes.
+         * Highlights the rank earned once today's game is done.
+         */
+        function renderRankList() {
+            const list = document.getElementById('rankList');
+            if (!list) return;
             
-            // Update landing page with results
-            document.getElementById('landingFinalScore').textContent = totalScore;
-            let classification = '';
-            if (totalScore >= 12001) classification = 'Etymologus Maximus';
-            else if (totalScore >= 9001) classification = 'Magister';
-            else if (totalScore >= 6001) classification = 'Scholar';
-            else if (totalScore >= 3001) classification = 'Disciple';
-            else classification = 'Novitiate';
-            document.getElementById('landingClassification').textContent = classification;
-        };
-        
-        // Landing page handlers
-        document.getElementById('startGameButton').onclick = () => {
-            document.getElementById('landingPage').style.display = 'none';
-            document.getElementById('gameContainer').style.display = 'block';
-        };
-        
+            const earned = finalResultsAvailable ? classify(totalScore).name : null;
+            
+            // Lowest first reads more naturally as a ladder to climb.
+            list.innerHTML = [...CLASSIFICATIONS].reverse().map(c => {
+                const min = Math.round(c.at * MAX_TOTAL);
+                const label = min === 0 ? 'under ' + Math.round(CLASSIFICATIONS[3].at * MAX_TOTAL).toLocaleString()
+                                        : min.toLocaleString() + '+';
+                const isEarned = c.name === earned;
+                return `<li class="${isEarned ? 'rank-earned' : ''}">
+                            <span class="rank-name">${c.name}${isEarned ? ' &larr; you' : ''}</span>
+                            <span class="rank-score">${label}</span>
+                        </li>`;
+            }).join('');
+        }
+
+        function openMenu() {
+            renderRankList();
+            menuModal.classList.add('active');
+            // Let go of the hidden input so the mobile keyboard drops away.
+            const mk = document.getElementById('mobileKeyboardInput');
+            if (mk) mk.blur();
+        }
+
+        function closeMenu() {
+            menuModal.classList.remove('active');
+        }
+
+        document.getElementById('menuButton').onclick = openMenu;
+        document.getElementById('closeMenu').onclick = closeMenu;
+
+        // Tapping the backdrop closes it; clicks inside the panel don't.
+        menuModal.addEventListener('click', (e) => {
+            if (e.target === menuModal) closeMenu();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && menuModal.classList.contains('active')) closeMenu();
+        });
+
         document.getElementById('reviewResultsButton').onclick = () => {
+            closeMenu();
             document.getElementById('finalModal').classList.add('active');
         };
-        
+
         document.getElementById('shareResultsButton').onclick = () => {
+            closeMenu();
             document.getElementById('shareButton').click();
         };
-        
+
         document.getElementById('practiceModeButton').onclick = () => {
+            closeMenu();
             document.getElementById('playAgainButton').click();
         };
-        
-        // Home button in final results modal
+
+        // ---- Final results modal ---------------------------------------
+        // No landing page to go home to any more — both buttons just close it.
         document.getElementById('homeButton').onclick = () => {
-            document.getElementById('closeFinalModal').click();
+            document.getElementById('finalModal').classList.remove('active');
         };
-        
-        // Handle closing final modal - go back to landing if game complete
+
         document.getElementById('closeFinalModal').onclick = () => {
             document.getElementById('finalModal').classList.remove('active');
-            if (gameCompleted) {
-                // Show landing page with completed view
-                document.getElementById('gameContainer').style.display = 'none';
-                document.getElementById('landingPage').style.display = 'flex';
-                document.getElementById('welcomeView').style.display = 'none';
-                document.getElementById('completedView').style.display = 'block';
-            }
         };
-        
-        // Remove the floating View Results button (replaced by landing page)
-        // (Keeping code in case needed for debugging)
 
-        // Don't start the game immediately - wait for user to click Start
-        // initGame() is now called when Start Game button is clicked
-        
-        // Update Start Game button to also init the game
-        document.getElementById('startGameButton').addEventListener('click', () => {
-            if (!dailyPuzzles.length) {
-                initGame();
-            }
-        });
+        // ---- Boot -------------------------------------------------------
+        // Straight into round 1. The Start button still gates the clock, so
+        // nobody is timed while they're still reading the clue.
+        initGame();
+
     </script>
 </body>
 </html>
