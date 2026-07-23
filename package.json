@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "netlify dev",
+    "dev:fallback": "USE_FALLBACK=true netlify dev",
+    "puzzles": "node --env-file=.env scripts/preview-puzzles.js",
+    "puzzles:mini": "node --env-file=.env scripts/preview-puzzles.js --model gpt-4o-mini",
     "build": "echo 'No build step needed'",
     "generate": "netlify functions:invoke generate-daily-puzzle"
   },
@@ -16,6 +19,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@netlify/blobs": "^8.1.0",
+    "@netlify/functions": "^2.8.0",
     "node-fetch": "^2.6.7"
   },
   "devDependencies": {

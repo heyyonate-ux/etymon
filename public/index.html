@@ -307,6 +307,58 @@
             background: rgba(44, 36, 22, 0.05);
         }
 
+        .hint-button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: rgba(199, 149, 109, 0.12);
+            color: var(--ink);
+            border: 2px dashed var(--accent);
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .hint-button:hover:not(:disabled) {
+            background: rgba(199, 149, 109, 0.22);
+        }
+
+        .hint-button:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+
+        /* Discrete penalties float up; timer decay just ticks down quietly. */
+        .score-deduction {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            color: #a03830;
+            font-weight: 700;
+            font-size: 1rem;
+            pointer-events: none;
+            animation: floatUp 0.9s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0%   { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -28px); }
+        }
+
+        .score-hit {
+            animation: scoreShake 0.35s ease-out;
+        }
+
+        @keyframes scoreShake {
+            0%, 100% { transform: translateX(0); color: var(--accent); }
+            25%      { transform: translateX(-3px); color: #a03830; }
+            75%      { transform: translateX(3px); color: #a03830; }
+        }
+
         .final-challenge-banner {
             background: linear-gradient(135deg, var(--ink), var(--accent));
             color: white;
@@ -320,19 +372,7 @@
             display: inline-block;
         }
 
-        .speed-round-indicator {
-            display: inline-block;
-            padding: 4px 10px;
-            background: var(--accent);
-            color: white;
-            border-radius: 12px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .modal {
+.modal {
             position: fixed;
             top: 0;
             left: 0;
@@ -812,11 +852,10 @@
                     <div class="how-to-play">
                         <h3>How to Play</h3>
                         <ul>
-                            <li><strong>5 Rounds:</strong> 4 speed rounds + 1 final challenge</li>
-                            <li><strong>Speed Rounds:</strong> Correct letters revealed in all spots, new letters appear every 12 seconds</li>
-                            <li><strong>Final Challenge:</strong> No auto-reveal, place each letter in its exact spot</li>
-                            <li><strong>After Game:</strong> Review stats and etymology of each word</li>
-                            <li><strong>Scoring:</strong> Faster, correct guesses = higher scores</li>
+                            <li><strong>The clue</strong> tells you what the word's Greek or Latin roots <em>mean</em> — not the word itself.</li>
+                            <li><strong>Guess letters</strong> to fill in the word. A correct letter appears everywhere it occurs.</li>
+                            <li><strong>5 rounds</strong>, each harder than the last. Your score starts at the round's maximum and falls as time passes, on wrong guesses, and when you buy a hint.</li>
+                            <li><strong>After each round</strong>, read where the word actually came from.</li>
                         </ul>
                     </div>
                 </div>
@@ -861,9 +900,9 @@
                     <span class="stat-value" id="timerDisplay">0:00</span>
                     <span class="stat-label">Time</span>
                 </div>
-                <div class="stat">
+                <div class="stat" style="position: relative;">
                     <span class="stat-value" id="scoreDisplay">0</span>
-                    <span class="stat-label">Score</span>
+                    <span class="stat-label">Score <span id="scoreMax" style="opacity: 0.65;"></span></span>
                 </div>
                 <div class="stat">
                     <span class="stat-value" id="wrongDisplay">0</span>
@@ -903,13 +942,14 @@
                 autocapitalize="characters"
                 spellcheck="false"
                 inputmode="text"
-                style="position: absolute; opacity: 0; pointer-events: none; height: 1px; width: 1px; font-size: 16px;"
+                style="position: absolute; opacity: 0; pointer-events: none; height: 0; width: 0;"
                 maxlength="1"
             />
             
             <div class="keyboard" id="keyboard"></div>
             
             <button class="action-button" id="actionButton" style="display: none;">Next Puzzle</button>
+            <button class="hint-button" id="hintButton" style="display: none;">💡 Reveal a letter</button>
             <button class="pass-button" id="passButton" style="display: none;">Pass (Skip This Puzzle)</button>
         </div>
 
@@ -959,6 +999,7 @@
                 <div style="display: flex; gap: 15px; justify-content: center; font-size: 0.85rem; line-height: 1;">
                     <div style="font-weight: 600;"><span style="opacity: 0.7;">Time:</span> <span id="finalTime" style="color: var(--ink);">0:00</span></div>
                     <div style="font-weight: 600;"><span style="opacity: 0.7;">Errors:</span> <span id="finalWrong" style="color: var(--ink);">0</span></div>
+                    <div style="font-weight: 600;"><span style="opacity: 0.7;">Hints:</span> <span id="finalHints" style="color: var(--ink);">0</span></div>
                 </div>
             </div>
             
@@ -1055,22 +1096,66 @@
         let wrongGuesses = 0;
         let startTime = null;
         let timerInterval = null;
-        let autoRevealInterval = null;  // Track auto-reveal interval
         let currentScore = 0;
         let totalScore = 0;
         let roundResults = [];
-        let selectedPosition = null; // For final round positional guessing
+        let hintsUsed = 0; // Hints purchased this round
         let gameCompleted = false; // Track if today's game is done
         let roundStarted = false; // Track if current round has been started
 
-        // Difficulty multipliers
-        const multipliers = { 
-            novitiate: 1, 
-            disciple: 1.3, 
-            scholar: 1.6, 
-            magister: 2, 
-            etymologus: 3 
+        // ---------------------------------------------------------------
+        // SCORING CONFIG — all tunable numbers live here, nowhere else.
+        //
+        // base          starting score for the round (smooth ramp 1500 -> 5000)
+        // decaySeconds  how often the timer deducts (tightens each round)
+        // decayAmount   points lost per decay tick
+        // wrongPenalty  points lost per wrong letter
+        // floor         score can never drop below this
+        //
+        // Tune these in `npm run dev:fallback` — the same five words every
+        // reload makes it easy to feel the difference.
+        // ---------------------------------------------------------------
+        const ROUND_CONFIG = {
+            novitiate:  { base: 1500, decaySeconds: 3.0, decayAmount: 20, wrongPenalty: 50,  floor: 50 },
+            disciple:   { base: 2400, decaySeconds: 2.5, decayAmount: 20, wrongPenalty: 75,  floor: 90 },
+            scholar:    { base: 3300, decaySeconds: 2.0, decayAmount: 20, wrongPenalty: 100, floor: 130 },
+            magister:   { base: 4200, decaySeconds: 1.5, decayAmount: 20, wrongPenalty: 125, floor: 170 },
+            etymologus: { base: 5000, decaySeconds: 1.0, decayAmount: 20, wrongPenalty: 150, floor: 200 }
         };
+
+        // A hint reveals one random unrevealed letter. Cost scales with the
+        // round's base so it stays proportional across the 1500-5000 range.
+        // Unlimited per round — the score floor self-regulates.
+        const HINT_COST_PCT = 0.15;
+
+        function roundConfig() {
+            return ROUND_CONFIG[currentPuzzle?.difficulty] || ROUND_CONFIG.novitiate;
+        }
+
+        function hintCost() {
+            return Math.round(roundConfig().base * HINT_COST_PCT);
+        }
+
+        /** How well a finished round scored, as a fraction of its own maximum. */
+        function scoreTier(result) {
+            const cfg = ROUND_CONFIG[result.difficulty] || ROUND_CONFIG.novitiate;
+            return result.score / cfg.base;
+        }
+
+        /**
+         * Single source of truth for score. Called by the live tick, by
+         * guessLetter, by the hint handler, and by completeRound — so the
+         * running display and the final tally can never disagree.
+         */
+        function currentRoundScore() {
+            const cfg = roundConfig();
+            if (!startTime) return cfg.base;
+            const elapsed = (Date.now() - startTime) / 1000;
+            const timePenalty = Math.floor(elapsed / cfg.decaySeconds) * cfg.decayAmount;
+            const wrongPenalty = wrongGuesses * cfg.wrongPenalty;
+            const hintPenalty = hintsUsed * hintCost();
+            return Math.max(cfg.base - timePenalty - wrongPenalty - hintPenalty, cfg.floor);
+        }
 
         // Display names for difficulties
         const difficultyNames = {
@@ -1170,12 +1255,11 @@
             
             // CRITICAL: Stop any running intervals from previous rounds
             if (timerInterval) clearInterval(timerInterval);
-            if (autoRevealInterval) clearInterval(autoRevealInterval);
             
             wrongGuesses = 0;
+            hintsUsed = 0;
             currentScore = 0;
             startTime = null; // Don't start timer yet
-            selectedPosition = null;
             
             console.log(`Starting Round ${currentRound + 1}: ${currentPuzzle.word}`);
             console.log(`Cleared sets - Revealed: ${revealedLetters.size}, Guessed: ${guessedLetters.size}`);
@@ -1183,36 +1267,37 @@
             // Update challenge indicator
             const indicator = document.getElementById('challengeIndicator');
             if (currentPuzzle.isFinalChallenge) {
-                indicator.innerHTML = '<div class="final-challenge-banner">🎓 Final Round - Click blank, then guess</div>';
-            } else if (currentPuzzle.isSpeedRound) {
-                indicator.innerHTML = '<div class="speed-round-indicator">⚡ Speed Round</div>';
+                indicator.innerHTML = '<div class="final-challenge-banner">🎓 Final Round</div>';
             } else {
+                // Rounds 1-4 need no badge — the difficulty pill and the
+                // progress dots already say where you are.
                 indicator.innerHTML = '';
             }
 
             document.getElementById('difficultyBadge').textContent = difficultyNames[currentPuzzle.difficulty];
             document.getElementById('difficultyBadge').className = `difficulty-badge difficulty-${currentPuzzle.difficulty}`;
             document.getElementById('etymologyClue').textContent = currentPuzzle.clue;
-            document.getElementById('scoreDisplay').textContent = '0';
             document.getElementById('wrongDisplay').textContent = '0';
             document.getElementById('timerDisplay').textContent = '0:00';
-            
-            // Show pass button only for final challenge
-            const passButton = document.getElementById('passButton');
-            if (currentPuzzle.isFinalChallenge) {
-                passButton.style.display = 'block';
-            } else {
-                passButton.style.display = 'none';
-            }
+
+            // Score starts at the round maximum and is defended downward.
+            currentScore = roundConfig().base;
+            document.getElementById('scoreDisplay').textContent = currentScore;
+            document.getElementById('scoreMax').textContent = `max ${roundConfig().base}`;
+
+            // Hint button: available every round, cost scales with the round.
+            const hintButton = document.getElementById('hintButton');
+            hintButton.style.display = 'block';
+            hintButton.disabled = false;
+            hintButton.textContent = `💡 Reveal a letter (−${hintCost()})`;
+
+            // Pass is available in every round now that auto-reveal is gone —
+            // without it a stuck player would have no way out.
+            document.getElementById('passButton').style.display = 'block';
 
             renderWord();
             renderKeyboard();
             renderLetterTracker();
-            
-            // Auto-select first position for final challenge
-            if (currentPuzzle.isFinalChallenge) {
-                selectNextUnrevealedPosition();
-            }
             
             // Show READY screen with instructions
             showReadyScreen();
@@ -1232,63 +1317,22 @@
             if (currentRound === 0) {
                 actionButton.style.display = 'block';
                 
-                if (currentPuzzle.isSpeedRound) {
-                    actionButton.textContent = '⏱️ Start Speed Round';
-                    actionButton.onclick = () => {
-                        // Must be the first thing that happens on tap: on iOS/Android the
-                        // on-screen keyboard only opens during a genuine user gesture, and
-                        // that gesture "budget" can expire once other work runs first.
-                        activateMobileKeyboard();
-                        roundStarted = true;
-                        startTime = Date.now();
-                        startTimer();
-                        startAutoReveal();
-                        actionButton.style.display = 'none';
-                    };
-                } else {
-                    actionButton.textContent = '🎯 Start Final Challenge';
-                    actionButton.onclick = () => {
-                        activateMobileKeyboard();
-                        roundStarted = true;
-                        startTime = Date.now();
-                        startTimer();
-                        document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
-                        actionButton.style.display = 'none';
-                    };
-                }
+                actionButton.textContent = currentPuzzle.isFinalChallenge
+                    ? 'Start Final Round'
+                    : 'Start Round';
+                actionButton.onclick = () => {
+                    roundStarted = true;
+                    startTime = Date.now();
+                    startTimer();
+                    actionButton.style.display = 'none';
+                };
             } else {
                 // Rounds 2-5: Auto-start immediately
                 actionButton.style.display = 'none';
                 roundStarted = true;
                 startTime = Date.now();
-                
-                // This still runs inside the same synchronous call stack as the
-                // "Continue" tap that led here (startRound() has no awaits), so the
-                // tap's gesture is still "live" and .focus() can open the keyboard
-                // without requiring a separate "Tap to Type" step.
-                activateMobileKeyboard();
-                
-                if (currentPuzzle.isSpeedRound) {
-                    startTimer();
-                    startAutoReveal();
-                } else {
-                    // Final challenge
-                    startTimer();
-                    document.getElementById('timerDisplay').parentElement.querySelector('.stat-label').textContent = 'Time (No Rush)';
-                }
+                startTimer();
             }
-        }
-        
-        // Focuses the hidden mobile input so the on-screen keyboard opens, then lets
-        // the input's own 'focus' listener (further down) handle hiding the fallback
-        // button and scrolling the letter tracker into view. No-op on desktop.
-        // IMPORTANT: only ever call this synchronously from inside a real tap/click
-        // handler — that's the only context in which iOS/Android allow a script to
-        // open the on-screen keyboard.
-        function activateMobileKeyboard() {
-            if (window.innerWidth > 640) return;
-            const input = document.getElementById('mobileKeyboardInput');
-            if (input) input.focus();
         }
 
         function renderWord() {
@@ -1301,62 +1345,14 @@
                 box.className = 'letter-box';
                 box.dataset.position = i;
                 
-                // For final challenge, track individual positions
-                if (currentPuzzle.isFinalChallenge) {
-                    // Check if this specific position has been revealed
-                    const posKey = `${i}-${letter}`;
-                    if (revealedLetters.has(posKey) || letter === ' ') {
-                        box.textContent = letter;
-                        box.classList.add('revealed');
-                    } else {
-                        // Make clickable for position selection
-                        box.style.cursor = 'pointer';
-                        box.onclick = () => selectPosition(i);
-                        if (selectedPosition === i) {
-                            box.style.borderColor = 'var(--ink)';
-                            box.style.borderWidth = '3px';
-                            box.style.background = 'var(--parchment)';
-                        }
-                    }
-                } else {
-                    // Speed rounds: standard hangman style
-                    if (revealedLetters.has(letter) || letter === ' ') {
-                        box.textContent = letter;
-                        box.classList.add('revealed');
-                    }
+                // All rounds use the same mechanic: a correct letter fills
+                // every position where it appears.
+                if (revealedLetters.has(letter) || letter === ' ') {
+                    box.textContent = letter;
+                    box.classList.add('revealed');
                 }
                 
                 display.appendChild(box);
-            }
-        }
-
-        function selectPosition(position) {
-            if (!currentPuzzle.isFinalChallenge) return;
-            
-            const letter = currentPuzzle.word[position];
-            const posKey = `${position}-${letter}`;
-            
-            // Don't allow selecting already revealed positions
-            if (revealedLetters.has(posKey)) return;
-            
-            selectedPosition = position;
-            renderWord();
-        }
-
-        function selectNextUnrevealedPosition() {
-            if (!currentPuzzle.isFinalChallenge) return;
-            
-            // Find the first unrevealed position
-            for (let i = 0; i < currentPuzzle.word.length; i++) {
-                const letter = currentPuzzle.word[i];
-                if (letter === ' ') continue; // Skip spaces
-                
-                const posKey = `${i}-${letter}`;
-                if (!revealedLetters.has(posKey)) {
-                    selectedPosition = i;
-                    renderWord();
-                    return;
-                }
             }
         }
 
@@ -1410,25 +1406,11 @@
                 };
                 
                 if (guessedLetters.has(letter)) {
-                    if (currentPuzzle.isFinalChallenge) {
-                        // For final challenge: show if used but DON'T disable
-                        // Just mark it visually so player knows they've tried it
-                        if (currentPuzzle.word.includes(letter)) {
-                            key.classList.add('correct');
-                            key.style.opacity = '0.7';
-                        } else {
-                            key.classList.add('incorrect');
-                            key.style.opacity = '0.7';
-                        }
-                        // Key stays enabled for reuse at different positions
+                    key.disabled = true;
+                    if (currentPuzzle.word.includes(letter)) {
+                        key.classList.add('correct');
                     } else {
-                        // Speed rounds: disable after use
-                        key.disabled = true;
-                        if (currentPuzzle.word.includes(letter)) {
-                            key.classList.add('correct');
-                        } else {
-                            key.classList.add('incorrect');
-                        }
+                        key.classList.add('incorrect');
                     }
                 }
                 
@@ -1442,156 +1424,122 @@
                 return;
             }
             
-            if (currentPuzzle.isFinalChallenge) {
-                // Final challenge: positional guessing - letters can be reused
-                if (selectedPosition === null) {
-                    alert('Please click a blank space first, then guess a letter for that position.');
-                    return;
-                }
-                
-                const actualLetter = currentPuzzle.word[selectedPosition];
-                const posKey = `${selectedPosition}-${actualLetter}`;
-                
-                console.log(`Guessing '${letter}' at position ${selectedPosition}, actual letter is '${actualLetter}'`);
-                
-                if (actualLetter === letter) {
-                    // Correct guess for this position
-                    console.log(`ADDING position key: ${posKey}`);
-                    revealedLetters.add(posKey);
-                    console.log(`RevealedLetters after add:`, Array.from(revealedLetters));
-                    
-                    // Auto-select next unrevealed position
-                    selectNextUnrevealedPosition();
-                    
-                    renderWord();
-                } else {
-                    // Wrong guess - keep current position selected
-                    wrongGuesses++;
-                    document.getElementById('wrongDisplay').textContent = wrongGuesses;
-                    renderWord();
-                }
-                
-                // Track that we've tried this letter (for visual feedback only)
-                guessedLetters.add(letter);
-                renderKeyboard();
-                renderLetterTracker();
-                checkCompletion();
-                
+            // A letter can only be guessed once per round.
+            if (guessedLetters.has(letter)) return;
+            
+            guessedLetters.add(letter);
+            
+            if (currentPuzzle.word.includes(letter)) {
+                revealedLetters.add(letter);
+                renderWord();
             } else {
-                // Speed rounds: standard hangman - letters can only be guessed once
-                if (guessedLetters.has(letter)) return;
-                
-                guessedLetters.add(letter);
-                
-                if (currentPuzzle.word.includes(letter)) {
-                    console.log(`[SPEED ROUND] Adding plain letter to revealedLetters: '${letter}'`);
-                    revealedLetters.add(letter);
-                    renderWord();
-                } else {
-                    wrongGuesses++;
-                    document.getElementById('wrongDisplay').textContent = wrongGuesses;
-                }
-                
-                renderKeyboard();
-                renderLetterTracker();
-                checkCompletion();
+                wrongGuesses++;
+                document.getElementById('wrongDisplay').textContent = wrongGuesses;
+                // Discrete, causal deduction — deliberately louder than the
+                // timer's slow drip so the cause is unmistakable.
+                flashDeduction(roundConfig().wrongPenalty);
             }
+            
+            updateScoreDisplay();
+            renderKeyboard();
+            renderLetterTracker();
+            checkCompletion();
         }
 
+        /**
+         * Buy a hint: reveals one random unrevealed letter. Unlimited per
+         * round — the score floor stops it from being abusable, and a stuck
+         * player always has a way forward now that auto-reveal is gone.
+         */
+        function useHint() {
+            if (!roundStarted || !currentPuzzle) return;
+            
+            const unrevealed = [...new Set(currentPuzzle.word)]
+                .filter(l => l !== ' ' && !revealedLetters.has(l));
+            
+            if (unrevealed.length === 0) return;
+            
+            const letter = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+            
+            hintsUsed++;
+            revealedLetters.add(letter);
+            guessedLetters.add(letter);
+            
+            flashDeduction(hintCost());
+            
+            renderWord();
+            renderKeyboard();
+            renderLetterTracker();
+            updateScoreDisplay();
+            checkCompletion();
+        }
+
+        /**
+         * Float a "-N" up from the score so discrete penalties (wrong guesses,
+         * hints) read differently from the timer's continuous decay.
+         */
+        function flashDeduction(amount) {
+            const anchor = document.getElementById('scoreDisplay');
+            if (!anchor) return;
+            
+            const bubble = document.createElement('span');
+            bubble.className = 'score-deduction';
+            bubble.textContent = `−${amount}`;
+            anchor.parentElement.appendChild(bubble);
+            
+            anchor.classList.remove('score-hit');
+            void anchor.offsetWidth; // restart the animation
+            anchor.classList.add('score-hit');
+            
+            setTimeout(() => bubble.remove(), 900);
+        }
+
+        function updateScoreDisplay() {
+            currentScore = currentRoundScore();
+            const el = document.getElementById('scoreDisplay');
+            if (el) el.textContent = currentScore;
+        }
+
+        /**
+         * Single loop drives both the clock and the live score. Ticks faster
+         * than 1s because decay intervals are fractional (3.0s down to 1.0s),
+         * so a 1s tick would make the score look jerky.
+         */
         function startTimer() {
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
+                if (!startTime) return;
                 const elapsed = Math.floor((Date.now() - startTime) / 1000);
                 const minutes = Math.floor(elapsed / 60);
                 const seconds = elapsed % 60;
-                document.getElementById('timerDisplay').textContent = 
+                document.getElementById('timerDisplay').textContent =
                     `${minutes}:${seconds.toString().padStart(2, '0')}`;
-            }, 1000);
-        }
-
-        function startAutoReveal() {
-            // Clear any existing auto-reveal interval
-            if (autoRevealInterval) clearInterval(autoRevealInterval);
-            
-            autoRevealInterval = setInterval(() => {
-                // Safety check: only run for speed rounds
-                if (!currentPuzzle || !currentPuzzle.isSpeedRound) {
-                    console.log('[AUTO-REVEAL] Stopping - not a speed round');
-                    clearInterval(autoRevealInterval);
-                    return;
-                }
-                
-                if (revealedLetters.size >= new Set(currentPuzzle.word.replace(/\s/g, '')).size) {
-                    clearInterval(autoRevealInterval);
-                    return;
-                }
-                
-                const unrevealedLetters = [...new Set(currentPuzzle.word)]
-                    .filter(l => l !== ' ' && !revealedLetters.has(l));
-                
-                if (unrevealedLetters.length > 0) {
-                    const randomLetter = unrevealedLetters[
-                        Math.floor(Math.random() * unrevealedLetters.length)
-                    ];
-                    console.log(`[AUTO-REVEAL] Adding plain letter to revealedLetters: '${randomLetter}'`);
-                    revealedLetters.add(randomLetter);
-                    renderWord();
-                    checkCompletion();
-                }
-            }, 12000); // Reveal a letter every 12 seconds
+                updateScoreDisplay();
+            }, 250);
         }
 
         function checkCompletion() {
-            if (currentPuzzle.isFinalChallenge) {
-                // For final challenge, check if all positions are revealed
-                const wordWithoutSpaces = currentPuzzle.word.replace(/\s/g, '');
-                const totalPositions = wordWithoutSpaces.length;
-                const revealedCount = revealedLetters.size;
-                
-                console.log(`Final Challenge Check: ${revealedCount}/${totalPositions} positions revealed`);
-                console.log(`Word: ${currentPuzzle.word}`);
-                console.log(`Revealed keys:`, Array.from(revealedLetters));
-                
-                if (revealedCount >= totalPositions) {
-                    completeRound();
-                }
-            } else {
-                // For speed rounds, check if all unique letters are revealed
-                const uniqueLetters = new Set(currentPuzzle.word.replace(/\s/g, ''));
-                if (revealedLetters.size >= uniqueLetters.size) {
-                    completeRound();
-                }
+            // Every round completes the same way now: all unique letters found.
+            const uniqueLetters = new Set(currentPuzzle.word.replace(/\s/g, ''));
+            if (revealedLetters.size >= uniqueLetters.size) {
+                completeRound();
             }
         }
 
         function completeRound(isPassed = false) {
-            // Stop all intervals
+            // Stop the tick
             if (timerInterval) clearInterval(timerInterval);
-            if (autoRevealInterval) clearInterval(autoRevealInterval);
             
-            const timeElapsed = Math.floor((Date.now() - startTime) / 1000);
-            let baseScore = 0;
-            let penalty = 0;
+            // Round is over — no more buying letters or bailing out.
+            document.getElementById('hintButton').style.display = 'none';
+            document.getElementById('passButton').style.display = 'none';
             
-            if (isPassed) {
-                // Passed the final challenge - 0 points
-                currentScore = 0;
-            } else if (currentPuzzle.isSpeedRound) {
-                // Speed round scoring: aggressive time penalty (-20 pts every 2 seconds)
-                baseScore = 1500; // Higher base to accommodate aggressive penalties
-                const timePenalty = Math.floor(timeElapsed / 2) * 20; // -20 points every 2 seconds
-                const wrongPenalty = wrongGuesses * 50;
-                penalty = timePenalty + wrongPenalty;
-                const multiplier = multipliers[currentPuzzle.difficulty];
-                currentScore = Math.max(Math.round((baseScore - penalty) * multiplier), 50);
-            } else {
-                // Final challenge (Etymologus Maximus): same time model but higher stakes
-                baseScore = 5000; // Much higher base for final challenge
-                const timePenalty = Math.floor(timeElapsed / 2) * 20; // Same -20 pts every 2 seconds
-                const wrongPenalty = wrongGuesses * 150; // Steeper penalty for wrong guesses
-                penalty = timePenalty + wrongPenalty;
-                currentScore = Math.max(baseScore - penalty, 200); // Minimum 200 points for completion
-            }
+            // startTime is null if the player passes before starting Round 1.
+            const timeElapsed = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+            
+            // Same function the live display used, so the running score and
+            // the recorded score can never disagree.
+            currentScore = isPassed ? 0 : currentRoundScore();
             
             totalScore += currentScore;
             
@@ -1601,6 +1549,7 @@
                 difficultyName: difficultyNames[currentPuzzle.difficulty],
                 time: timeElapsed,
                 wrong: wrongGuesses,
+                hints: hintsUsed,
                 score: currentScore,
                 passed: isPassed,
                 isFinalChallenge: currentPuzzle.isFinalChallenge
@@ -1738,17 +1687,24 @@
             }
         };
 
+        document.getElementById('hintButton').onclick = () => {
+            // Auto-start Round 1 if the player's first action is a hint.
+            if (!roundStarted && currentRound === 0) {
+                const actionButton = document.getElementById('actionButton');
+                if (actionButton.style.display === 'block') {
+                    actionButton.click();
+                    setTimeout(useHint, 50);
+                    return;
+                }
+            }
+            useHint();
+        };
+
         document.getElementById('passButton').onclick = () => {
             if (confirm('Are you sure you want to skip this puzzle? You will receive 0 points.')) {
-                // Reveal the word by revealing all positions
-                console.log('[PASS BUTTON] Revealing all positions');
-                for (let i = 0; i < currentPuzzle.word.length; i++) {
-                    const letter = currentPuzzle.word[i];
-                    if (letter !== ' ') {
-                        const posKey = `${i}-${letter}`;
-                        console.log(`[PASS] Adding position key: ${posKey}`);
-                        revealedLetters.add(posKey);
-                    }
+                // Reveal every letter so the player still sees the answer.
+                for (const letter of currentPuzzle.word) {
+                    if (letter !== ' ') revealedLetters.add(letter);
                 }
                 renderWord();
                 
@@ -1762,6 +1718,7 @@
         function showFinalResults() {
             const totalTime = roundResults.reduce((sum, r) => sum + r.time, 0);
             const totalWrong = roundResults.reduce((sum, r) => sum + r.wrong, 0);
+            const totalHints = roundResults.reduce((sum, r) => sum + (r.hints || 0), 0);
             
             // Determine score classification
             let classification = '';
@@ -1791,14 +1748,17 @@
             document.getElementById('finalScore').textContent = totalScore;
             document.getElementById('finalTime').textContent = `${Math.floor(totalTime / 60)}:${(totalTime % 60).toString().padStart(2, '0')}`;
             document.getElementById('finalWrong').textContent = totalWrong;
+            document.getElementById('finalHints').textContent = totalHints;
             
             const summary = document.getElementById('roundSummary');
             summary.innerHTML = roundResults.map((result, i) => {
                 const puzzle = dailyPuzzles[i];
-                const emoji = result.passed ? '⏭️' : 
+                // Thresholds are proportional: bases now range 1500-5000,
+                // so a flat cutoff would flatter early rounds and punish late ones.
+                const emoji = result.passed ? '⏭️' :
                              result.isFinalChallenge ? '🏆' :
-                             result.score >= 800 ? '⚡' : 
-                             result.score >= 500 ? '✓' : '○';
+                             scoreTier(result) >= 0.60 ? '★' :
+                             scoreTier(result) >= 0.35 ? '✓' : '○';
                 const label = result.passed ? 'PASSED' : `+${result.score}`;
                 const expandId = `final-expand-${i}`;
                 const toggleId = `final-toggle-${i}`;
@@ -1914,18 +1874,25 @@
                 header.style.boxShadow = '0 8px 16px rgba(0,0,0,0.2)';
                 header.style.borderBottom = '3px solid var(--ink)';
                 
-                // Scroll to show the header at the top of the scrollable area
+                // Scroll so the header sits at the top of the scrollable area.
+                //
+                // Measured with getBoundingClientRect rather than offsetTop:
+                // offsetTop is relative to the nearest *positioned* ancestor,
+                // and the scroll container is static, so offsetTop was being
+                // measured from .modal-content — including the sticky score
+                // block above it. That overshot by the header block's height
+                // and pushed the expanded body out of view.
                 setTimeout(() => {
-                    const modalScrollContainer = document.querySelector('#finalModal .modal-content > div[style*="overflow-y"]');
-                    if (modalScrollContainer && header) {
-                        // Get the header's position relative to the scroll container
-                        const headerTop = header.offsetTop;
-                        // Scroll the container so header is at the top
-                        modalScrollContainer.scrollTo({
-                            top: headerTop,
-                            behavior: 'smooth'
-                        });
-                    }
+                    const container = document.querySelector('#finalModal .modal-content > div[style*="overflow-y"]');
+                    if (!container || !header) return;
+                    
+                    const delta = header.getBoundingClientRect().top
+                                - container.getBoundingClientRect().top;
+                    
+                    container.scrollTo({
+                        top: container.scrollTop + delta,
+                        behavior: 'smooth'
+                    });
                 }, 100);
             } else {
                 // Collapse: hide rest of text and details box, show dots
@@ -1941,12 +1908,13 @@
         };
 
         document.getElementById('shareButton').onclick = () => {
-            const emoji = roundResults.map((r, i) => {
+            const emoji = roundResults.map((r) => {
                 if (r.passed) return '⏭️';
+                const tier = scoreTier(r);
                 if (r.isFinalChallenge) {
-                    return r.score >= 1500 ? '🏆' : r.score >= 1000 ? '🥈' : r.score > 0 ? '🥉' : '○';
+                    return tier >= 0.60 ? '🏆' : tier >= 0.35 ? '🥈' : r.score > 0 ? '🥉' : '○';
                 }
-                return r.score >= 800 ? '⚡' : r.score >= 500 ? '✓' : '○';
+                return tier >= 0.60 ? '★' : tier >= 0.35 ? '✓' : '○';
             }).join('');
             
             const completedCount = roundResults.filter(r => !r.passed).length;
@@ -2048,44 +2016,35 @@
         const mobileInput = document.getElementById('mobileKeyboardInput');
         const keyboardButton = document.getElementById('mobileKeyboardButton');
         
-        // Manual fallback: if auto-focus (from the Start/Continue tap) didn't manage
-        // to open the keyboard on this browser, this button is still visible and a
-        // direct tap here is its own fresh user gesture.
+        // Button click activates keyboard
         if (keyboardButton) {
             keyboardButton.onclick = () => {
                 mobileInput.focus();
+                // Hide button after keyboard opens
+                keyboardButton.style.display = 'none';
+                
+                // Scroll to show letter tracker above keyboard
+                setTimeout(() => {
+                    const letterTracker = document.getElementById('letterTracker');
+                    if (letterTracker && window.innerWidth <= 640) {
+                        // Scroll letter tracker to center of viewport for better visibility
+                        letterTracker.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center',
+                            inline: 'nearest'
+                        });
+                        
+                        // Additional scroll up to ensure it's well above keyboard
+                        setTimeout(() => {
+                            window.scrollBy({
+                                top: -80,
+                                behavior: 'smooth'
+                            });
+                        }, 400);
+                    }
+                }, 300); // Wait for keyboard animation
             };
         }
-        
-        // Fires whenever mobileInput actually receives focus, regardless of whether
-        // that came from the fallback button or from an auto-focus call elsewhere
-        // (Start Speed Round, Start Final Challenge, or the rounds 2-5 auto-start).
-        // Keeping this in one place avoids duplicating the hide/scroll logic per call site.
-        mobileInput.addEventListener('focus', () => {
-            // Hide the fallback button now that the keyboard has (or should have) opened
-            if (keyboardButton) keyboardButton.style.display = 'none';
-            
-            // Scroll to show letter tracker above keyboard
-            setTimeout(() => {
-                const letterTracker = document.getElementById('letterTracker');
-                if (letterTracker && window.innerWidth <= 640) {
-                    // Scroll letter tracker to center of viewport for better visibility
-                    letterTracker.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'center',
-                        inline: 'nearest'
-                    });
-                    
-                    // Additional scroll up to ensure it's well above keyboard
-                    setTimeout(() => {
-                        window.scrollBy({
-                            top: -80,
-                            behavior: 'smooth'
-                        });
-                    }, 400);
-                }
-            }, 300); // Wait for keyboard animation
-        });
         
         // Handle input
         mobileInput.addEventListener('input', (e) => {

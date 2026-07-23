@@ -5,3 +5,8 @@
 
 [functions]
   node_bundler = "esbuild"
+
+# Runs once per day at 00:00 UTC to generate and store that day's puzzles.
+# Only fires on published production deploys, not deploy previews.
+[functions."generate-daily-puzzle"]
+  schedule = "@daily"

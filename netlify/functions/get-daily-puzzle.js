@@ -1,302 +1,178 @@
-const fetch = require('node-fetch');
+const { connectLambda, getStore } = require('@netlify/blobs');
+const {
+  STORE_NAME,
+  TOTAL_BUDGET_MS,
+  FALLBACK_PUZZLES,
+  generateAllPuzzles,
+  todayUTC,
+  secondsUntilMidnightUTC,
+  buildPayload
+} = require('../lib/puzzles');
 
 /**
- * Serves today's daily puzzle
- * Generates new puzzles if needed, otherwise returns cached
+ * Serves today's daily puzzle.
+ *
+ * Read path, cheapest first:
+ *   1. In-memory cache  — free, but dies with the container
+ *   2. Netlify Blobs    — shared across all instances; written once per day by
+ *                         the scheduled generate-daily-puzzle function
+ *   3. Generate on demand — self-healing if the scheduled run hasn't happened
+ *                           yet (e.g. first deploy), then persisted to Blobs
+ *
+ * Blobs are treated as an optimization, not a hard dependency: if the store is
+ * unavailable the endpoint still works, it just regenerates more often.
+ *
+ * Set USE_FALLBACK=true to skip OpenAI entirely (local dev / gameplay work).
  */
-exports.handler = async (event, context) => {
+
+const ALLOWED_ORIGINS = [
+  'https://etymon-game.netlify.app',
+  'http://localhost:8888',
+  'http://127.0.0.1:8888'
+];
+
+// Only applies to requests that would trigger a generation; cached reads are
+// never throttled, so ordinary players can't hit this.
+const RATE_LIMIT_PER_DAY = 10;
+
+let memoryCache = { date: null, payload: null };
+const rateLimitStore = new Map();
+
+exports.handler = async (event) => {
+  const headers = event.headers || {};
+  const origin = headers.origin || headers.Origin || '';
+  const corsHeaders = buildCorsHeaders(origin);
+
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers: corsHeaders, body: '' };
+  }
+  if (event.httpMethod !== 'GET') {
+    return json(405, { error: 'Method not allowed' }, corsHeaders);
+  }
+  // Browsers always send Origin cross-origin; a missing Origin (same-origin
+  // navigation, curl) is allowed through.
+  if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+    return json(403, { error: 'Forbidden origin' }, corsHeaders);
+  }
+
+  const today = todayUTC();
+  const cacheHeaders = {
+    ...corsHeaders,
+    'Cache-Control': `public, max-age=${secondsUntilMidnightUTC()}`
+  };
+
+  // Local dev / gameplay iteration: never call OpenAI.
+  if (process.env.USE_FALLBACK === 'true') {
+    return json(200, buildPayload(today, FALLBACK_PUZZLES, 'fallback'), corsHeaders);
+  }
+
+  // 1. In-memory
+  if (memoryCache.date === today && memoryCache.payload) {
+    return json(200, { ...memoryCache.payload, servedFrom: 'memory' }, cacheHeaders);
+  }
+
+  // 2. Blobs
+  const store = openStore(event);
+  if (store) {
+    try {
+      const stored = await store.get(`daily-${today}`, { type: 'json' });
+      if (stored && Array.isArray(stored.puzzles) && stored.puzzles.length === 5) {
+        memoryCache = { date: today, payload: stored };
+        return json(200, { ...stored, servedFrom: 'blob' }, cacheHeaders);
+      }
+    } catch (error) {
+      console.warn('Blob read failed:', error.message);
+    }
+  }
+
+  // 3. Generate on demand
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    console.warn('OPENAI_API_KEY not set — serving fallback puzzles.');
+    return json(200, buildPayload(today, FALLBACK_PUZZLES, 'fallback'), corsHeaders);
+  }
+
+  if (isRateLimited(headers, today)) {
+    return json(429, { error: 'Rate limit exceeded. Try again tomorrow.' }, {
+      ...corsHeaders,
+      'Retry-After': '3600'
+    });
+  }
+
   try {
-    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-    
-    if (!OPENAI_API_KEY) {
-      return fallbackPuzzles();
+    console.log(`No stored puzzles for ${today} — generating on demand.`);
+    const puzzles = await generateAllPuzzles(apiKey, Date.now() + TOTAL_BUDGET_MS);
+    const payload = buildPayload(today, puzzles, 'generated');
+
+    memoryCache = { date: today, payload };
+
+    if (store) {
+      try {
+        await store.setJSON(`daily-${today}`, payload);
+      } catch (error) {
+        console.warn('Blob write failed:', error.message);
+      }
     }
 
-    const today = new Date().toISOString().split('T')[0];
-    
-    // For demo/development: generate new puzzles each time
-    // In production, you'd check a database or cache here
-    console.log(`Generating puzzles for ${today}`);
-    
-    const puzzles = await generateAllPuzzles(OPENAI_API_KEY);
-    
-    const dailyPuzzle = {
-      date: today,
-      generatedAt: new Date().toISOString(),
-      puzzles: puzzles
-    };
-
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 'public, max-age=3600' // Cache for 1 hour
-      },
-      body: JSON.stringify(dailyPuzzle)
-    };
-
+    return json(200, { ...payload, servedFrom: 'generated' }, cacheHeaders);
   } catch (error) {
     console.error('Error generating puzzles:', error);
-    
-    // Return fallback puzzles on error
-    return fallbackPuzzles();
+    return json(200, buildPayload(today, FALLBACK_PUZZLES, 'fallback'), corsHeaders);
   }
 };
 
 /**
- * Generate all 5 puzzles concurrently (faster!)
+ * Blobs isn't auto-configured for the legacy Lambda handler signature, so the
+ * event has to be handed over explicitly. Returns null if unavailable, letting
+ * the caller degrade to on-demand generation.
  */
-async function generateAllPuzzles(apiKey) {
-  const difficulties = [
-    { 
-      level: 'novitiate', 
-      complexity: 'VERY EASY words that most people know: MICROSCOPE, TELEPHONE, BICYCLE, PHOTOGRAPH, TELEGRAPH. Roots should be extremely obvious and familiar.' 
-    },
-    { 
-      level: 'disciple', 
-      complexity: 'MODERATELY EASY words: GEOGRAPHY, BIOLOGY, THERMOMETER, AUTOBIOGRAPHY, AQUARIUM. Common words with recognizable roots, but slightly less obvious than novitiate level.' 
-    },
-    { 
-      level: 'scholar', 
-      complexity: 'CHALLENGING words: PHILANTHROPY, CLAUSTROPHOBIA, CACOPHONY, METAMORPHOSIS, SYNCHRONIZE. Less common vocabulary where roots are harder to connect.' 
-    },
-    { 
-      level: 'magister', 
-      complexity: 'DIFFICULT words with obscure Latin roots: MAGNANIMOUS, VERISIMILITUDE, PUSILLANIMOUS, JUXTAPOSITION, PULCHRITUDE. Advanced vocabulary that educated adults may not use regularly.' 
-    },
-    { 
-      level: 'etymologus', 
-      complexity: 'EXTREMELY DIFFICULT rare words: PERSPICACIOUS, LOQUACIOUS, RECALCITRANT, OBFUSCATE, TRUCULENT. Sophisticated academic vocabulary with complex, non-obvious etymological origins.' 
-    }
-  ];
-
-  const generatedWords = new Set();
-  const puzzles = [];
-  
-  // Generate puzzles one at a time to check for duplicates
-  for (const difficulty of difficulties) {
-    let attempts = 0;
-    let puzzle = null;
-    
-    // Try up to 5 times to get a unique, appropriate word
-    while (attempts < 5) {
-      puzzle = await generatePuzzle(apiKey, difficulty, generatedWords);
-      
-      // Check for duplicates and inappropriate content
-      if (!generatedWords.has(puzzle.word) && isAppropriateWord(puzzle)) {
-        generatedWords.add(puzzle.word);
-        break;
-      }
-      
-      if (generatedWords.has(puzzle.word)) {
-        console.log(`Duplicate word detected: ${puzzle.word}, regenerating...`);
-      } else {
-        console.log(`Inappropriate word detected: ${puzzle.word}, regenerating...`);
-      }
-      attempts++;
-    }
-    
-    if (puzzle) {
-      puzzles.push(puzzle);
-    }
-  }
-  
-  return puzzles;
-}
-
-/**
- * Check if word and definition contain inappropriate content
- */
-function isAppropriateWord(puzzle) {
-  // Check word length - reject words longer than 15 characters
-  if (puzzle.word.length > 15) {
-    console.log(`Word too long: ${puzzle.word} (${puzzle.word.length} letters)`);
-    return false;
-  }
-  
-  const inappropriateTerms = [
-    'cannibal', 'anthropophag', 'kill', 'murder', 'death', 'corpse', 
-    'torture', 'violent', 'genocide', 'suicide', 'blood', 'gore',
-    'rape', 'sexual', 'erotic', 'pornograph', 'incest',
-    'feces', 'excrement', 'defecate', 'urinate', 'vomit'
-  ];
-  
-  const textToCheck = `${puzzle.word} ${puzzle.definition} ${puzzle.briefEtymology} ${puzzle.detailedEtymology}`.toLowerCase();
-  
-  for (const term of inappropriateTerms) {
-    if (textToCheck.includes(term)) {
-      return false;
-    }
-  }
-  
-  return true;
-}
-
-/**
- * Generate a single puzzle using GPT
- */
-async function generatePuzzle(apiKey, difficulty, generatedWords = new Set()) {
-  const usedWords = Array.from(generatedWords);
-  const avoidClause = usedWords.length > 0 ? `\n\nIMPORTANT: Do NOT use these words that have already been generated: ${usedWords.join(', ')}` : '';
-  
-  const prompt = `You are an expert etymologist creating a word puzzle. Generate a single word with its etymology for the difficulty level: "${difficulty.level}" (${difficulty.complexity}).
-
-Requirements:
-- Choose ONE word appropriate for this difficulty level
-- Word must be 15 letters or fewer
-- The word should have clear Greek or Latin etymological roots
-- AVOID words related to: violence, death, cannibalism, sexual content, bodily functions, or other inappropriate topics
-- Choose neutral, educational vocabulary suitable for all ages${avoidClause}
-
-CRITICAL for clue format:
-- Do NOT show the actual root words (no "tele, graphein" or "philos, anthropos")
-- Instead, describe what the roots MEAN in English
-- Keep it challenging but fair - describe the meaning, not the word itself
-- Format: "Greek/Latin roots meaning: [description of meanings]"
-
-Examples of GOOD clues:
-- "Greek roots meaning: far, to write" (for TELEGRAPH)
-- "Greek roots meaning: love, human" (for PHILANTHROPY)  
-- "Latin roots meaning: great, soul" (for MAGNANIMOUS)
-- "Greek roots meaning: through, to look" (for PERSPICACIOUS)
-
-Examples of BAD clues (too specific):
-- "Greek: tele, graphein" (reveals the actual roots)
-- "An instrument for distant viewing" (describes the word, not roots)
-
-CRITICAL for detailedEtymology:
-- MUST trace the word's path through languages (e.g., "Entered English in the 1600s from Greek philanthropia through Latin philanthropia")
-- Include when the word entered English
-- Mention intermediate languages if applicable (Greek → Latin → French → English)
-- Add 1-2 interesting historical facts about the word's usage or meaning evolution
-
-Example detailedEtymology format:
-"First recorded in English in 1610-20, this word traveled from Greek 'tele' (far) and 'skopein' (to look) through New Latin 'telescopium.' Galileo popularized the term when he improved the spyglass design, revolutionizing astronomy by allowing observation of distant celestial objects."
-
-Respond ONLY with valid JSON in this exact format:
-{
-  "word": "WORD_IN_CAPS",
-  "clue": "Greek/Latin roots meaning: [description]",
-  "definition": "Brief dictionary definition",
-  "briefEtymology": "From Greek/Latin root1 (meaning) and root2 (meaning)",
-  "detailedEtymology": "2-3 sentences following the format above - MUST include date and language progression"
-}`;
-
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: 'gpt-4',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert etymologist. Always respond with valid JSON only.'
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      temperature: 0.8,
-      max_tokens: 500
-    })
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`OpenAI API error: ${response.statusText} - ${errorText}`);
-  }
-
-  const data = await response.json();
-  const content = data.choices[0].message.content.trim();
-  
-  // Parse the JSON response
-  let puzzle;
+function openStore(event) {
   try {
-    const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim();
-    puzzle = JSON.parse(cleanContent);
-  } catch (e) {
-    console.error('Failed to parse GPT response:', content);
-    throw new Error('Invalid JSON from GPT');
+    connectLambda(event);
+    return getStore({ name: STORE_NAME, consistency: 'strong' });
+  } catch (error) {
+    console.warn('Netlify Blobs unavailable:', error.message);
+    return null;
   }
+}
 
-  // Add difficulty metadata
-  puzzle.difficulty = difficulty.level;
-  puzzle.isSpeedRound = difficulty.level !== 'etymologus';
-  puzzle.isFinalChallenge = difficulty.level === 'etymologus';
+function buildCorsHeaders(origin) {
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': allowed,
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    Vary: 'Origin'
+  };
+}
 
-  return puzzle;
+function json(statusCode, body, headers) {
+  return { statusCode, headers, body: JSON.stringify(body) };
 }
 
 /**
- * Fallback puzzles if API fails
+ * Best-effort throttle on generation attempts only. Serverless instances are
+ * ephemeral and there may be several at once, so treat this as a speed bump —
+ * the OpenAI budget cap remains the real backstop.
  */
-function fallbackPuzzles() {
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*'
-    },
-    body: JSON.stringify({
-      date: new Date().toISOString().split('T')[0],
-      generatedAt: new Date().toISOString(),
-      puzzles: [
-        {
-          word: "TELESCOPE",
-          clue: "Greek roots meaning: far, to look or see",
-          definition: "An optical instrument designed to make distant objects appear nearer.",
-          briefEtymology: "From Greek tele (far) and skopein (to look)",
-          detailedEtymology: "First coined in the early 1600s when Galileo improved upon the spyglass design. The word combines tele, meaning 'far off,' with skopein, 'to look at.' The telescope revolutionized astronomy by allowing humans to observe distant celestial objects.",
-          difficulty: "novitiate",
-          isSpeedRound: true,
-          isFinalChallenge: false
-        },
-        {
-          word: "DEMOCRACY",
-          clue: "Greek roots meaning: people, power or rule",
-          definition: "A system of government by the whole population.",
-          briefEtymology: "From Greek demos (people) and kratos (power)",
-          detailedEtymology: "Originating in ancient Athens around 508 BCE, democracy literally means 'rule by the people.' The demos referred to the common people of Athens, while kratos signified strength or power.",
-          difficulty: "disciple",
-          isSpeedRound: true,
-          isFinalChallenge: false
-        },
-        {
-          word: "PHILANTHROPY",
-          clue: "Greek roots meaning: loving, human being",
-          definition: "The desire to promote the welfare of others through generous donation.",
-          briefEtymology: "From Greek philos (loving) and anthropos (human)",
-          detailedEtymology: "Entering English in the 1600s, philanthropy literally translates to 'love of humanity.' The concept dates back to ancient Greek philosophy where philanthropia was considered a fundamental virtue.",
-          difficulty: "scholar",
-          isSpeedRound: true,
-          isFinalChallenge: false
-        },
-        {
-          word: "MAGNANIMOUS",
-          clue: "Latin roots meaning: great, soul or spirit",
-          definition: "Generous or forgiving, showing nobility of spirit.",
-          briefEtymology: "From Latin magnus (great) and animus (soul)",
-          detailedEtymology: "This word entered English in the 1580s. It literally means 'great-souled' and was used in classical philosophy to describe the virtue of having a generous and noble disposition.",
-          difficulty: "magister",
-          isSpeedRound: true,
-          isFinalChallenge: false
-        },
-        {
-          word: "PERSPICACIOUS",
-          clue: "Latin roots meaning: through, to look",
-          definition: "Having a ready insight into things; acutely perceptive.",
-          briefEtymology: "From Latin per (through) and spicere (to look)",
-          detailedEtymology: "Dating from the 1610s, perspicacious derives from perspicax, the Latin word for 'sharp-sighted.' The prefix per- intensifies spicere (to look), suggesting the ability to see through appearances to underlying truths.",
-          difficulty: "etymologus",
-          isSpeedRound: false,
-          isFinalChallenge: true
-        }
-      ]
-    })
-  };
+function isRateLimited(headers, today) {
+  const ip =
+    headers['x-nf-client-connection-ip'] ||
+    headers['client-ip'] ||
+    (headers['x-forwarded-for'] || '').split(',')[0].trim() ||
+    'unknown';
+
+  const key = `${ip}-${today}`;
+  const count = rateLimitStore.get(key) || 0;
+  if (count >= RATE_LIMIT_PER_DAY) return true;
+
+  rateLimitStore.set(key, count + 1);
+
+  if (rateLimitStore.size > 5000) {
+    for (const k of rateLimitStore.keys()) {
+      if (!k.endsWith(today)) rateLimitStore.delete(k);
+    }
+  }
+  return false;
 }
