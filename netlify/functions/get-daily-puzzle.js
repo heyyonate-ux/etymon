@@ -71,7 +71,17 @@ exports.handler = async (event) => {
     return json(200, { ...memoryCache.payload, servedFrom: 'memory' }, cacheHeaders);
   }
 
-  // 2. Blobs
+  // 2. Curated corpus — hand-reviewed, fact-checked, no LLM call.
+  // This is the primary path once a corpus is committed; everything below is
+  // the fallback for dates past the end of it.
+  const fromCorpus = readCorpus(today);
+  if (fromCorpus) {
+    const payload = buildPayload(today, fromCorpus, 'corpus');
+    memoryCache = { date: today, payload };
+    return json(200, { ...payload, servedFrom: 'corpus' }, cacheHeaders);
+  }
+
+  // 3. Blobs
   const store = openStore(event);
   if (store) {
     try {
@@ -85,7 +95,7 @@ exports.handler = async (event) => {
     }
   }
 
-  // 3. Generate on demand
+  // 4. Generate on demand
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     console.warn('OPENAI_API_KEY not set — serving fallback puzzles.');
@@ -120,6 +130,27 @@ exports.handler = async (event) => {
     return json(200, buildPayload(today, FALLBACK_PUZZLES, 'fallback'), corsHeaders);
   }
 };
+
+/**
+ * Read today's five puzzles from the curated corpus, if it covers this date.
+ *
+ * The corpus is a static file committed to the repo, so this costs nothing and
+ * cannot fail at runtime. Returns null when the date is past the end of it, at
+ * which point the caller falls through to blob cache / live generation.
+ */
+let corpusCache; // undefined = not tried, null = absent
+function readCorpus(date) {
+  if (corpusCache === undefined) {
+    try {
+      corpusCache = require('../../public/corpus.json');
+    } catch {
+      corpusCache = null;
+      console.log('No corpus.json bundled — using generated puzzles.');
+    }
+  }
+  const day = corpusCache && corpusCache.puzzles && corpusCache.puzzles[date];
+  return Array.isArray(day) && day.length === 5 ? day : null;
+}
 
 /**
  * Blobs isn't auto-configured for the legacy Lambda handler signature, so the

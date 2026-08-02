@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Etymon - Daily Word Origins Puzzle</title>
+    <title>Whence - Daily Word Origins Puzzle</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -730,10 +730,11 @@
         }
 
         .menu-header {
-            position: sticky;
-            top: 0;
+            /* Deliberately NOT sticky. The modal padding would leave a gap
+               above a sticky header that scrolling content shows through.
+               Instead the panel doesn't scroll — .menu-body does. */
+            flex-shrink: 0;
             background: white;
-            z-index: 10;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -791,6 +792,16 @@
         .menu-content {
             max-width: 520px;
             text-align: left;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* the body scrolls, not the panel */
+        }
+
+        .menu-body {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            flex: 1 1 auto;
+            min-height: 0;
         }
 
         .menu-actions {
@@ -965,10 +976,11 @@
     <div class="modal" id="menuModal">
         <div class="modal-content menu-content">
             <div class="menu-header">
-                <h2>Etymon</h2>
+                <h2>Whence</h2>
                 <button class="modal-close" id="closeMenu" aria-label="Close">&times;</button>
             </div>
 
+            <div class="menu-body">
             <div class="how-to-play">
                 <h3>How to Play</h3>
                 <p class="how-to-lead">
@@ -995,12 +1007,13 @@
                 <button class="landing-button secondary" id="shareResultsButton">Share</button>
                 <button class="landing-button secondary" id="practiceModeButton">Practice Mode</button>
             </div>
+            </div>
         </div>
     </div>
 
     <div class="container" id="gameContainer">
         <header>
-            <h1>Etymon</h1>
+            <h1>Whence</h1>
             <div class="tagline">Guess the Word from its Roots</div>
         </header>
 
@@ -2047,7 +2060,7 @@
             }).join('');
             
             const completedCount = roundResults.filter(r => !r.passed).length;
-            const text = `Etymon Daily ${new Date().toLocaleDateString()}\nScore: ${totalScore} (${completedCount}/5)\n${emoji}\n\nGuess words from their roots!\nPlay at etymon-game.netlify.app`;
+            const text = `Whence Daily ${new Date().toLocaleDateString()}\nScore: ${totalScore} (${completedCount}/5)\n${emoji}\n\nGuess words from their roots!\nPlay at etymon-game.netlify.app`;
             
             if (navigator.share) {
                 navigator.share({ text });

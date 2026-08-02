@@ -9,7 +9,10 @@
     "puzzles": "node --env-file=.env scripts/preview-puzzles.js",
     "puzzles:mini": "node --env-file=.env scripts/preview-puzzles.js --model gpt-4o-mini",
     "build": "echo 'No build step needed'",
-    "generate": "netlify functions:invoke generate-daily-puzzle"
+    "generate": "netlify functions:invoke generate-daily-puzzle",
+    "corpus:generate": "node --env-file=.env scripts/generate-corpus.js",
+    "corpus:review": "node scripts/review-corpus.js",
+    "corpus:compile": "node scripts/compile-corpus.js"
   },
   "keywords": [
     "etymology",
@@ -21,6 +24,7 @@
   "dependencies": {
     "@netlify/blobs": "^8.1.0",
     "@netlify/functions": "^2.8.0",
+    "jsdom": "^29.1.1",
     "node-fetch": "^2.6.7"
   },
   "devDependencies": {

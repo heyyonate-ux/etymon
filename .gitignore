@@ -1,23 +1,23 @@
-# Dependencies
-node_modules/
-
-# Environment variables
+# Secrets — never commit
 .env
 .env.local
+.env.production
 
-# Build outputs
+# Dependencies
+node_modules/
+netlify/functions/node_modules/
+
+# Netlify CLI local scratch (machine-specific, never commit)
 .netlify/
-dist/
 
-# Generated files
-public/daily-puzzle.json
-
-# OS files
+# Logs & OS/editor noise
+*.log
+npm-debug.log*
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/
 *.swp
-*.swo
+
+# Corpus working files (review.json IS committed — it's the curation record)
+corpus/rejected.json

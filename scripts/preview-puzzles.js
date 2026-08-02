@@ -80,60 +80,22 @@ function wrap(text, indent = 2) {
 }
 
 /**
- * Cheap objective checks against the rules the prompt asks for. These don't
- * judge whether a clue is *good* — that's your call — they just surface the
- * obvious violations so you're not hunting for them by eye.
+ * Use the SAME audit the corpus generator uses, so what you see while
+ * previewing is exactly what generation will accept or reject. (The old
+ * hand-rolled "possible root leak" heuristic that lived here flagged ordinary
+ * words like "cloudy" and "spoken" while passing real fabrications — it's gone.)
  */
+const { auditCandidate, MAX_WORD_LENGTH } = require('./lib/authoring');
+
 function auditPuzzle(puzzle, seenWords) {
-  const notes = [];
-  const word = puzzle.word;
-  const clue = (puzzle.clue || '').toLowerCase();
-
-  if (clue.includes(word.toLowerCase())) {
-    notes.push([c.red, 'clue contains the answer']);
-  }
-
-  // Prompt forbids exposing the literal roots. A long alphabetic token inside
-  // the clue that isn't an ordinary English word is usually a transliteration
-  // that slipped through (e.g. "skopein", "anthropos").
-  const suspicious = (puzzle.clue || '')
-    .replace(/^.*?meaning:/i, '')
-    .match(/\b[a-z]{6,}\b/g) || [];
-  // Ordinary English words that legitimately appear in a "roots meaning: ..."
-  // clue. Anything 6+ letters not on this list gets flagged as a *possible*
-  // transliteration — expect the occasional false positive.
-  const common = new Set([
-    'meaning', 'through', 'because', 'against', 'without', 'between',
-    'greater', 'smaller', 'writing', 'written', 'speaking', 'speech',
-    'looking', 'thinking', 'measure', 'measuring', 'measurement',
-    'together', 'himself', 'herself', 'itself', 'shaped', 'formed',
-    'across', 'beyond', 'around', 'before', 'after', 'spirit', 'people',
-    'nature', 'science', 'letter', 'memory', 'wisdom', 'colour', 'color',
-    'number', 'hearing', 'distant', 'logical', 'knowledge', 'sensation',
-    'feeling', 'suffering', 'healing', 'growth', 'change', 'motion',
-    'movement', 'strange', 'foreign', 'ancient', 'hollow', 'narrow',
-    'silence', 'darkness', 'brightness', 'heaven', 'planet', 'thousand',
-    'hundred', 'higher', 'inside', 'outside', 'beneath', 'strength',
-    'weakness', 'birth', 'living', 'breath', 'breathing', 'himself',
-    'sacred', 'common', 'single', 'double', 'divided', 'joined', 'binding',
-    'carrying', 'bearing', 'leading', 'sending', 'taking', 'making',
-    'turning', 'falling', 'rising', 'flowing', 'burning', 'cutting'
-  ]);
-  const leaks = suspicious.filter((w) => !common.has(w));
-  if (leaks.length) {
-    notes.push([c.yellow, `possible root leak: ${leaks.join(', ')}`]);
-  }
-
-  if (!/\b(1[0-9]{3}|[0-9]{3,4}\s*(BCE|CE|AD|BC)|[0-9]{2}th|century|[0-9]{4}s)\b/i.test(
-    puzzle.detailedEtymology || ''
-  )) {
-    notes.push([c.yellow, 'no date in detailed etymology']);
-  }
-
-  if (word.length > 15) notes.push([c.red, `${word.length} letters (max 15)`]);
-  if (seenWords.has(word)) notes.push([c.red, 'duplicate word']);
-
-  return notes;
+  const { rejects, flags } = auditCandidate(puzzle, {
+    usedWords: seenWords,
+    maxLength: MAX_WORD_LENGTH
+  });
+  return [
+    ...rejects.map((r) => [c.red, r]),
+    ...flags.map((f) => [c.yellow, f])
+  ];
 }
 
 function printPuzzle(puzzle, index, seenWords) {
