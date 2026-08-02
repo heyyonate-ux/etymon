@@ -1,196 +1,104 @@
-# Etymon - Daily Word Origins Puzzle
+# Whence
 
-**Live Demo:** [etymon-game.netlify.app](https://etymon-game.netlify.app)
+**A daily word game about where words come from.**
 
-A daily word puzzle game that challenges players to guess words based on their etymological roots. Think Wordle meets linguistics - learn the origins of words while testing your vocabulary!
+Each day, five words — each harder than the last. You're shown what a word's Greek or Latin *roots* mean, never the word itself, and you guess your way to it letter by letter. Between rounds, you read where the word actually came from: when it entered English, the languages it passed through, and a bit of its history.
 
-![Etymon Game Screenshot](https://img.shields.io/badge/Status-Live-success)
-![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20Mobile-blue)
+Wordle-adjacent in feel, but built around learning etymology rather than racing a clock.
 
-## 🎮 How to Play
+**Live:** [etymon-game.netlify.app](https://etymon-game.netlify.app)
 
-**Objective:** Guess the target word using clues about its Greek or Latin roots.
-
-**Game Structure:**
-- **5 Rounds Total:** 4 speed rounds + 1 final challenge
-- **Speed Rounds:** Letters reveal automatically every 12 seconds - guess quickly for bonus points
-- **Final Challenge:** No auto-reveal - place each letter in its exact position for maximum score
-
-**Scoring:**
-- Faster guesses = higher scores
-- Fewer wrong guesses = bonus points
-- Complete all 5 rounds to see your etymological expertise level
-
-**Example:**
-```
-Clue: "Greek roots meaning: far, to look"
-Word: T E L E S C O P E
-```
-
-## ✨ Features
-
-### Game Mechanics
-- **Daily Puzzles:** New set of 5 words generated daily using GPT-4
-- **Progressive Difficulty:** Words increase in complexity from Novitiate → Etymologus Maximus
-- **Real-time Scoring:** Points calculated based on speed and accuracy
-- **Letter Tracking:** Visual feedback showing correct (green) and incorrect (red) guesses
-
-### Educational Value
-- **Etymology Learning:** Each word includes detailed origin stories
-- **Root Breakdowns:** Greek and Latin root meanings explained
-- **Historical Context:** Learn when words entered the English language
-- **Definitions:** Full word definitions provided
-
-### User Experience
-- **Mobile-First Design:** Optimized for touch screens and small displays
-- **Responsive Layout:** Works seamlessly on desktop, tablet, and mobile
-- **Smooth Animations:** Polished transitions and visual feedback
-- **Share Results:** Share your score with emoji-based performance indicators
-
-### Technical Highlights
-- **PWA Ready:** Works offline after first load
-- **Performance Optimized:** Fast loading, minimal dependencies
-- **Accessible:** Keyboard navigation, screen reader friendly
-- **Cross-Platform:** iOS, Android, Desktop browsers
-
-## 🛠️ Technical Stack
-
-### Frontend
-- **HTML5/CSS3** - Semantic markup, modern styling
-- **Vanilla JavaScript** - No frameworks, pure ES6+
-- **CSS Variables** - Theming system with parchment aesthetic
-- **Responsive Design** - Mobile-first with breakpoint at 640px
-
-### Backend
-- **Netlify Functions** - Serverless API endpoints
-- **OpenAI GPT-4** - Daily puzzle generation
-- **Node.js** - Runtime for serverless functions
-
-### Deployment
-- **Netlify** - Hosting and continuous deployment
-- **Git** - Version control
-- **GitHub** - Repository hosting
-
-## 📱 Mobile Optimization
-
-Special attention paid to mobile UX:
-- **Letter Tracker** instead of on-screen keyboard (saves 40-50% screen space)
-- **Auto-scroll** to keep important content visible when keyboard opens
-- **Touch-optimized** buttons and interactive elements
-- **Compact UI** with smart spacing to maximize gameplay area
-
-## 🎨 Design Philosophy
-
-**Visual Identity:**
-- **Parchment aesthetic** - Warm, scholarly feel appropriate for etymology
-- **Color palette** - Earth tones (browns, beiges) with accent colors
-- **Typography** - Crimson Pro (serif) for headers, DM Sans for body
-- **Clarity over decoration** - Minimal UI that highlights the words
-
-**User-Centered Decisions:**
-- Removed on-screen keyboard in favor of native device keyboard
-- Letter tracker shows all attempts at a glance
-- Clear visual hierarchy (word → clue → stats)
-- Progressive disclosure (definitions collapsible)
-
-## 🚀 Setup & Development
-
-### Prerequisites
-```bash
-node >= 14.0.0
-npm >= 6.0.0
-```
-
-### Installation
-```bash
-# Clone repository
-git clone https://github.com/yourusername/etymon-game.git
-cd etymon-game
-
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env
-# Add your OPENAI_API_KEY to .env
-```
-
-### Development
-```bash
-# Run local development server
-netlify dev
-
-# Visit http://localhost:8888
-```
-
-### Deployment
-```bash
-# Deploy to Netlify
-netlify deploy --prod
-
-# Or push to main branch for automatic deployment
-git push origin main
-```
-
-## 📊 Performance Metrics
-
-- **First Contentful Paint:** < 1s
-- **Time to Interactive:** < 2s
-- **Lighthouse Score:** 95+ (Performance, Accessibility, Best Practices)
-- **Bundle Size:** < 50KB (no external dependencies)
-
-## 🔮 Future Enhancements
-
-**Planned Features:**
-- [ ] User accounts and progress tracking
-- [ ] Leaderboards (daily, weekly, all-time)
-- [ ] Practice mode with unlimited puzzles
-- [ ] Difficulty selection
-- [ ] Multiple language support
-- [ ] Word collections by theme (science, medicine, philosophy)
-- [ ] Hints system
-- [ ] Streak tracking
-
-**Technical Improvements:**
-- [ ] Service Worker for true offline support
-- [ ] Database for user progress (Firebase/Supabase)
-- [ ] Analytics integration
-- [ ] A/B testing framework
-- [ ] Custom domain
-
-## 📝 Project Structure
-
-```
-etymon-game/
-├── public/
-│   ├── index.html          # Main game interface
-│   ├── manifest.json       # PWA manifest
-│   └── icons/              # App icons
-├── netlify/
-│   └── functions/
-│       └── generate-puzzles.js  # Daily puzzle generation
-├── .env                    # Environment variables
-├── netlify.toml           # Netlify configuration
-├── package.json           # Dependencies
-└── README.md              # This file
-```
-
-## 🤝 Contributing
-
-This is a personal project, but suggestions and feedback are welcome!
-
-## 📄 License
-
-© 2026 - Personal Project
-
-## 🙏 Acknowledgments
-
-- **OpenAI GPT-4** - Puzzle generation
-- **Netlify** - Hosting and serverless functions
-- **Google Fonts** - Crimson Pro and DM Sans typefaces
-- **Etymology Online** - Inspiration for educational content
+> **Note:** the app is mid-rename from *Etymon* to *Whence*; the deploy URL still reflects the old name.
 
 ---
 
-**Built with care by Nate Miller**
+## How it plays
 
+- **Five rounds a day**, rising in difficulty through a scholar's ladder: Novitiate → Disciple → Scholar → Magister → Etymologus.
+- **The clue gives you the roots' meanings**, e.g. *"Greek roots meaning: far, to look"* → TELESCOPE. It never shows the roots themselves or defines the word.
+- **Guess letters.** A correct letter fills every position it appears in.
+- **Your score starts at the round's maximum and falls** as the clock runs, on wrong guesses, and when you buy a hint — shown live, so the scoring explains itself with no tutorial. Time pressure tightens each round.
+- **Stuck?** A hint reveals a random letter for a cost; Pass skips the word for zero.
+- **After each round**, the word's full etymology and definition are revealed — the actual point of the game.
+- Your five scores sum to a **daily rank**, from Novitiate up to Etymologus Maximus.
+
+---
+
+## Architecture
+
+Deliberately lightweight: no frontend framework, minimal dependencies.
+
+**Frontend** — a single `public/index.html` (HTML, CSS, vanilla JS). Parchment-and-serif aesthetic; mobile-first, responsive.
+
+**Backend** — Netlify serverless functions. The player-facing function serves each day's five puzzles; the source is chosen in priority order:
+
+1. **Curated corpus** — a static, hand-reviewed file (see below). The primary path.
+2. **Blob cache** — a per-day cache for any generated set.
+3. **Live generation** — an OpenAI call, as a fallback for dates the corpus doesn't yet cover.
+
+**Hosting** — Netlify, auto-deploying from `main`.
+
+---
+
+## The puzzle corpus
+
+The interesting engineering problem here isn't the game — it's the puzzles.
+
+Early versions generated puzzles live from an LLM at request time. That surfaced a decisive problem: **language models fabricate etymologies.** They produce confident, plausible, well-formatted word histories with wrong dates, invented roots, and fictional backstories — and no automated check can tell a real etymology from an invented one, because the output is *shaped* correctly either way.
+
+So the LLM was demoted from a runtime dependency to an **authoring tool**, behind a human curation pipeline:
+
+```
+generate candidates  →  auto-reject mechanical failures  →  human review + fact-check  →  compile static corpus  →  serve
+```
+
+- **`scripts/generate-corpus.js`** bulk-generates candidates and auto-rejects the mechanically broken ones (clue leaks the answer, wrong format, missing date, duplicates, banned content). It reports *why* candidates were rejected, so the prompt can be tuned against real data.
+- **`scripts/review-corpus.js`** is a local review UI. Each candidate is fact-checked against Etymonline by a human — the one step no automation can replace — and approved, rejected, or re-tiered.
+- **`scripts/compile-corpus.js`** lays the approved words out one-per-tier-per-day into a static, date-keyed file the game serves with no runtime LLM call.
+
+The result: puzzles cost effectively nothing to serve, never repeat, and — crucially — never present an invented word history as fact.
+
+The automated checks in this pipeline verify *shape, not truth*. That distinction is the whole design rationale, and it's enforced deliberately: there's even a test asserting that a well-formed but fabricated etymology passes every mechanical check, so the checks are never mistaken for fact-checking.
+
+---
+
+## Project layout
+
+```
+public/index.html                   the entire game
+netlify/functions/
+  get-daily-puzzle.js               serves the daily puzzle (corpus → cache → generate)
+  generate-daily-puzzle.js          scheduled generation for the fallback path
+netlify/lib/puzzles.js              shared runtime generation logic
+scripts/
+  generate-corpus.js                bulk candidate generation
+  review-corpus.js                  human review + fact-check UI
+  compile-corpus.js                 approved words → static corpus
+  preview-puzzles.js                quick terminal preview for prompt tuning
+  lib/authoring.js                  the authoring prompt + validation rules
+```
+
+Additional docs in the repo cover the corpus workflow (`CORPUS.md`), the launch checklist (`LAUNCH.md`), and security notes (`SECURITY.md`).
+
+---
+
+## Running locally
+
+```bash
+npm install
+npm run dev:fallback     # play at localhost:8888 with no API calls
+```
+
+`dev:fallback` serves a fixed set of puzzles, so you can work on the game with no OpenAI cost. The corpus tooling is documented in `CORPUS.md`.
+
+---
+
+## Status
+
+Active development. The game and the corpus pipeline are built; the curated corpus is being populated, and the *Etymon → Whence* rename is in progress. See `STATUS.md` for current state.
+
+---
+
+## Tech
+
+Vanilla JS · Netlify Functions · OpenAI (authoring only) · no build step
