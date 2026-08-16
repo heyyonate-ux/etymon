@@ -146,6 +146,20 @@ Re-running is safe — it rebuilds from scratch each time.
 
 ⚠️ **`--start` decides which words land on which days.** Once real players have played a date, don't recompile with a different start, or you'll shuffle puzzles people have already seen. When extending later, keep the same `--start` and let it run longer.
 
+### Staging: compile before reviewing (dogfooding only)
+
+To get a playable corpus live before hand-reviewing every entry:
+
+    npm run corpus:compile -- --include-unreviewed --start <date>
+
+This ships every candidate that isn't explicitly `rejected` — including
+`unreviewed` ones. Etymologies are NOT fact-checked. It prints a warning
+every time. Use it only to get something in front of dogfooders.
+
+Before any real/public launch, re-compile WITHOUT the flag from a properly
+reviewed set. Ask dogfooders to flag etymologies that seem wrong — they
+become a free first-pass fact-check.
+
 ---
 
 ## Step 4 — Ship

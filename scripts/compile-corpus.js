@@ -53,7 +53,20 @@ function addDays(iso, n) {
     process.exit(1);
   }
 
-  const approved = review.filter(r => r.status === 'approved');
+  // --include-unreviewed lets you compile a playable corpus from candidates
+  // you haven't hand-approved yet — for dogfooding only. It deliberately still
+  // EXCLUDES anything explicitly rejected, so you're shipping "not yet checked,"
+  // never "checked and failed."
+  const includeUnreviewed = process.argv.includes('--include-unreviewed');
+  const approved = includeUnreviewed
+    ? review.filter(r => r.status !== 'rejected')
+    : review.filter(r => r.status === 'approved');
+
+  if (includeUnreviewed) {
+    const unreviewedCount = review.filter(r => r.status === 'unreviewed').length;
+    console.log(`\n\x1b[33m⚠  --include-unreviewed: shipping ${unreviewedCount} UNVERIFIED candidates.\x1b[0m`);
+    console.log(`\x1b[2m   Etymologies are NOT fact-checked. For dogfooding only — re-compile without\n   this flag before any real launch.\x1b[0m`);
+  }
   if (!approved.length) {
     console.error(`${c.red}Nothing approved yet.${c.reset} Run npm run corpus:review.`);
     process.exit(1);

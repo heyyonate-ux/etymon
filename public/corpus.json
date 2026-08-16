@@ -1,0 +1,997 @@
+{
+  "generatedAt": "2026-08-16T23:42:34.707Z",
+  "startDate": "2026-08-18",
+  "endDate": "2026-09-05",
+  "days": 19,
+  "wordsPerDay": 5,
+  "puzzles": {
+    "2026-08-18": [
+      {
+        "word": "AUTOMOBILE",
+        "clue": "Greek and Latin roots meaning: self, movable",
+        "definition": "A road vehicle, typically with four wheels, powered by an internal combustion engine.",
+        "briefEtymology": "From Greek auto (self) and Latin mobilis (movable)",
+        "detailedEtymology": "The term 'automobile' was first used in English in the late 19th century, specifically in 1895. It was adapted from the French automobile, which was a combination of Greek and Latin roots. The concept of a self-propelled vehicle dates back to key inventions by Karl Benz and partners, leading to the modern car.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "CHRONOLOGY",
+        "clue": "Greek roots meaning: time, study",
+        "definition": "The science of arranging events in their order of occurrence in time.",
+        "briefEtymology": "From Greek chronos (time) and logos (study)",
+        "detailedEtymology": "First recorded in English in 1585, from Latin chronologia. The concept of chronology is key in historical studies, allowing for a structured understanding of historical events and their sequences.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "CIRCUMSCRIBE",
+        "clue": "Latin roots meaning: around, to write",
+        "definition": "To draw a figure around another, touching it at points but not cutting it.",
+        "briefEtymology": "From Latin circum (around) and scribere (to write)",
+        "detailedEtymology": "First appeared in English in the late 16th century. Derived from the Latin circumscribere, which combines circum (around) and scribere (to write). Often used in geometry and figuratively in boundaries or limits. Interestingly, in classical Latin, it also meant to cheat or defraud.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "CONFLUENCE",
+        "clue": "Latin roots meaning: together, to flow",
+        "definition": "A coming together or flowing together; the place where two rivers join or a gathering or meeting point.",
+        "briefEtymology": "From Latin confluere (to flow together), from con- (together) and fluere (to flow)",
+        "detailedEtymology": "The word 'confluence' entered the English language in the early 15th century. It comes from Old French 'confluent' and directly from Latin 'confluentia'. A fascinating aspect of its usage is that it can describe both physical junctions, such as rivers merging, and metaphorical meetings, highlighting its versatility in English.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "METICULOUS",
+        "clue": "Latin roots meaning: fear, full of",
+        "definition": "Showing great attention to detail; very careful and precise.",
+        "briefEtymology": "From Latin meticulosus (fearful), from metus (fear) and -ous (full of)",
+        "detailedEtymology": "Entered English in the early 16th century, derived from Latin meticulosus. Originally carried a meaning of being overly fearful or timid but evolved in the 19th century to its current sense of being extremely careful and precise. The shift in meaning reflects how language adapts to societal changes in perceptions and values.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-08-19": [
+      {
+        "word": "HELICOPTER",
+        "clue": "Greek roots meaning: spiral, wing",
+        "definition": "An aircraft with rotating wings that allow it to take off and land vertically.",
+        "briefEtymology": "From Greek helix (spiral) and pteron (wing)",
+        "detailedEtymology": "The term 'helicopter' was coined in English in 1861, derived from the French hélicoptère. Although the concept dates back to earlier proposals, the first successful helicopter flights only occurred in the early 20th century.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "KILOGRAM",
+        "clue": "Greek roots meaning: thousand, weight",
+        "definition": "A metric unit of mass equal to one thousand grams.",
+        "briefEtymology": "From Greek khilioi (thousand) and gramma (weight)",
+        "detailedEtymology": "Entered English in the late 18th century, from French kilogramme, part of the metric system introduced during the French Revolution. The kilogram was originally defined as the mass of one liter of water.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "PARADOXICAL",
+        "clue": "Greek roots meaning: beyond, opinion",
+        "definition": "Seemingly self-contradictory or absurd but in reality expressing a possible truth.",
+        "briefEtymology": "From Greek para (beyond) and doxa (opinion)",
+        "detailedEtymology": "Entered English in the late 16th century, from Middle French paradoxal and directly from Latin paradoxum, referring to a statement that contradicts itself. Paradoxes have been a central topic in philosophical discussions since ancient times.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "INSIGNIFICANT",
+        "clue": "Latin roots meaning: not, mark",
+        "definition": "Lacking in importance or value.",
+        "briefEtymology": "From Latin in- (not) and signum (mark, sign)",
+        "detailedEtymology": "Entered English in the late 16th century, from Medieval Latin insignificans. The prefix 'in-' is a negation in Latin, and 'significant' comes from 'significare,' meaning to signify or mark. The word was used to describe something without notable effect or meaning during the Renaissance.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "CONCILIATORY",
+        "clue": "Latin roots meaning: together, call",
+        "definition": "Intended to pacify or placate.",
+        "briefEtymology": "From Latin conciliare (to bring together, to win over), from com- (together) and calare (to call).",
+        "detailedEtymology": "First appeared in English in the 16th century, from Latin conciliare, meaning to bring together or win over. It originally referred to strategies or acts aimed at reducing hostility or gaining goodwill, illustrating the importance of harmony in political and social contexts.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-08-20": [
+      {
+        "word": "MICROSCOPE",
+        "clue": "Greek roots meaning: small, to look",
+        "definition": "An instrument used to see objects that are too small to be seen by the naked eye.",
+        "briefEtymology": "From Greek mikros (small) and skopein (to look)",
+        "detailedEtymology": "First known use in English in 1648, from New Latin microscopium. The invention of the microscope is attributed to scientists like Hans Lippershey and Zacharias Janssen in the late 16th century, but its etymology was influenced by the Greek roots to highlight its function in magnifying small objects.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "PHOTOGRAPH",
+        "clue": "Greek roots meaning: light, drawing",
+        "definition": "An image recorded by a camera using light-sensitive material or digital sensors.",
+        "briefEtymology": "From Greek phōs (light) and graphē (drawing)",
+        "detailedEtymology": "First recorded in English in 1839, the word comes from French photographie. It was coined shortly after the invention of photography as a means to capture images using light. The process revolutionized visual documentation, replacing drawn illustrations with accurate representations of reality.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "ARCHAEOLOGY",
+        "clue": "Greek roots meaning: ancient, study of",
+        "definition": "The scientific study of material remains of past human life and activities.",
+        "briefEtymology": "From Greek archaia (ancient things) and logos (study).",
+        "detailedEtymology": "First appeared in English around 1607, from French archéologie or directly from Greek archaiologia, referring to the study of ancient history. The discipline became systematic in the 19th century, aiding historians with physical evidence.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "EXAGGERATE",
+        "clue": "Latin roots meaning: out, heap",
+        "definition": "To represent something as being larger, better, or worse than it really is.",
+        "briefEtymology": "From Latin exaggerare (heap up, magnify), consisting of ex (out) and aggerare (to heap)",
+        "detailedEtymology": "Entered English in the late 15th century. The word comes from Latin exaggerare, which conveys the sense of piling up or intensifying. Interestingly, exaggeration often serves as a rhetorical device to emphasize a point in storytelling and persuasion.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "AMBIGUITY",
+        "clue": "Latin roots meaning: both, to drive or lead",
+        "definition": "The quality of being open to more than one interpretation.",
+        "briefEtymology": "From Latin ambi (both) and agere (to drive or lead)",
+        "detailedEtymology": "First appeared in English in the late 14th century, derived from Old French ambiguite, which in turn came from Latin ambiguitas. The word reflects the dual nature of many situations that can have multiple interpretations or meanings.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-08-21": [
+      {
+        "word": "PHOTOGENIC",
+        "clue": "Greek roots meaning: light, producing",
+        "definition": "Looking attractive in photographs.",
+        "briefEtymology": "From Greek phos (light) and genes (producing)",
+        "detailedEtymology": "Entered English in the mid-19th century. The term was originally used in a more general sense related to producing light but evolved to refer to being photogenic in the early 20th century as photography became more widespread. The word reflects a shift in meaning based on developments in photographic technology.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "BIOGRAPHY",
+        "clue": "Greek roots meaning: life, writing",
+        "definition": "A written account of someone's life.",
+        "briefEtymology": "From Greek bios (life) and graphein (to write)",
+        "detailedEtymology": "The term biography entered English in the late 17th century, derived from Medieval Latin biographia. Its modern popularity grew as the lives of notable figures were documented. The word reflects the human fascination with history and personal stories.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "CARNIVOROUS",
+        "clue": "Latin roots meaning: flesh, to eat",
+        "definition": "An organism that primarily consumes animal tissue.",
+        "briefEtymology": "From Latin caro (flesh) and vorare (to eat)",
+        "detailedEtymology": "First recorded in English in the 17th century, from Latin 'carnivorus'. The term was popularized in natural science to describe animals that feed on others. Originally used by scientists to categorize living organisms based on their dietary habits.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "SUBTERRANEAN",
+        "clue": "Latin roots meaning: under, earth",
+        "definition": "Located or occurring beneath the earth's surface.",
+        "briefEtymology": "From Latin sub (under) and terra (earth)",
+        "detailedEtymology": "First recorded in English in the 17th century, from Medieval Latin subterraneus. The concept has been popular in literature, symbolizing the unknown and hidden, influencing fiction from Jules Verne to modern fantasy.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "EXASPERATE",
+        "clue": "Latin roots meaning: thoroughly, rough",
+        "definition": "To irritate or provoke to a high degree.",
+        "briefEtymology": "From Latin exasperare, from ex (thoroughly) and asper (rough)",
+        "detailedEtymology": "First recorded in English in the early 16th century. It evolved from the Latin verb exasperare, which means 'to make rough' or 'to irritate'. Interestingly, the word originally described the physical act of making a surface rough before it shifted to its current emotional context.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-08-22": [
+      {
+        "word": "TELEVISION",
+        "clue": "Greek and Latin roots meaning: far, to see",
+        "definition": "A device for transmitting moving images and sound remotely.",
+        "briefEtymology": "From Greek tele (far) and Latin videre (to see)",
+        "detailedEtymology": "First recorded in English in 1907, from French télévision. The word combined Greek and Latin roots during a time when the technology to transmit images was still in developmental stages. A patent for an early version of the technology was filed by Philo Farnsworth in 1927.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "INCREDIBLE",
+        "clue": "Latin roots meaning: not, believe",
+        "definition": "Impossible or hard to believe; extraordinary.",
+        "briefEtymology": "From Latin in (not) and credibilis (believable)",
+        "detailedEtymology": "First recorded in English in the late 15th century. It comes from the Latin incredibilis, which evolved into Middle French incroyable before entering English. Interestingly, in the past, 'incredible' was often used to describe a lack of credibility, unlike its modern positive connotation.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "EPHEMERAL",
+        "clue": "Greek roots meaning: upon, day",
+        "definition": "Lasting for a very short time.",
+        "briefEtymology": "From Greek ephemeros (lasting only a day), from epi (upon) and hemera (day).",
+        "detailedEtymology": "Entered English in the late 14th century. Derived from the Greek ephemeros, initially used in medicine to describe fevers lasting a single day. Over time, it broadened to describe anything short-lived. Its use in literature often evokes the fleeting nature of beauty or experience.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "CREDULITY",
+        "clue": "Latin roots meaning: believe, quality",
+        "definition": "A tendency to be too ready to believe that something is real or true.",
+        "briefEtymology": "From Latin credere (to believe) and -ulus (a suffix indicating quality or condition)",
+        "detailedEtymology": "Entered English in the early 15th century from Old French credulité, stemming from Latin credulitas. The concept is often discussed in the context of skepticism and gullibility, highlighting the human capacity to easily accept new information.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "METAPHOR",
+        "clue": "Greek roots meaning: across, to carry",
+        "definition": "A figure of speech in which a word or phrase is applied to an object or action to which it is not literally applicable.",
+        "briefEtymology": "From Greek meta (across) and pherein (to carry)",
+        "detailedEtymology": "First appeared in the English language in the 16th century, derived from Latin 'metaphora', which in turn comes from the Greek 'metaphorá'. It originally meant 'a transfer' and came to be used in literature to describe symbolic transfers of meaning.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-08-23": [
+      {
+        "word": "BICYCLE",
+        "clue": "Latin and Greek roots meaning: two, circle",
+        "definition": "A human-powered vehicle with two wheels arranged in tandem.",
+        "briefEtymology": "From Latin bi (two) and Greek kyklos (circle, wheel)",
+        "detailedEtymology": "Entered English in the mid-19th century, from French bicycle, which in turn comes from Latin bi- (two) and Greek kyklos (circle). Its invention marked a pivotal moment in personal transportation, radically changing social dynamics and mobility.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "HYDROPHOBIA",
+        "clue": "Greek roots meaning: water, fear",
+        "definition": "An extreme or irrational fear of water, or a historical term for rabies.",
+        "briefEtymology": "From Greek hydor (water) and phobos (fear)",
+        "detailedEtymology": "First appeared in English in the late 16th century, derived from the Greek word hydrophobos. Originally used to describe symptoms of rabies, where afflicted individuals showed fear of water due to painful throat spasms, the term has also been used more generally to describe an irrational fear of water. The word reflects both a medical and psychological usage in history.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "CONSPIRACY",
+        "clue": "Latin roots meaning: with, to breathe",
+        "definition": "A secret plan by a group to do something unlawful or harmful.",
+        "briefEtymology": "From Latin con (with) and spirare (to breathe)",
+        "detailedEtymology": "First appeared in English in the late 14th century from Old French 'conspiration' and Latin 'conspiratio'. Originally, the word had a neutral meaning related to people 'breathing together' or aligning in thought, without the negative connotation it has today.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "CIRCUMSPECT",
+        "clue": "Latin roots meaning: around, to look",
+        "definition": "Wary and unwilling to take risks.",
+        "briefEtymology": "From Latin circum (around) and specere (to look)",
+        "detailedEtymology": "Entered English in the late 14th century from Latin circumspicere, meaning 'to look around' or 'to be cautious'. The word reflects a metaphorical sense of 'looking in all directions' to avoid dangers, similar to its original physical connotation.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "INSATIABLE",
+        "clue": "Latin roots meaning: not, to satisfy",
+        "definition": "Impossible to satisfy; having an unquenchable appetite or desire.",
+        "briefEtymology": "From Latin insatiabilis, from in (not) and satiabilis (able to be satisfied)",
+        "detailedEtymology": "First used in English in the late 14th century, from Latin insatiabilis. The word combines 'in-', a Latin prefix meaning 'not', with 'satiabilis', derived from 'satiare', meaning 'to satisfy'. The concept of insatiability is often used in literature to describe characters with endless desires, contributing to dramatic narratives.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-08-24": [
+      {
+        "word": "TELEGRAPH",
+        "clue": "Greek roots meaning: far, write",
+        "definition": "A device for sending messages over long distances using coded signals.",
+        "briefEtymology": "From Greek tele (far) and graphein (to write)",
+        "detailedEtymology": "First appeared in English in the late 18th century, coined from French télégraphe. The term was popularized by French engineer Claude Chappe who developed an optical telegraph system. Later, it came to refer to the electric telegraph.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "DIAMETER",
+        "clue": "Greek roots meaning: across, measure",
+        "definition": "A straight line passing from side to side through the center of a body or figure, especially a circle or sphere.",
+        "briefEtymology": "From Greek dia (across) and metron (measure)",
+        "detailedEtymology": "Entered English in the late 14th century through Old French and Latin from the Greek word diametros. In geometry, it represents a fundamental concept used to calculate circumference and area of circles.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "PHILOSOPHY",
+        "clue": "Greek roots meaning: love, wisdom",
+        "definition": "The study of the fundamental nature of knowledge, reality, and existence.",
+        "briefEtymology": "From Greek philos (love) and sophia (wisdom)",
+        "detailedEtymology": "Entered English in the 14th century from Old French philosophie, which came via Latin philosophia from Greek philosophia. A notable figure in early philosophy is Socrates, who is considered one of the founders of Western philosophy.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "TRANSLUCENT",
+        "clue": "Latin roots meaning: across, light",
+        "definition": "Allowing light to pass through but not detailed shapes.",
+        "briefEtymology": "From Latin trans (across) and lucere (to shine, light)",
+        "detailedEtymology": "First appeared in English in the 15th century, derived directly from the Latin word translucere. The term was used to describe materials that allow light to pass through diffusely, distinguishing them from opaque or transparent materials.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "PRECIPITOUS",
+        "clue": "Latin roots meaning: steep, to fall",
+        "definition": "Very steep, resembling a precipice.",
+        "briefEtymology": "From Latin praeceps (steep, headlong) and the suffix -osus.",
+        "detailedEtymology": "Entered English in the early 17th century, derived from Latin praeceps, praecipitis. The word's connection to 'precipice' underscores its association with steepness and sudden drops. Originally used in a figurative sense to describe situations or actions taken suddenly or rashly.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-08-25": [
+      {
+        "word": "THERMOMETER",
+        "clue": "Greek roots meaning: heat, measure",
+        "definition": "An instrument for measuring temperature.",
+        "briefEtymology": "From Greek therme (heat) and metron (measure)",
+        "detailedEtymology": "Entered English in the early 17th century, from French thermomètre, and Latinized form thermometrum. The concept was developed in the context of studying Galileo's thermoscope, leading to advancements in temperature measurement.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "MILLENNIUM",
+        "clue": "Latin roots meaning: thousand, year",
+        "definition": "A period of one thousand years.",
+        "briefEtymology": "From Latin mille (thousand) and annus (year)",
+        "detailedEtymology": "First used in English in the 1630s, from the Late Latin term millennium. The word became popular with discussions surrounding the end of the first millennium AD. It is often used in religious contexts to denote a thousand-year reign or golden age.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "CONGLOMERATE",
+        "clue": "Latin roots meaning: with, to gather",
+        "definition": "A mass formed by parts coming together; a large corporation formed by the merging of separate companies.",
+        "briefEtymology": "From Latin conglomerare (to gather into a ball), from com (with) and glomerare (to gather, to wind into a ball)",
+        "detailedEtymology": "The word entered English in the late 16th century. It comes from the Latin conglomeratus, the past participle of conglomerare, which literally means to roll together. An interesting fact is that while originally this referred to a natural formation of rocks, in modern times it's often used in business to describe large corporations consisting of multiple different companies.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "SYMPATHETIC",
+        "clue": "Greek roots meaning: together, feeling",
+        "definition": "Showing or expressing compassion or friendly fellow feelings.",
+        "briefEtymology": "From Greek syn (together) and pathos (feeling, suffering)",
+        "detailedEtymology": "Entered English in the mid-17th century. The word evolved from the Greek sympathetikos, which was adopted into New Latin as sympatheticus and later into French as sympathique. Initially used in medical contexts, the term broadened to emotional realms. Interestingly, its use in English predated the understanding of the sympathetic nervous system.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "INCONGRUOUS",
+        "clue": "Latin roots meaning: not, suitable",
+        "definition": "Not in harmony or keeping with the surroundings or other aspects of something.",
+        "briefEtymology": "From Latin incongruus (unsuitable), from in- (not) and congruus (suitable)",
+        "detailedEtymology": "First appeared in English in the late 16th century, derived from Latin incongruus. It highlights fascinating linguistic evolution, as Latin 'congruus' led to English 'congruent,' both related yet used in different contexts.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-08-26": [
+      {
+        "word": "THERMOSTAT",
+        "clue": "Greek roots meaning: heat, to make stand",
+        "definition": "A device for regulating temperature.",
+        "briefEtymology": "From Greek thermos (heat) and statos (to make stand)",
+        "detailedEtymology": "First recorded in English in 1831, the term originates from the French 'thermostatique.' It became widely used with the advent of central heating systems, allowing for automatic temperature control, which revolutionized indoor comfort in the 20th century.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "EPIDERMIS",
+        "clue": "Greek roots meaning: upon, skin",
+        "definition": "The outer layer of cells covering an organism, specifically the skin.",
+        "briefEtymology": "From Greek epi (upon) and derma (skin)",
+        "detailedEtymology": "First recorded in English in the late 17th century, from Greek epidermis, where epi means 'upon' and derma means 'skin'. The word underscores the layer that lies above the dermis. The concept of layers of skin was recognized in ancient times, but the word 'epidermis' helped delineate it scientifically.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "BENIGNANT",
+        "clue": "Latin roots meaning: well, to be born",
+        "definition": "Kind and gracious in nature or influence.",
+        "briefEtymology": "From Latin bene (well) and gignere (to be born)",
+        "detailedEtymology": "Entered English in the late 15th century, derived from Middle French benignant, from Latin benignus. While 'benign' usually refers to something gentle or harmless, 'benignant' enhances the idea by implying a gracious influence.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "INEFFABLE",
+        "clue": "Latin roots meaning: not, to speak",
+        "definition": "Too great or extreme to be expressed or described in words.",
+        "briefEtymology": "From Latin ineffabilis, from in (not) and effari (to speak out).",
+        "detailedEtymology": "Entered English in the late 14th century. Derived from Old French ineffable, which came from Latin ineffabilis. The word is often used in religious or poetic contexts to describe things that transcend description.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "LUMINARY",
+        "clue": "Latin roots meaning: light, object",
+        "definition": "A person who inspires or influences others, especially one prominent in a particular sphere.",
+        "briefEtymology": "From Latin lumen (light) and -ary (pertaining to)",
+        "detailedEtymology": "Entered English in the 15th century, derived from Latin luminarius, from lumen (light). Originally used to refer to objects that provide light, it later came to describe notable individuals, metaphorically shining in their fields.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-08-27": [
+      {
+        "word": "PERISCOPE",
+        "clue": "Greek roots meaning: around, to look",
+        "definition": "An optical instrument for viewing objects above the level of direct sight.",
+        "briefEtymology": "From Greek peri (around) and skopein (to look)",
+        "detailedEtymology": "First recorded in English in 1865, from French périscope. The word was popularized during World War I when it became essential for trench warfare, allowing soldiers to observe the battlefield from a secure position.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "DICTIONARY",
+        "clue": "Latin roots meaning: to say, collection",
+        "definition": "A reference book containing an alphabetical list of words with information about them.",
+        "briefEtymology": "From Latin dictio (to say) and -arium (a collection or place for)",
+        "detailedEtymology": "First recorded in English in the 15th century, from Latin dictionarium, a term used for a book explaining words and meanings. The earliest known dictionary resembling a modern dictionary was compiled by Robert Cawdrey in 1604 titled 'A Table Alphabeticall'.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "BENEVOLENCE",
+        "clue": "Latin roots meaning: good, wishing",
+        "definition": "The quality of being well-meaning or kindly.",
+        "briefEtymology": "From Latin bene (good) and volentia (wishing)",
+        "detailedEtymology": "First used in English in the early 14th century, from Old French benivolence, which in turn derived from Latin benevolentia. During the medieval period, benevolence was often associated with the feudal obligation for lords to be generous to their vassals.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "LUMINESCENT",
+        "clue": "Latin roots meaning: light, to shine",
+        "definition": "Emitting light not caused by heat.",
+        "briefEtymology": "From Latin lumen (light) and Latin escere (to begin to be)",
+        "detailedEtymology": "First recorded in English in the late 19th century, from Latin lumen and the suffix -escent, relating to the phenomenon of luminescence which can occur in natural and artificial scenarios. Coined during the scientific study of light emission without heating.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "ECCENTRIC",
+        "clue": "Greek roots meaning: out of, center",
+        "definition": "A person with unconventional or slightly strange views or behavior.",
+        "briefEtymology": "From Greek ek (out of) and kentron (center)",
+        "detailedEtymology": "First recorded in English in the late 14th century, from Old French eccentrique and Medieval Latin eccentricus. Originally used in astronomy to describe orbits that were not perfectly circular, it later came to describe anything deviating from a normal pattern. The term's astronomical roots highlight its emphasis on deviation from a center or norm.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-08-28": [
+      {
+        "word": "ARCHETYPE",
+        "clue": "Greek roots meaning: beginning, form",
+        "definition": "A typical example or model of a certain person or thing.",
+        "briefEtymology": "From Greek arkhe (beginning) and typos (form)",
+        "detailedEtymology": "First used in English in the 1540s, derived from Latin archetypum and Greek arkhetupon. Originally used to refer to the original model of all things of the same type, its usage was popularized by Swiss psychologist Carl Jung in the 20th century to describe universal symbols in the collective unconscious.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "ANTHOLOGY",
+        "clue": "Greek roots meaning: flower, collection",
+        "definition": "A published collection of poems or other pieces of writing.",
+        "briefEtymology": "From Greek anthos (flower) and logia (collection)",
+        "detailedEtymology": "First appeared in English in the late 16th century, derived from the Greek word anthologia, meaning a 'collection of flowers,' figuratively used to describe a collection of literary pieces. Originally applied to a collection of epigrams in the early Greek Anthologies.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "TRANSCRIBE",
+        "clue": "Latin roots meaning: across, write",
+        "definition": "To make a written copy of spoken material.",
+        "briefEtymology": "From Latin trans (across) and scribere (to write)",
+        "detailedEtymology": "First recorded in English in the mid-16th century, from Latin transcribere meaning 'to write across'. It was frequently used in the context of copying texts for preservation. An interesting fact is that transcription is a crucial process in the replication of genetic information in cells.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "RETROSPECT",
+        "clue": "Latin roots meaning: backward, to look",
+        "definition": "A survey or review of a past course of events or period of time.",
+        "briefEtymology": "From Latin retro (backward) and specere (to look)",
+        "detailedEtymology": "First appeared in English in the late 17th century, derived from the Latin retrospectare. It gained popularity during the Enlightenment as people began valuing reflection on past events to inform future decisions.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "ENIGMATIC",
+        "clue": "Greek roots meaning: riddle, pertaining to",
+        "definition": "Difficult to interpret or understand; mysterious.",
+        "briefEtymology": "From Greek ainigma (riddle) and the suffix -ikos (pertaining to)",
+        "detailedEtymology": "The word 'enigmatic' entered the English language in the mid-1600s. It originated from the Latin 'aenigmaticus', which came from the Greek 'ainigmatikos'. The root 'ainigma' means 'riddle' in Greek, and this word was often used in philosophical contexts to describe things that were puzzling or mysterious. The suffix '-ikos' forms adjectives of belonging or relating to something.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-08-29": [
+      {
+        "word": "ASTRONAUT",
+        "clue": "Greek roots meaning: star, sailor",
+        "definition": "A person who is trained to travel in a spacecraft.",
+        "briefEtymology": "From Greek astron (star) and nautes (sailor)",
+        "detailedEtymology": "The word 'astronaut' first appeared in English in the 1920s, derived from the Greek words astron, meaning star, and nautes, meaning sailor. It gained popularity with the advent of space exploration in the mid-20th century. Interestingly, the term was popularized by science fiction writers before actual human space travel.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "PANORAMA",
+        "clue": "Greek roots meaning: all, view",
+        "definition": "An unbroken view of the whole region surrounding an observer.",
+        "briefEtymology": "From Greek pan (all) and horama (view)",
+        "detailedEtymology": "The word entered English in 1791, originally coined by Irish painter Robert Barker to describe his paintings of Edinburgh. The term was later used for exhibitions that presented a 360-degree view of a scene, leading eventually to its general meaning.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "EPIDEMIOLOGY",
+        "clue": "Greek roots meaning: upon, people, study",
+        "definition": "The branch of medicine that deals with the incidence, distribution, and control of diseases.",
+        "briefEtymology": "From Greek epi (upon), demos (people), and logos (study)",
+        "detailedEtymology": "First appeared in English in the early 19th century. Derived from French épidémiologie, itself from Greek epidēmia and logos. The word was popularized as the study of disease patterns became crucial for public health development in the 19th century.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "MAGNANIMOUS",
+        "clue": "Latin roots meaning: great, soul",
+        "definition": "Having or showing a generous and forgiving nature.",
+        "briefEtymology": "From Latin magnus (great) and animus (soul or spirit)",
+        "detailedEtymology": "Entered English in the 16th century, directly from Latin magnanimus. It describes someone who shows nobility of feeling and generosity of mind. Historically, it was often used in a chivalric context, referring to nobility or great-heartedness.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "ECCLESIASTIC",
+        "clue": "Greek roots meaning: assembly, pertaining to",
+        "definition": "A person who is a member of the clergy or someone involved in the church.",
+        "briefEtymology": "From Greek ekklesiastikos (pertaining to an assembly or church) from ekklesia (assembly)",
+        "detailedEtymology": "Entered English in the late 15th century. Derived from the Greek term ekklesiastikos, which is rooted in ekklesia, meaning 'assembly'. Initially, in Greek, this referred to the legislative assembly of ancient Athens. The word later gained religious connotations as it was used to describe the early Christian church community.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-08-30": [
+      {
+        "word": "SUBMARINE",
+        "clue": "Latin roots meaning: under, sea",
+        "definition": "A watercraft capable of independent operation underwater.",
+        "briefEtymology": "From Latin sub (under) and marinus (of the sea)",
+        "detailedEtymology": "First recorded in English in the mid-17th century, from the Latin sub- meaning 'under' and marinus meaning 'of the sea.' The concept of underwater vessels existed since ancient times, but the first practical submarine appeared in the 19th century.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "MANGROVE",
+        "clue": "Greek and Latin roots meaning: tree, mango",
+        "definition": "A type of tree or shrub that grows in coastal saline or brackish water.",
+        "briefEtymology": "From Spanish mangle, influenced by Latin mango (mango tree) and Greek mangos (a kind of tree)",
+        "detailedEtymology": "Entered English in the early 17th century, borrowed from Spanish mangle. Its etymology is influenced by Portuguese mangue. Mangroves are integral to coastal ecosystems, providing habitat and protection against erosion.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "PARALLELOGRAM",
+        "clue": "Greek roots meaning: beside, angle",
+        "definition": "A four-sided plane rectilinear figure with opposite sides parallel.",
+        "briefEtymology": "From Greek parallēlos (beside) and gramma (line or mark)",
+        "detailedEtymology": "Entered English in the late 16th century from the Latin 'parallelogrammum', which in turn came from Greek 'parallēlogrammon'. The mathematical concept was used by Euclid in his geometry texts. Its properties are fundamental in Euclidean geometry.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "EQUIVOCAL",
+        "clue": "Latin roots meaning: equal, voice",
+        "definition": "Open to more than one interpretation; ambiguous.",
+        "briefEtymology": "From Latin aequus (equal) and vocare (to call, voice)",
+        "detailedEtymology": "First used in English in the early 16th century, derived from Medieval Latin aequivocalis, which combines aequus and vocare. Equivocation is a rhetorical device often used to mislead or avoid committing to a specific viewpoint.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "PERTINACIOUS",
+        "clue": "Latin roots meaning: thoroughly, to hold",
+        "definition": "Holding firmly to an opinion or a course of action.",
+        "briefEtymology": "From Latin pertinax (holding fast), from per (thoroughly) and tenere (to hold)",
+        "detailedEtymology": "Entered English in the early 17th century, from Latin pertinac-, pertinax. The word is often used to describe someone who stubbornly holds on to a belief or course of action, highlighting their persistence.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-08-31": [
+      {
+        "word": "CENTAUR",
+        "clue": "Greek roots meaning: center, bull",
+        "definition": "A mythical creature with the upper body of a human and the lower body of a horse.",
+        "briefEtymology": "From Greek kentauros, possibly derived from kentron (center) and tauros (bull)",
+        "detailedEtymology": "First appeared in English in the 14th century, originating from Middle English centaure, via Latin centaurus from the Greek kentauros. Centaurs featured prominently in Greek mythology and were considered wild and untamed creatures living in the mountains of Thessaly and Arcadia.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "AUTOMATION",
+        "clue": "Greek roots meaning: self, acting",
+        "definition": "The technique of making an apparatus, a process, or a system operate automatically.",
+        "briefEtymology": "From Greek autos (self) and matos (acting)",
+        "detailedEtymology": "First used in English in 1948. The term was coined by the Ford Motor Company to describe the automatic handling of parts in the manufacturing process. It reflects the broader industrial trend towards reducing human intervention in processes.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "SYMPHONY",
+        "clue": "Greek roots meaning: together, sound",
+        "definition": "An elaborate musical composition for full orchestra.",
+        "briefEtymology": "From Greek syn (together) and phone (sound)",
+        "detailedEtymology": "First recorded in English in the late 14th century, from Latin symphonia and Greek symphonia. Initially referred to a group of musicians, it evolved to denote a large-scale orchestral piece. The famous composer Ludwig van Beethoven expanded the scope and complexity of symphonies, shaping the genre in the 19th century.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "CONTRAVENE",
+        "clue": "Latin roots meaning: against, to come",
+        "definition": "To violate or infringe upon a law, directive, or agreement.",
+        "briefEtymology": "From Latin contra (against) and venire (to come)",
+        "detailedEtymology": "First appeared in English in the early 16th century, originating from the Latin contravenire, meaning 'to come against, to oppose'. The early usage predominantly referred to legal violations. A fascinating aspect is that legal contraventions often reflect evolving societal values.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "SARCOPHAGUS",
+        "clue": "Greek roots meaning: flesh, eater",
+        "definition": "A stone coffin, typically adorned with a sculpture or inscription.",
+        "briefEtymology": "From Greek sarkophagos (flesh-eating), from sarks (flesh) and phagein (to eat)",
+        "detailedEtymology": "Entered English in the 17th century, via Latin from Greek sarkophagos, originally describing a type of limestone believed to decompose flesh rapidly. The word came to refer more generally to a stone coffin by association.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-09-01": [
+      {
+        "word": "BINOCULARS",
+        "clue": "Latin roots meaning: two, eye",
+        "definition": "A device with two lenses used for viewing distant objects with both eyes.",
+        "briefEtymology": "From Latin bi (two) and oculus (eye)",
+        "detailedEtymology": "Entered English in the mid-19th century, from the French binoculaire. Binoculars became popular in the 19th century as advances in lens technology allowed for improved magnification and clarity.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "METAMORPHIC",
+        "clue": "Greek roots meaning: change, form",
+        "definition": "Relating to rocks that have undergone transformation by heat or pressure.",
+        "briefEtymology": "From Greek meta (change) and morphe (form)",
+        "detailedEtymology": "Entered English in the early 19th century. The term comes from the Greek words 'meta' meaning change and 'morphe' meaning form, referring to the process of transformation. Geologists use the term to describe rocks that have changed form due to intense heat and pressure beneath the Earth's surface.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "ALTRUISTIC",
+        "clue": "Latin roots meaning: other, selfless",
+        "definition": "Having a selfless concern for the well-being of others.",
+        "briefEtymology": "From Latin alter (other) and the suffix -istic, indicating a state or condition",
+        "detailedEtymology": "First recorded in English in the mid-19th century, the word 'altruistic' is derived from the French altruiste, which in turn comes from the Latin alter meaning 'other.' The concept of altruism was developed by the philosopher Auguste Comte, who used it to describe actions that benefit others without personal gain.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "VENTRILOQUY",
+        "clue": "Latin roots meaning: belly, to speak",
+        "definition": "The art of speaking such that the voice seems to come from elsewhere, typically a dummy or puppet.",
+        "briefEtymology": "From Latin venter (belly) and loqui (to speak)",
+        "detailedEtymology": "First used in English in the mid-17th century, derived from Latin ventriloquium. Originally, ventriloquists were thought to have special powers and were often associated with spiritualism.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "PULCHRITUDE",
+        "clue": "Latin roots meaning: beautiful, condition",
+        "definition": "Physical beauty or attractiveness.",
+        "briefEtymology": "From Latin pulcher (beautiful) and -tudo (condition or state)",
+        "detailedEtymology": "The word 'pulchritude' entered the English language in the 15th century, derived from Old French 'pulcreté', which in turn came from Latin 'pulchritudo'. Despite its unappealing sound, the word refers to beauty, often used in a somewhat ironic or humorous context due to its unexpected meaning.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-09-02": [
+      {
+        "word": "CONCAVE",
+        "clue": "Latin roots meaning: with, to hollow",
+        "definition": "Having a surface that curves inward, like the interior of a circle or sphere.",
+        "briefEtymology": "From Latin com (with) and cavus (hollow)",
+        "detailedEtymology": "Entered English in the late 15th century from Old French concave, which came directly from Latin concavus. The concept of concavity is central in various fields like optics and geometry, where it helps in understanding the properties of lenses and mirrors.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "PREDATOR",
+        "clue": "Latin roots meaning: to plunder, hunter",
+        "definition": "An organism that hunts and consumes other organisms.",
+        "briefEtymology": "From Latin praedator (plunderer, hunter), from praedari (to plunder)",
+        "detailedEtymology": "First appeared in English in the early 16th century, from Latin praedator through Medieval Latin. The term originally referred to human activity before being applied to ecological contexts.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "PREDICTION",
+        "clue": "Latin roots meaning: before, to say",
+        "definition": "A statement about what will happen in the future.",
+        "briefEtymology": "From Latin praedicere (to say before), where prae means before and dicere means to say.",
+        "detailedEtymology": "First recorded in English in the 16th century, from Latin praedictio. The concept of prediction has been important in various fields such as meteorology, economics, and psychology, with each developing specific methodologies for making predictions.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "CONTRADICTION",
+        "clue": "Latin roots meaning: against, to speak",
+        "definition": "A combination of statements that are opposed to one another.",
+        "briefEtymology": "From Latin contra (against) and dicere (to speak)",
+        "detailedEtymology": "Entered English in the late 14th century, from Old French contradiction, directly from Latin contradictionem, meaning 'speaking against.' It reflects an interesting legal usage in ancient Rome, where 'contradictio' denoted a formal denial or dispute in court proceedings.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "PROCLIVITY",
+        "clue": "Latin roots meaning: forward, slope",
+        "definition": "A tendency to choose or do something regularly; an inclination or predisposition toward a particular thing.",
+        "briefEtymology": "From Latin pro (forward) and clivus (slope)",
+        "detailedEtymology": "Entered English in the late 16th century from Latin via Middle French. Originally, the Latin term described a physical slope or inclination, later evolving to metaphorically convey a natural inclination or predisposition in behavior.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-09-03": [
+      {
+        "word": "AUTOGRAPH",
+        "clue": "Greek roots meaning: self, writing",
+        "definition": "A person's handwritten signature.",
+        "briefEtymology": "From Greek autos (self) and graphein (to write)",
+        "detailedEtymology": "First recorded in English in the 17th century. The word derives from Greek through Late Latin autographum. The practice of collecting autographs became especially popular in the 19th century, often seen as a way to preserve a personal connection with notable individuals.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "AMPLIFIER",
+        "clue": "Latin roots meaning: to make larger, person or thing that does",
+        "definition": "A device or component that increases the power of a signal.",
+        "briefEtymology": "From Latin amplificare (to enlarge) and -er (one who does, thing that does)",
+        "detailedEtymology": "First recorded in English in the early 1600s. Comes from Latin amplificare, used in Middle English to describe someone who exaggerated. The electronic device meaning developed in the 20th century with the advent of sound equipment.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "ENTOMOLOGY",
+        "clue": "Greek roots meaning: insect, study of",
+        "definition": "The scientific study of insects.",
+        "briefEtymology": "From Greek entomon (insect) and logia (study of)",
+        "detailedEtymology": "First used in English in the mid-18th century. Derived from the Greek entomon, meaning 'insect', and -logia, the study of. Entomon was used by Aristotle to describe segmented creatures. The term embodies a fascination with the diversity and importance of insects in ecosystems.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "CACOPHONY",
+        "clue": "Greek roots meaning: bad, sound",
+        "definition": "A harsh, discordant mixture of sounds.",
+        "briefEtymology": "From Greek kakos (bad) and phone (sound)",
+        "detailedEtymology": "First used in English in the early 17th century. The word comes directly from the Greek kakophonia. Often associated with dissonance in music or clamor, it underscores the stark contrast to euphony, which means pleasing sound.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "INTRICATE",
+        "clue": "Latin roots meaning: into, to tangle",
+        "definition": "Having many complexly interrelated parts or elements.",
+        "briefEtymology": "From Latin intricare, meaning 'to tangle up' or 'perplex'.",
+        "detailedEtymology": "Entered English in the late 15th century from Middle French intricat, which derived from Latin intricatus, the past participle of intricare. An interesting fact is that the word's Latin origin relates to the word 'trick,' suggesting something that entangles or deceives through complexity.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-09-04": [
+      {
+        "word": "AUTOMATIC",
+        "clue": "Greek roots meaning: self, acting",
+        "definition": "Operating by itself with minimal or no direct human control.",
+        "briefEtymology": "From Greek autos (self) and matos (acting)",
+        "detailedEtymology": "Entered English in the early 19th century, influenced by French automatique, from Greek automatos. Originally used to describe machinery that could function independently, it is now widely associated with technology and systems designed for automatic operation.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "SYMPATHY",
+        "clue": "Greek roots meaning: together, feeling",
+        "definition": "Understanding or sharing the feelings of another.",
+        "briefEtymology": "From Greek syn (together) and pathos (feeling)",
+        "detailedEtymology": "First recorded in English in the late 16th century, derived from Middle French sympathie, which came from Late Latin sympathia, and ultimately from Greek sympatheia. The term originally referred to a mutual or parallel feeling shared between souls, believed to be linked by an invisible bond.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "PHILANTHROPY",
+        "clue": "Greek roots meaning: love, humans",
+        "definition": "The desire to promote the welfare of others, expressed through generous donations of money to good causes.",
+        "briefEtymology": "From Greek philo (love) and anthropos (human)",
+        "detailedEtymology": "First appeared in English in the early 17th century, derived from the Late Latin philanthropia and Greek philanthrōpia. The concept dates back to Ancient Greece, often associated with the promotion of human welfare and civic engagement.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "VERBATIM",
+        "clue": "Latin roots meaning: word, by",
+        "definition": "In exactly the same words as were used originally.",
+        "briefEtymology": "From Latin verbum (word) and the suffix -atim (by)",
+        "detailedEtymology": "First used in English in the late 15th century. It comes directly from the Medieval Latin verbatim, which means 'word by word'. In the Middle Ages, it was important for scholars to cite sources verbatim to maintain the integrity of scholarly works and translations.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "AMALGAMATE",
+        "clue": "Greek and Latin roots meaning: to blend, metal",
+        "definition": "To combine or unite to form one structure or body.",
+        "briefEtymology": "From Greek 'malagma' (softening agent) and Latin 'amalgama' (alloy of mercury)",
+        "detailedEtymology": "Entered English in the late 15th century, deriving from Medieval Latin 'amalgama,' which itself came from Greek 'malagma.' Originally, it referred specifically to a combination of mercury with another metal. Its metaphorical sense, meaning to combine or blend, developed later. Amalgamation was notably used in alchemy and early chemistry.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ],
+    "2026-09-05": [
+      {
+        "word": "UNICYCLE",
+        "clue": "Latin roots meaning: one, circle",
+        "definition": "A vehicle with a single wheel, typically used by acrobats.",
+        "briefEtymology": "From Latin unus (one) and cyclus (circle or wheel)",
+        "detailedEtymology": "First recorded in English in the late 19th century, unicycle combines the Latin 'unus,' meaning one, with 'cyclus,' derived from the Greek 'kyklos' meaning circle. Unicycles are often used in circus performances due to their balance challenge.",
+        "difficulty": "novitiate",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "PANDEMIC",
+        "clue": "Greek roots meaning: all, people",
+        "definition": "An outbreak of a disease occurring on a global scale.",
+        "briefEtymology": "From Greek pan (all) and demos (people)",
+        "detailedEtymology": "First recorded in English in the 17th century, from Greek pandemia, meaning 'pertaining to all people'. It came through Late Latin pandemus. Historically, the term has been used to describe widespread outbreaks of infectious disease, including influenza and other pathogens.",
+        "difficulty": "disciple",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "DISSONANCE",
+        "clue": "Latin roots meaning: apart, sound",
+        "definition": "A lack of harmony among musical notes or a lack of agreement.",
+        "briefEtymology": "From Latin dis (apart) and sonare (to sound)",
+        "detailedEtymology": "First recorded in English in the late 15th century, from Middle French dissonance, which in turn came from Latin dissonantia. The term originally described musical discord but has since broadened to include cognitive and social contexts.",
+        "difficulty": "scholar",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "CORNUCOPIA",
+        "clue": "Latin roots meaning: horn, plenty",
+        "definition": "A symbol of abundance typically depicted as a goat's horn overflowing with fruits and vegetables.",
+        "briefEtymology": "From Latin cornu (horn) and copia (plenty)",
+        "detailedEtymology": "Entered English in the late 14th century, from Latin cornucopia, combining cornu (horn) and copia (plenty, abundance). The cornucopia is often used as a symbol of nourishment and abundance, famously represented in classical mythology as the horn of plenty that provided endless sustenance.",
+        "difficulty": "magister",
+        "isSpeedRound": true,
+        "isFinalChallenge": false
+      },
+      {
+        "word": "PRESTIGIOUS",
+        "clue": "Latin roots meaning: illusion, trick",
+        "definition": "Having a highly favorable reputation, especially based on past achievements.",
+        "briefEtymology": "From Latin praestigiosus (full of tricks) and praestigiae (illusions, tricks).",
+        "detailedEtymology": "First appeared in English in the mid-16th century, derived from the Latin praestigiosus which means full of tricks or illusions. The word's meaning evolved from an association with deception and trickery to denote something that commands respect and admiration, showing the flexibility and evolution of word meanings over time.",
+        "difficulty": "etymologus",
+        "isSpeedRound": false,
+        "isFinalChallenge": true
+      }
+    ]
+  }
+}
