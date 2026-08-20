@@ -1007,6 +1007,10 @@
                 <button class="landing-button secondary" id="shareResultsButton">Share</button>
                 <button class="landing-button secondary" id="practiceModeButton">Practice Mode</button>
             </div>
+
+            <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(44, 36, 22, 0.1); text-align: center; font-size: 0.75rem; opacity: 0.5;">
+                © 2026 Nathan Miller
+            </div>
             </div>
         </div>
     </div>
@@ -1101,6 +1105,9 @@
             </div>
             
             <div style="overflow-y: auto; flex: 1; padding-right: 4px; margin-right: -4px;">
+                <!-- Roots reveal — the payoff of solving -->
+                <div id="modalRoots" style="font-family: 'Crimson Pro', serif; font-size: 1.1rem; font-weight: 600; font-style: italic; color: var(--ink); opacity: 0.9; background: rgba(199, 149, 109, 0.12); border-left: 4px solid var(--accent); border-radius: 6px; padding: 10px 12px; margin-bottom: 12px; word-wrap: break-word; overflow-wrap: break-word; line-height: 1.4;"></div>
+
                 <!-- Etymology preview/expand -->
                 <div class="brief-etymology" id="modalBriefEtymology" style="word-wrap: break-word; overflow-wrap: break-word;"></div>
                 <span class="etymology-toggle" id="etymologyToggle" style="display: none;">Read more ▼</span>
@@ -1241,8 +1248,8 @@
         // SCORING CONFIG — all tunable numbers live here, nowhere else.
         //
         // base          starting score for the round (smooth ramp 1500 -> 5000)
-        // decaySeconds  how often the timer deducts (tightens each round)
-        // decayAmount   points lost per decay tick
+        // decayPerSec   points lost every second (escalates per round, so
+        //               harder rounds bleed faster; ticks visibly each second)
         // wrongPenalty  points lost per wrong letter
         // floor         score can never drop below this
         //
@@ -1250,11 +1257,11 @@
         // reload makes it easy to feel the difference.
         // ---------------------------------------------------------------
         const ROUND_CONFIG = {
-            novitiate:  { base: 1500, decaySeconds: 3.0, decayAmount: 20, wrongPenalty: 50,  floor: 50 },
-            disciple:   { base: 2400, decaySeconds: 2.5, decayAmount: 20, wrongPenalty: 75,  floor: 90 },
-            scholar:    { base: 3300, decaySeconds: 2.0, decayAmount: 20, wrongPenalty: 100, floor: 130 },
-            magister:   { base: 4200, decaySeconds: 1.5, decayAmount: 20, wrongPenalty: 125, floor: 170 },
-            etymologus: { base: 5000, decaySeconds: 1.0, decayAmount: 20, wrongPenalty: 150, floor: 200 }
+            novitiate:  { base: 1500, decayPerSec: 5,  wrongPenalty: 50,  floor: 50 },
+            disciple:   { base: 2400, decayPerSec: 7,  wrongPenalty: 75,  floor: 90 },
+            scholar:    { base: 3300, decayPerSec: 9,  wrongPenalty: 100, floor: 130 },
+            magister:   { base: 4200, decayPerSec: 12, wrongPenalty: 125, floor: 170 },
+            etymologus: { base: 5000, decayPerSec: 15, wrongPenalty: 150, floor: 200 }
         };
 
         // A hint reveals one random unrevealed letter. Cost scales with the
@@ -1274,8 +1281,9 @@
         // Derived from ROUND_CONFIG so retuning the bases retunes the ranks too.
         const MAX_TOTAL = Object.values(ROUND_CONFIG).reduce((sum, c) => sum + c.base, 0);
 
-        // Thresholds are fractions of MAX_TOTAL, not raw scores — raw cutoffs
-        // silently break whenever the bases change.
+        // Thresholds are fractions of MAX_TOTAL, then rounded to the nearest
+        // 1,000 so the rank ladder shows clean numbers AND the classify logic
+        // uses those same clean numbers (no display/logic drift).
         const CLASSIFICATIONS = [
             { at: 0.90, name: 'Etymologus Maximus', message: "Legendary! You're an etymology expert!" },
             { at: 0.80, name: 'Magister',           message: "Exceptional! You're mastering the roots!" },
@@ -1284,9 +1292,13 @@
             { at: 0,    name: 'Novitiate',          message: 'A solid start! Keep exploring etymologies.' }
         ];
 
+        // The actual score needed for each rank — rounded to the nearest 1,000.
+        function rankThreshold(c) {
+            return Math.round((c.at * MAX_TOTAL) / 1000) * 1000;
+        }
+
         function classify(score) {
-            const pct = score / MAX_TOTAL;
-            return CLASSIFICATIONS.find(c => pct >= c.at);
+            return CLASSIFICATIONS.find(c => score >= rankThreshold(c));
         }
 
         /** How well a finished round scored, as a fraction of its own maximum. */
@@ -1304,7 +1316,8 @@
             const cfg = roundConfig();
             if (!startTime) return cfg.base;
             const elapsed = (Date.now() - startTime) / 1000;
-            const timePenalty = Math.floor(elapsed / cfg.decaySeconds) * cfg.decayAmount;
+            // Deduct per whole second elapsed — visible movement every second.
+            const timePenalty = Math.floor(elapsed) * cfg.decayPerSec;
             const wrongPenalty = wrongGuesses * cfg.wrongPenalty;
             const hintPenalty = hintsUsed * hintCost();
             return Math.max(cfg.base - timePenalty - wrongPenalty - hintPenalty, cfg.floor);
@@ -1726,6 +1739,15 @@
             
             document.getElementById('modalWord').textContent = currentPuzzle.word;
             document.getElementById('modalScore').textContent = isPassed ? '0 pts' : `+${currentScore}`;
+
+            // Roots reveal — name the actual roots that build the word.
+            const rootsDiv = document.getElementById('modalRoots');
+            if (currentPuzzle.briefEtymology) {
+                rootsDiv.textContent = currentPuzzle.briefEtymology;
+                rootsDiv.style.display = 'block';
+            } else {
+                rootsDiv.style.display = 'none';
+            }
             
             // Show collapsible etymology preview (no delay on mobile)
             const detailedEtymDiv = document.getElementById('modalDetailedEtymology');
@@ -2018,24 +2040,31 @@
                 
                 // Scroll so the header sits at the top of the scrollable area.
                 //
-                // Measured with getBoundingClientRect rather than offsetTop:
-                // offsetTop is relative to the nearest *positioned* ancestor,
-                // and the scroll container is static, so offsetTop was being
-                // measured from .modal-content — including the sticky score
-                // block above it. That overshot by the header block's height
-                // and pushed the expanded body out of view.
-                setTimeout(() => {
+                // Measured with getBoundingClientRect relative to the container
+                // (offsetTop was wrong — it's relative to the positioned
+                // ancestor, which included the sticky score block above).
+                //
+                // Double requestAnimationFrame instead of setTimeout: iOS Safari
+                // finishes the expand/sticky reflow a frame or two late, so a
+                // fixed timeout measured stale coordinates and overshot, hiding
+                // the top of the section. rAF waits for the actual layout.
+                requestAnimationFrame(() => requestAnimationFrame(() => {
                     const container = document.querySelector('#finalModal .modal-content > div[style*="overflow-y"]');
                     if (!container || !header) return;
-                    
+
                     const delta = header.getBoundingClientRect().top
                                 - container.getBoundingClientRect().top;
-                    
-                    container.scrollTo({
-                        top: container.scrollTop + delta,
-                        behavior: 'smooth'
-                    });
-                }, 100);
+
+                    // Clamp to the container's real scroll range so a late
+                    // reflow can never push the section above the viewport.
+                    const target = Math.max(
+                        0,
+                        Math.min(container.scrollTop + delta,
+                                 container.scrollHeight - container.clientHeight)
+                    );
+
+                    container.scrollTo({ top: target, behavior: 'smooth' });
+                }));
             } else {
                 // Collapse: hide rest of text and details box, show dots
                 if (restText) restText.style.display = 'none';
@@ -2060,9 +2089,12 @@
             }).join('');
             
             const completedCount = roundResults.filter(r => !r.passed).length;
-            const text = `Whence Daily ${new Date().toLocaleDateString()}\nScore: ${totalScore} (${completedCount}/5)\n${emoji}\n\nGuess words from their roots!\nPlay at etymon-game.netlify.app`;
-            
+            const shareUrl = 'https://etymon-game.netlify.app';
+            const text = `Whence Daily ${new Date().toLocaleDateString()}\nScore: ${totalScore.toLocaleString()} (${completedCount}/5)\n${emoji}\n\nGuess words from their roots!\n${shareUrl}`;
+
             if (navigator.share) {
+                // Keep everything in text — passing a separate url field causes
+                // some iOS apps to show only the link preview and drop the score.
                 navigator.share({ text });
             } else {
                 navigator.clipboard.writeText(text);
@@ -2288,8 +2320,8 @@
             
             // Lowest first reads more naturally as a ladder to climb.
             list.innerHTML = [...CLASSIFICATIONS].reverse().map(c => {
-                const min = Math.round(c.at * MAX_TOTAL);
-                const label = min === 0 ? 'under ' + Math.round(CLASSIFICATIONS[3].at * MAX_TOTAL).toLocaleString()
+                const min = rankThreshold(c);
+                const label = min === 0 ? 'under ' + rankThreshold(CLASSIFICATIONS[3]).toLocaleString()
                                         : min.toLocaleString() + '+';
                 const isEarned = c.name === earned;
                 return `<li class="${isEarned ? 'rank-earned' : ''}">
