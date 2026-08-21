@@ -850,6 +850,21 @@
             border-bottom: none;
         }
 
+        /* Compact variant: real bullets, no dividers, tight spacing.
+           The bordered style above suits a few standalone points, but looks
+           like a broken table when the items are short clauses in a series. */
+        .how-to-play ul.tight {
+            list-style: disc;
+            padding-left: 20px;
+            margin: 6px 0 0;
+        }
+
+        .how-to-play ul.tight li {
+            padding: 0 0 6px;
+            border-bottom: none;
+            line-height: 1.5;
+        }
+
         .completion-summary {
             background: white;
             padding: 40px;
@@ -982,23 +997,43 @@
 
             <div class="menu-body">
             <div class="how-to-play">
+                <p class="how-to-lead" style="font-size: 1rem; margin-bottom: 18px;">
+                    Welcome to <strong>Whence</strong> &mdash; the game where you get five
+                    chances a day to discover <em>from whence</em> English words came, and
+                    the Greek and Latin roots they grew from.
+                </p>
+
                 <h3>How to Play</h3>
                 <p class="how-to-lead">
-                    Five words, each harder than the last. Every clue tells you what
-                    the word's Greek or Latin roots <em>mean</em> &mdash; never the word
-                    itself. Quicker, cleaner guesses score higher, and the clock stops
-                    between rounds so you can read where each word came from.
+                    There are five rounds, each harder than the last. Every round shows you
+                    what a word's Greek or Latin roots <em>mean</em> &mdash; never the roots
+                    themselves, and never the word.
+                </p>
+                <p class="how-to-lead">
+                    For example, the clue <em>"Greek roots meaning: light, to draw"</em> points
+                    to roots that gave us <strong>PHOTOGRAPH</strong> &mdash; from
+                    <em>phos</em> (light) and <em>graphe</em> (drawing). That word is your answer.
                 </p>
                 <ul>
-                    <li><strong>Guess letters.</strong> A correct letter fills every spot it appears in.</li>
-                    <li><strong>Your score</strong> starts at the round's maximum and falls as the clock runs, on wrong guesses, and when you buy a hint.</li>
-                    <li><strong>Stuck?</strong> A hint reveals a random letter for a cost. Pass skips the word for zero.</li>
+                    <li><strong>Guess letters.</strong> Each correct letter fills every box where it appears.</li>
+                    <li><strong>Track your guesses.</strong> Letters you've already tried are marked below the boxes, so you won't repeat yourself.</li>
+                    <li><strong>Keep going</strong> until the whole word appears. Then take a moment &mdash; the clock stops &mdash; to read where the word actually came from before moving on.</li>
                 </ul>
 
-                <h3 style="margin-top: 22px;">Ranks</h3>
-                <p class="how-to-lead" style="margin-bottom: 10px;">
-                    Your five round scores add up to a final rank.
+                <h3 style="margin-top: 22px;">Scoring</h3>
+                <p class="how-to-lead" style="margin-bottom: 4px;">
+                    Each round opens at its maximum score and starts dropping immediately as:
                 </p>
+                <ul class="tight">
+                    <li>the clock ticks &mdash; <strong>speed is king</strong>, and later rounds bleed faster;</li>
+                    <li>you enter letters that aren't in the word;</li>
+                    <li>you request a hint, which reveals a random letter &mdash; useful when stuck, but it'll cost you.</li>
+                </ul>
+                <p class="how-to-lead" style="margin-top: 10px;">
+                    You can also <strong>Pass</strong> to skip a word for zero on that round.
+                </p>
+
+                <h3 style="margin-top: 22px;">Ranks</h3>
                 <ul class="rank-list" id="rankList"></ul>
             </div>
 
@@ -1091,6 +1126,19 @@
             <button class="pass-button" id="passButton" style="display: none;">Pass (Skip This Puzzle)</button>
         </div>
 
+        <!-- Shown instead of the game card once today's puzzle is finished -->
+        <div class="game-card" id="doneCard" style="display: none; text-align: center; padding: 40px 24px;">
+            <div style="font-size: 2.5rem; margin-bottom: 8px;">🎓</div>
+            <h2 style="font-family: 'Crimson Pro', serif; font-size: 1.6rem; margin: 0 0 8px;">
+                You've finished today's Whence
+            </h2>
+            <div id="doneScoreLine" style="font-size: 1rem; opacity: 0.8; margin-bottom: 4px;"></div>
+            <div id="doneStreakLine" style="font-size: 0.9rem; color: var(--accent); font-weight: 600; margin-bottom: 20px;"></div>
+            <div id="doneCountdown" style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 24px;"></div>
+            <button class="share-button" id="doneResultsButton" style="width: 100%; max-width: 280px; margin: 0 auto 10px;">See Today's Results</button>
+            <button class="pass-button" id="doneShareButton" style="width: 100%; max-width: 280px; margin: 0 auto;">Share</button>
+        </div>
+
         <div class="ad-banner">
             <p>Advertisement Space • Remove ads with Premium</p>
         </div>
@@ -1135,6 +1183,10 @@
                     <h2 style="margin: 0; font-size: 1.1rem;">🎉 Complete!</h2>
                     <button id="closeFinalModal" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 0; line-height: 1; color: var(--ink); opacity: 0.6;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">✕</button>
                 </div>
+                <!-- Already-played banner (hidden by default, shown on return visits) -->
+                <div id="alreadyPlayedBanner" style="display:none; font-size:0.8rem; text-align:center; background:rgba(199,149,109,0.15); border-radius:8px; padding:6px 10px; margin-bottom:6px; color:var(--ink); opacity:0.85;"></div>
+                <!-- Streak display -->
+                <div id="streakDisplay" style="display:none; text-align:center; font-size:0.8rem; font-weight:600; color:var(--accent); margin-bottom:4px;"></div>
                 <div id="scoreClassification" style="text-align: center; font-size: 0.85rem; color: var(--accent); font-weight: 600; line-height: 1.3; margin-bottom: 4px;"></div>
                 <div class="score-display" id="finalScore" style="margin: 4px 0; font-size: 2.2rem;">0</div>
                 <div style="display: flex; gap: 15px; justify-content: center; font-size: 0.85rem; line-height: 1;">
@@ -1245,6 +1297,83 @@
         let roundStarted = false; // Track if current round has been started
 
         // ---------------------------------------------------------------
+        // LOCALSTORAGE — keyed by UTC date so state resets each day.
+        //
+        // Two kinds of data:
+        //   date-keyed  — today's game state (resets at UTC midnight)
+        //   persistent  — streak, first-visit flag (never expire)
+        // ---------------------------------------------------------------
+
+        function todayKey() {
+            return 'whence:' + new Date().toISOString().split('T')[0];
+        }
+
+        function saveState() {
+            if (!dailyPuzzles.length) return;
+            const payload = {
+                dailyPuzzles,
+                currentRound,
+                roundResults,
+                totalScore,
+                gameCompleted,
+                revealedLetters: [...revealedLetters],
+                guessedLetters:  [...guessedLetters],
+                wrongGuesses,
+                hintsUsed,
+                roundStarted,
+                leaveTime: Date.now()
+            };
+            try {
+                localStorage.setItem(todayKey(), JSON.stringify(payload));
+            } catch (e) { /* private browsing / full — degrade silently */ }
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(todayKey());
+                return raw ? JSON.parse(raw) : null;
+            } catch { return null; }
+        }
+
+        // Streak helpers
+        function loadStreak() {
+            try {
+                return JSON.parse(
+                    localStorage.getItem('whence:streak') || '{"count":0,"lastDate":null}'
+                );
+            } catch { return { count: 0, lastDate: null }; }
+        }
+
+        function saveStreak(s) {
+            try { localStorage.setItem('whence:streak', JSON.stringify(s)); } catch {}
+        }
+
+        function updateStreak() {
+            const today = new Date().toISOString().split('T')[0];
+            const s = loadStreak();
+            if (s.lastDate === today) return s; // already counted today
+            const yesterday = new Date(Date.now() - 864e5).toISOString().split('T')[0];
+            s.count = s.lastDate === yesterday ? s.count + 1 : 1;
+            s.lastDate = today;
+            saveStreak(s);
+            return s;
+        }
+
+        // First-visit flag (never expires)
+        function isFirstVisit() {
+            try { return !localStorage.getItem('whence:visited'); } catch { return false; }
+        }
+        function markVisited() {
+            try { localStorage.setItem('whence:visited', '1'); } catch {}
+        }
+
+        // Save on page hide / tab switch so leaveTime is fresh
+        window.addEventListener('pagehide', saveState);
+        window.addEventListener('visibilitychange', () => {
+            if (document.hidden) saveState();
+        });
+
+        // ---------------------------------------------------------------
         // SCORING CONFIG — all tunable numbers live here, nowhere else.
         //
         // base          starting score for the round (smooth ramp 1500 -> 5000)
@@ -1334,45 +1463,129 @@
 
         // Initialize game
         async function initGame() {
-            // Show loading state with visual indicator
+            // ── 1. Check for saved state from today ──────────────────────
+            const saved = loadState();
+
+            // Validate the saved state has the minimum fields we need.
+            // Stale data (written before batch-2, or from a failed save) won't
+            // have dailyPuzzles or roundResults — discard it and start fresh.
+            const savedIsValid = saved
+                && Array.isArray(saved.dailyPuzzles) && saved.dailyPuzzles.length === 5
+                && Array.isArray(saved.roundResults)
+                && typeof saved.totalScore === 'number';
+
+            if (savedIsValid) {
+                // Restore everything from localStorage
+                dailyPuzzles  = saved.dailyPuzzles;
+                currentRound  = saved.currentRound  || 0;
+                roundResults  = saved.roundResults;
+                totalScore    = saved.totalScore;
+                gameCompleted = saved.gameCompleted  || false;
+                revealedLetters = new Set(saved.revealedLetters || []);
+                guessedLetters  = new Set(saved.guessedLetters  || []);
+                wrongGuesses  = saved.wrongGuesses  || 0;
+                hintsUsed     = saved.hintsUsed     || 0;
+                roundStarted  = saved.roundStarted  || false;
+
+                if (gameCompleted) {
+                    // Already finished today — show results over a "done" panel
+                    // (not the blank game card, which has nothing in it).
+                    renderProgressBar();
+                    showDoneCard();
+                    showFinalResults();
+                    showAlreadyPlayedBanner();
+                    return;
+                }
+
+                // Mid-game resume: adjust startTime for time that passed
+                // while they were away (the clock kept running — fair)
+                if (roundStarted && saved.leaveTime) {
+                    const awayMs = Date.now() - saved.leaveTime;
+                    startTime = Date.now() - awayMs;
+                    // Clamp so very-long absences just hit the score floor,
+                    // not a negative startTime
+                    if (startTime > Date.now()) startTime = Date.now();
+                }
+
+                renderProgressBar();
+                resumeRound();
+                return;
+            }
+
+            // ── 2. Fresh start — fetch puzzles ────────────────────────────
             const clueElement = document.getElementById('etymologyClue');
             clueElement.innerHTML = '<div style="text-align: center; padding: 20px;"><div style="display: inline-block; width: 24px; height: 24px; border: 4px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div><br><span style="margin-top: 10px; display: inline-block; font-weight: 600; font-size: 1rem;">Loading puzzles...</span></div>';
-            
-            // Add spinner animation
+
             const style = document.createElement('style');
             style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
             document.head.appendChild(style);
-            
+
             try {
-                console.log('Fetching daily puzzles from API...');
-                // Fetch daily puzzle from Netlify function
                 const response = await fetch('/.netlify/functions/get-daily-puzzle');
-                console.log('Response status:', response.status, response.statusText);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('API Error Response:', errorText);
-                    throw new Error(`Failed to load daily puzzle: ${response.status} ${response.statusText}`);
-                }
-                
+                if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
                 const data = await response.json();
-                console.log('Successfully loaded puzzles:', data);
                 dailyPuzzles = data.puzzles;
-                
-                console.log(`Loaded puzzles for ${data.date}`);
-                
-                renderProgressBar();
-                startRound();
             } catch (error) {
                 console.error('Error loading puzzles:', error);
-                console.error('Error details:', error.message, error.stack);
-                
-                // Fallback to demo puzzles if fetch fails
-                console.log('Using fallback demo puzzles');
-                alert('Could not load daily puzzles from server. Using demo puzzles instead. Please check your internet connection or try again later.');
+                alert('Could not load daily puzzles. Using demo puzzles instead.');
                 generateDailyPuzzles();
-                renderProgressBar();
-                startRound();
+            }
+
+            renderProgressBar();
+
+            // ── 3. First-time intro ───────────────────────────────────────
+            if (isFirstVisit()) {
+                markVisited();
+                openMenu(); // The rules are already there — just surface them
+            }
+
+            startRound();
+        }
+
+        /**
+         * Restore a round the player was mid-way through.
+         * Repopulates the UI from the restored state variables and resumes
+         * the timer if the round was already in progress.
+         */
+        function resumeRound() {
+            if (gameCompleted) return;
+
+            currentPuzzle = dailyPuzzles[currentRound];
+            if (currentPuzzle.word) {
+                currentPuzzle.word = currentPuzzle.word.toUpperCase().trim();
+            }
+
+            // Repopulate UI exactly as startRound would, but don't reset state
+            const indicator = document.getElementById('challengeIndicator');
+            indicator.innerHTML = currentPuzzle.isFinalChallenge
+                ? '<div class="final-challenge-banner">🎓 Final Round</div>' : '';
+
+            document.getElementById('difficultyBadge').textContent = difficultyNames[currentPuzzle.difficulty];
+            document.getElementById('difficultyBadge').className = `difficulty-badge difficulty-${currentPuzzle.difficulty}`;
+            document.getElementById('etymologyClue').textContent = currentPuzzle.clue;
+            document.getElementById('wrongDisplay').textContent = wrongGuesses;
+            document.getElementById('timerDisplay').textContent = '0:00';
+
+            currentScore = currentRoundScore();
+            document.getElementById('scoreDisplay').textContent = currentScore;
+            document.getElementById('scoreMax').textContent = `max ${roundConfig().base}`;
+
+            const hintButton = document.getElementById('hintButton');
+            hintButton.style.display = 'block';
+            hintButton.disabled = false;
+            hintButton.textContent = `💡 Reveal a letter (−${hintCost()})`;
+            document.getElementById('passButton').style.display = 'block';
+
+            renderWord();
+            renderKeyboard();
+            renderLetterTracker();
+
+            if (roundStarted && startTime) {
+                // Resume the live tick
+                startTimer();
+            } else {
+                // Round was set up but never started — show the Start button
+                showReadyScreen();
             }
         }
 
@@ -1614,6 +1827,7 @@
             renderKeyboard();
             renderLetterTracker();
             checkCompletion();
+            saveState();
         }
 
         /**
@@ -1642,12 +1856,9 @@
             renderLetterTracker();
             updateScoreDisplay();
             checkCompletion();
+            saveState();
         }
 
-        /**
-         * Float a "-N" up from the score so discrete penalties (wrong guesses,
-         * hints) read differently from the timer's continuous decay.
-         */
         function flashDeduction(amount) {
             const anchor = document.getElementById('scoreDisplay');
             if (!anchor) return;
@@ -1724,6 +1935,14 @@
                 passed: isPassed,
                 isFinalChallenge: currentPuzzle.isFinalChallenge
             });
+
+            // Advance round counter now so saveState records the right round
+            currentRound++;
+            if (currentRound >= dailyPuzzles.length) {
+                gameCompleted = true;
+                updateStreak();
+            }
+            saveState();
             
             document.getElementById('scoreDisplay').textContent = currentScore;
             
@@ -1831,25 +2050,21 @@
 
         document.getElementById('continueButton').onclick = () => {
             document.getElementById('resultModal').classList.remove('active');
-            
-            // Reset scroll position of game container
             window.scrollTo(0, 0);
-            
-            // If game is already completed, just reopen final results
+
+            // If game is already completed, reopen final results
             if (gameCompleted) {
                 document.getElementById('finalModal').classList.add('active');
                 return;
             }
-            
+
             // Show keyboard button for next round on mobile
             if (window.innerWidth <= 640) {
                 const keyboardButton = document.getElementById('mobileKeyboardButton');
-                if (keyboardButton) {
-                    keyboardButton.style.display = 'block';
-                }
+                if (keyboardButton) keyboardButton.style.display = 'block';
             }
-            
-            currentRound++;
+
+            // currentRound was already incremented inside completeRound
             renderProgressBar();
             startRound();
         };
@@ -1913,6 +2128,16 @@
             document.getElementById('finalTime').textContent = `${Math.floor(totalTime / 60)}:${(totalTime % 60).toString().padStart(2, '0')}`;
             document.getElementById('finalWrong').textContent = totalWrong;
             document.getElementById('finalHints').textContent = totalHints;
+
+            // Streak
+            const streak = loadStreak();
+            const streakEl = document.getElementById('streakDisplay');
+            if (streak.count > 1) {
+                streakEl.textContent = `🔥 ${streak.count}-day streak`;
+                streakEl.style.display = 'block';
+            } else {
+                streakEl.style.display = 'none';
+            }
             
             const summary = document.getElementById('roundSummary');
             summary.innerHTML = roundResults.map((result, i) => {
@@ -2302,6 +2527,9 @@
             finalResultsAvailable = true;
             // Results, Share and Practice only make sense once today's game is done.
             document.getElementById('menuActions').style.display = 'flex';
+            // Swap the (now finished) game board for the done panel, so closing
+            // the results modal doesn't reveal an empty card.
+            showDoneCard();
         };
 
         // ---- Menu -------------------------------------------------------
@@ -2378,6 +2606,77 @@
 
         document.getElementById('closeFinalModal').onclick = () => {
             document.getElementById('finalModal').classList.remove('active');
+        };
+
+        /**
+         * Time until the next puzzle, in the player's local timezone.
+         * Puzzles roll at UTC midnight, which is rarely midnight locally.
+         */
+        function nextPuzzleInfo() {
+            const now = new Date();
+            const utcMidnight = new Date(Date.UTC(
+                now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1
+            ));
+            const diffMs = utcMidnight - now;
+            const diffH = Math.floor(diffMs / 36e5);
+            const diffM = Math.floor((diffMs % 36e5) / 6e4);
+            return {
+                localTime: utcMidnight.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+                remaining: diffH > 0 ? `${diffH}h ${diffM}m` : `${diffM} minutes`
+            };
+        }
+
+        /**
+         * Replace the game card with a "you're done for today" panel.
+         * Without this, closing the results modal leaves an empty game board.
+         */
+        function showDoneCard() {
+            const gameCard = document.querySelector('.game-card');
+            const doneCard = document.getElementById('doneCard');
+            if (gameCard) gameCard.style.display = 'none';
+            if (!doneCard) return;
+
+            doneCard.style.display = 'block';
+
+            const rank = classify(totalScore);
+            document.getElementById('doneScoreLine').innerHTML =
+                `You scored <strong>${totalScore.toLocaleString()}</strong> &mdash; ${rank.name}`;
+
+            const streak = loadStreak();
+            const streakEl = document.getElementById('doneStreakLine');
+            if (streak.count > 1) {
+                streakEl.textContent = `🔥 ${streak.count}-day streak`;
+                streakEl.style.display = 'block';
+            } else {
+                streakEl.style.display = 'none';
+            }
+
+            const next = nextPuzzleInfo();
+            document.getElementById('doneCountdown').textContent =
+                `Next puzzle at ${next.localTime} — in ${next.remaining}.`;
+        }
+
+        /**
+         * Shows a banner on the final results modal when someone returns after
+         * already finishing today's game.
+         */
+        function showAlreadyPlayedBanner() {
+            const banner = document.getElementById('alreadyPlayedBanner');
+            if (!banner) return;
+
+            const next = nextPuzzleInfo();
+            banner.textContent = `You've already played today! New puzzle at ${next.localTime} (in ${next.remaining}).`;
+            banner.style.display = 'block';
+
+            document.getElementById('finalModal').classList.add('active');
+        }
+
+        // Done-card buttons
+        document.getElementById('doneResultsButton').onclick = () => {
+            document.getElementById('finalModal').classList.add('active');
+        };
+        document.getElementById('doneShareButton').onclick = () => {
+            document.getElementById('shareButton').click();
         };
 
         // ---- Boot -------------------------------------------------------
