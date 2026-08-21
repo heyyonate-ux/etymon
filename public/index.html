@@ -2052,8 +2052,13 @@
             document.getElementById('resultModal').classList.remove('active');
             window.scrollTo(0, 0);
 
-            // If game is already completed, reopen final results
+            // Game over — populate and show the final results.
+            // showFinalResults() is safe to call again on revisits; it rebuilds
+            // from roundResults each time. (Opening the modal directly here was
+            // the bug: gameCompleted is now set in completeRound, so this branch
+            // fires on the FIRST completion, before anything had been rendered.)
             if (gameCompleted) {
+                showFinalResults();
                 document.getElementById('finalModal').classList.add('active');
                 return;
             }
