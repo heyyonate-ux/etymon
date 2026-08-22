@@ -1283,6 +1283,7 @@
         // Game state
         let currentRound = 0;
         let dailyPuzzles = [];
+        let puzzlesDate = null; // which UTC date dailyPuzzles was actually fetched for
         let currentPuzzle = null;
         let revealedLetters = new Set();
         let guessedLetters = new Set();
@@ -1304,14 +1305,28 @@
         //   persistent  — streak, first-visit flag (never expire)
         // ---------------------------------------------------------------
 
+        function currentUTCDate() {
+            return new Date().toISOString().split('T')[0];
+        }
+
         function todayKey() {
-            return 'whence:' + new Date().toISOString().split('T')[0];
+            return 'whence:' + currentUTCDate();
         }
 
         function saveState() {
             if (!dailyPuzzles.length) return;
             const payload = {
                 dailyPuzzles,
+                // The date these puzzles were actually served for — NOT just
+                // "the date we happened to save on." A resumed/suspended PWA
+                // session can call saveState() on a later calendar day than
+                // the one dailyPuzzles was fetched for; saving under
+                // todayKey() alone would silently write stale puzzle content
+                // under the *correct* day's key, and that corrupted entry
+                // would then look perfectly valid on every future load.
+                // Recording the puzzle's real date here lets loadState()
+                // catch that case instead of trusting shape alone.
+                puzzlesDate: puzzlesDate,
                 currentRound,
                 roundResults,
                 totalScore,
@@ -1331,7 +1346,19 @@
         function loadState() {
             try {
                 const raw = localStorage.getItem(todayKey());
-                return raw ? JSON.parse(raw) : null;
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                // Belt-and-suspenders: even though this was stored under
+                // today's key, confirm the puzzle content inside it was
+                // actually fetched for today. Older saves (pre-fix) won't
+                // have puzzlesDate at all — treat missing as invalid too,
+                // so any already-corrupted entry self-heals on next load
+                // instead of needing a manual storage clear.
+                if (parsed.puzzlesDate !== currentUTCDate()) {
+                    try { localStorage.removeItem(todayKey()); } catch {}
+                    return null;
+                }
+                return parsed;
             } catch { return null; }
         }
 
@@ -1477,6 +1504,7 @@
             if (savedIsValid) {
                 // Restore everything from localStorage
                 dailyPuzzles  = saved.dailyPuzzles;
+                puzzlesDate   = saved.puzzlesDate; // already validated == currentUTCDate() by loadState()
                 currentRound  = saved.currentRound  || 0;
                 roundResults  = saved.roundResults;
                 totalScore    = saved.totalScore;
@@ -1525,10 +1553,16 @@
                 if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
                 const data = await response.json();
                 dailyPuzzles = data.puzzles;
+                // Trust the server's date over the client clock where
+                // available — it's the actual date this puzzle set was
+                // served for. Fall back to the client's own UTC date only
+                // if the server didn't send one.
+                puzzlesDate = data.date || currentUTCDate();
             } catch (error) {
                 console.error('Error loading puzzles:', error);
                 alert('Could not load daily puzzles. Using demo puzzles instead.');
                 generateDailyPuzzles();
+                puzzlesDate = currentUTCDate();
             }
 
             renderProgressBar();
