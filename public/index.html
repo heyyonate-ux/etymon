@@ -2689,6 +2689,29 @@
         // nobody is timed while they're still reading the clue.
         initGame();
 
+        // ---- Day-rollover guard -------------------------------------------
+        // As an installed PWA, iOS/Android often resume a suspended session
+        // on relaunch instead of doing a fresh page load — which means
+        // initGame() never runs again and the puzzles loaded on the *previous*
+        // calendar day just stay in memory indefinitely. If the app comes back
+        // to the foreground on a different UTC date than it loaded on, force a
+        // real reload rather than trying to patch state in place — this keeps
+        // every date-dependent piece (puzzles, streak, "already played"
+        // banner) consistent instead of re-deriving each one by hand.
+        const loadedDateKey = todayKey();
+        window.addEventListener('visibilitychange', () => {
+            if (!document.hidden && todayKey() !== loadedDateKey) {
+                location.reload();
+            }
+        });
+        window.addEventListener('pageshow', (e) => {
+            // e.persisted: page restored from bfcache (back/forward cache) —
+            // script didn't re-run, so the same stale-date risk applies here.
+            if (e.persisted && todayKey() !== loadedDateKey) {
+                location.reload();
+            }
+        });
+
     </script>
 </body>
 </html>
