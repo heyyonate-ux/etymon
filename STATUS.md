@@ -2,7 +2,7 @@
 
 *The "you are here" file. Read this first when you come back after a break, before touching anything. Everything else (`CORPUS.md`, `LAUNCH.md`, the briefs) is reference; this is your bookmark.*
 
-**Last updated: August 26, 2026 (mid-session update — items 4/5 done, on a branch)** — update the date and the two live sections whenever you stop work.
+**Last updated: August 26, 2026 (mid-session update — items 4–7 all deployed)** — update the date and the two live sections whenever you stop work.
 
 ---
 
@@ -16,7 +16,15 @@ The redesign and corpus pipeline are merged to `main` and deployed. Dogfooding w
 
 **Also found while reviewing `public/index.html` this session:** local streak (`whence:streak`) and first-visit tracking (`whence:visited`, driving the auto-shown intro modal) are already built and wired up — `updateStreak()`, `loadStreak()`/`saveStreak()`, and `isFirstVisit()`/`markVisited()` all exist and run. This resolves part of the "status unclear" open item on Phase 1 retention — the streak/first-visit piece is done, not missing. Still open: whether a same-day replay lock exists (Dad's "shouldn't be able to play twice a day" note) — not yet confirmed either way.
 
-**Items 4 and 5 are done, pending deploy.** Instructions-modal height capped (game visible behind it instead of near-full-screen), the modal's own backdrop lightened to 50% opacity (scoped to `#menuModal` only — other modals unchanged), and Susan's two copy edits applied (welcome line no longer ends on "from"; Scoring bullets reworded out of second-person "you"). Built and reviewed in chat; being pushed to a branch for deploy-preview review before merging to `main`.
+**Items 4 and 5 are done and deployed.** Instructions-modal height capped (game visible behind it instead of near-full-screen), the modal's own backdrop lightened to 50% opacity (scoped to `#menuModal` only — other modals unchanged), and Susan's two copy edits applied (welcome line no longer ends on "from"; Scoring bullets reworded out of second-person "you"). Reviewed in chat, merged to `main`.
+
+**Items 6 and 7 are built and deployed** (two separate deploys, per plan). Both live in the same mobile-keyboard code path in `public/index.html`:
+
+- **Item 6 (Android keyboard/viewport bug):** the scroll-into-view logic that used to center `#letterTracker` with a fixed `-80px` offset and blind `300ms`/`400ms` timeouts (tuned against iOS's behavior) now targets `#etymologyClue` instead, so the clue + word boxes are what stay visible if the screen runs short on room — not the secondary letter-status strip. Timing is now driven by the real `visualViewport` `resize` event (with the old fixed timeout kept only as a fallback if that event doesn't fire), so it adapts to whatever keyboard height and browser-chrome behavior the actual device has instead of assuming iOS's numbers.
+- **Item 7 (auto-enable "tap to type"):** the keyboard-activation logic was pulled into one shared function, `activateMobileKeyboard()`, and is now called automatically from both real taps that start a round — the round-1 "Start Round" button, and the `continueButton` tap that dismisses the round-summary modal and auto-starts rounds 2–5. Both are genuine user gestures with no async gap before the `.focus()` call, which is what makes this allowed under iOS/Android's rules.
+- **Follow-on hardening, same deploy:** rather than remove the manual "Tap to Type" button (redundant in the common case, but the underlying hidden input uses a zero-size/invisible pattern some browsers treat with suspicion), `activateMobileKeyboard()` now checks `document.activeElement === mobileInput` right after calling `.focus()`. If the browser actually honored it, the button hides as before. If not, the button stays visible as a real, working fallback instead of a decorative one that could disappear even on failure.
+
+**Not yet verified on a real device.** Both were tested via the browser's own dev tools, not a real iPhone/Android — see Open questions below. Plan: confirm on your own phone (Web Inspector over USB is the strongest option, since it gives real console/`visualViewport` access on live Safari, not just a resize simulation), then ask the Android tester specifically whether the clue and word boxes stay visible while typing.
 
 ---
 
@@ -27,13 +35,14 @@ The redesign and corpus pipeline are merged to `main` and deployed. Dogfooding w
 - ~~Corpus review completion~~ — skipped for now, by choice, not forgotten. Revisit before any wider/public link goes out.
 - ~~CORS + rate limiting~~ — **done.** Verified against deployed `get-daily-puzzle.js`: real origin whitelist + 403 on mismatch, 10/IP/day cap on the generation path, $30/mo budget cap as backstop. No code change needed.
 - ~~Domain + rename~~ — skipped for now, by choice.
-- ~~Items 4 and 5~~ — **done, on a branch, not yet merged to `main`.**
+- ~~Items 4 and 5~~ — **done, deployed.**
   4. Shrink the initial instructions modal (Nate) — height capped, backdrop lightened to 50% opacity so the game reads as visible/waiting behind it.
   5. Instruction copy edits (Susan) — welcome line no longer ends on "from"; Scoring bullets reworded off second-person "you."
-  Confirm the deploy-preview looks right — especially the modal's internal scroll behavior now that it's shorter than before, on an actual small screen — then merge.
-- **Up next together: items 6–7.**
-  6. **Android keyboard/viewport bug.** Answer tiles are cut off / require scrolling, and overall visible area is worse than iOS. Don't chase this in the Android Studio emulator — keyboard-triggered viewport resize behaves differently on real hardware. Plug a real Android phone into a laptop (USB debugging + `chrome://inspect`) for real DevTools on real hardware; "Dad" is already dogfooding on Android and is the fastest path to a test device or a screen recording.
-  7. **Investigate auto-enabling "tap to type"** at round start and after dismissing the round-summary modal, so it doesn't need an explicit tap every round. Try attaching `.focus()` synchronously inside the existing tap handler that dismisses the round summary — that's still inside a genuine user-gesture call stack, which is what iOS/Android actually require, and may work without a dedicated extra tap.
+- **Up next together: items 6–7.** — **done, deployed (two separate deploys).**
+  6. Android keyboard/viewport bug — scroll target switched from the letter tracker to the clue, timing now driven by the real `visualViewport` resize event instead of fixed timeouts/offsets.
+  7. Auto-enable "tap to type" — keyboard now opens automatically on the round-1 Start tap and on the round-summary Continue tap (rounds 2–5's auto-start); manual button kept as a real fallback, verified via `document.activeElement` rather than just assumed to have worked.
+  **Not yet confirmed on a real device** — see Open questions. Confirm via Safari Web Inspector (USB) before treating this as fully closed, and ask the Android tester directly once confident.
+- **Nothing currently in progress.** Next up, whenever ready: items 8–9 (level indicator, horizontal rank scale) — see below.
 
 **Not blocking, but worth doing before or shortly after the wider share:**
 
@@ -53,8 +62,9 @@ Full launch gate is in `LAUNCH.md`. Full phased plan is in `ROADMAP.md`/`TODO.md
 
 ## 🔦 Open questions / unfinished
 
-- **Mobile keyboard scroll (iOS)** — no live complaints this dogfood round, but never explicitly re-verified as fixed post-redesign. Treat as "probably fine," not confirmed.
-- **Android keyboard/viewport** — newly confirmed broken this session (answer tiles cut off, less visible area than iOS). See Next action #6.
+- **Items 4/5 real-device look.** Deployed, but worth a direct look on an actual small screen (not just desktop-resized) — specifically the modal's internal scroll now that it's shorter than before, and whether 50% backdrop opacity reads as intended rather than too light/too dark in daylight vs. a dim room.
+- **Items 6/7 device confirmation.** Both deployed, but only tested via browser dev tools, not a real device. Plan: verify on your own iPhone via Safari Web Inspector over USB (Settings → Safari → Advanced → Web Inspector on the phone; Safari → Settings → Advanced → Show features for web developers on the Mac) — this gives real console/`visualViewport` access on live Safari. To load the page on the phone in the first place: same-Wi-Fi + your Mac's LAN IP (`http://<your-ip>:8888`, not `localhost`), or `netlify dev --live` for a public tunnel URL (worth checking Functions actually load through it — historically a rough edge). Once confirmed on iOS, ask the Android tester directly: "can you see the clue and word boxes the whole time you're typing?" — not a generic "let me know if anything's broken."
+- **Mobile keyboard scroll (iOS)** — no live complaints this dogfood round pre-fix, but never explicitly re-verified. The item 6/7 changes touch this same code path; verify together with the above.
 - **Same-day replay lock** — not yet confirmed whether this exists (Dad's "shouldn't be able to play twice a day" note). Note: local streak and first-visit tracking themselves *are* confirmed built (see "Where the project is right now") — this is narrower than the old "local streak/history — status unclear" item.
 - **Preview vs. corpus prompt** — `scripts/preview-puzzles.js` still generates from the runtime prompt, not the stricter authoring prompt. Still unresolved.
 - **`servedFrom: "corpus"` confirmation** — expected to show since Aug 18; worth a direct one-line confirmation.
@@ -108,7 +118,7 @@ Should currently echo `2026-08-18 → 2026-09-05 (19 days)` until the corpus is 
 ## 🗺️ Where things live
 
 ```
-public/index.html                  the whole game (HTML/CSS/JS) — includes the two Aug-22 fixes
+public/index.html                  the whole game (HTML/CSS/JS) — includes the Aug-22 fixes + Aug-26 keyboard/viewport + instructions-modal changes
 public/manifest.json                PWA manifest — rename tail still pending
 public/corpus.json                  compiled puzzles the game serves (live: 19 days, 49/95 unreviewed)
 netlify/functions/                  get-daily-puzzle (serves), generate-daily-puzzle (scheduled fallback)

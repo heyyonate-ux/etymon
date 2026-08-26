@@ -2503,6 +2503,16 @@
         function activateMobileKeyboard() {
             if (window.innerWidth > 640) return; // desktop uses the on-screen keyboard instead
             mobileInput.focus();
+
+            // Only hide the manual "Tap to Type" fallback if the browser
+            // actually honored the focus() call. Some browsers silently
+            // refuse to focus a zero-size/invisible input like this one —
+            // it resembles a known keyboard-hijack dark pattern — so we
+            // check rather than assume, and leave a real, working fallback
+            // in place for whichever device/browser that turns out to be.
+            const focusSucceeded = document.activeElement === mobileInput;
+            if (!focusSucceeded) return; // button (already shown) stays as the real fallback
+
             if (keyboardButton) keyboardButton.style.display = 'none';
 
             // Drive the scroll off the real viewport resize the keyboard
