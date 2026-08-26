@@ -407,6 +407,16 @@
             animation: fadeIn 0.3s ease;
         }
 
+        /* Menu/intro modal only: lighter backdrop than the default .modal
+           overlay so the game is visibly there, dimmed, waiting to resume —
+           now that the panel itself (see .menu-content) leaves real margin
+           around it instead of covering nearly the whole screen. Scoped to
+           this modal specifically; the result/final modals keep the darker
+           default for now, since they're a separate decision. */
+        #menuModal {
+            background: rgba(44, 36, 22, 0.5);
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -791,6 +801,11 @@
 
         .menu-content {
             max-width: 520px;
+            /* Cap shorter than the generic .modal-content rule (which allows
+               near-full-viewport height) so the game stays visible behind the
+               panel instead of the intro feeling like a separate full page. */
+            max-height: 82vh;
+            max-height: 82dvh;
             text-align: left;
             display: flex;
             flex-direction: column;
@@ -963,6 +978,8 @@
             }
             .menu-content {
                 padding: 20px;
+                max-height: 86vh;
+                max-height: 86dvh;
             }
             .revealed-word {
                 font-size: 1.8rem !important;
@@ -999,8 +1016,8 @@
             <div class="how-to-play">
                 <p class="how-to-lead" style="font-size: 1rem; margin-bottom: 18px;">
                     Welcome to <strong>Whence</strong> &mdash; the game where you get five
-                    chances a day to discover <em>from whence</em> English words came, and
-                    the Greek and Latin roots they grew from.
+                    chances a day to discover <em>from whence</em> English words came: the
+                    Greek and Latin roots that shaped them.
                 </p>
 
                 <h3>How to Play</h3>
@@ -1026,11 +1043,11 @@
                 </p>
                 <ul class="tight">
                     <li>the clock ticks &mdash; <strong>speed is king</strong>, and later rounds bleed faster;</li>
-                    <li>you enter letters that aren't in the word;</li>
-                    <li>you request a hint, which reveals a random letter &mdash; useful when stuck, but it'll cost you.</li>
+                    <li>an incorrect letter is entered;</li>
+                    <li>a hint is requested, revealing a random letter &mdash; useful when stuck, but at a cost.</li>
                 </ul>
                 <p class="how-to-lead" style="margin-top: 10px;">
-                    You can also <strong>Pass</strong> to skip a word for zero on that round.
+                    <strong>Pass</strong> is also available, skipping a word for zero on that round.
                 </p>
 
                 <h3 style="margin-top: 22px;">Ranks</h3>
