@@ -2470,34 +2470,54 @@
         // Mobile keyboard handler
         const mobileInput = document.getElementById('mobileKeyboardInput');
         const keyboardButton = document.getElementById('mobileKeyboardButton');
-        
+
+        // What needs to stay visible while typing is the clue + word boxes —
+        // not the letter tracker (which is secondary status, and on mobile
+        // is the ONLY on-screen alphabet since .keyboard is display:none
+        // below 640px). Scroll so the clue sits at the top of whatever space
+        // is left above the keyboard; if something has to fall below the
+        // fold on a shorter screen, better it's the tracker than the clue.
+        function scrollClueAboveKeyboard() {
+            const clue = document.getElementById('etymologyClue');
+            if (clue && window.innerWidth <= 640) {
+                clue.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
         // Button click activates keyboard
         if (keyboardButton) {
             keyboardButton.onclick = () => {
                 mobileInput.focus();
                 // Hide button after keyboard opens
                 keyboardButton.style.display = 'none';
-                
-                // Scroll to show letter tracker above keyboard
-                setTimeout(() => {
-                    const letterTracker = document.getElementById('letterTracker');
-                    if (letterTracker && window.innerWidth <= 640) {
-                        // Scroll letter tracker to center of viewport for better visibility
-                        letterTracker.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'center',
-                            inline: 'nearest'
-                        });
-                        
-                        // Additional scroll up to ensure it's well above keyboard
-                        setTimeout(() => {
-                            window.scrollBy({
-                                top: -80,
-                                behavior: 'smooth'
-                            });
-                        }, 400);
-                    }
-                }, 300); // Wait for keyboard animation
+
+                // Drive the scroll off the real viewport resize the keyboard
+                // causes, rather than a fixed delay + fixed pixel offset.
+                // A guessed timing/offset (tuned against one platform's
+                // keyboard height and chrome behavior) doesn't transfer
+                // across devices — Android's keyboard is taller and its
+                // browser chrome doesn't auto-collapse the way iOS Safari's
+                // does, so the same numbers leave less room than assumed.
+                if (window.visualViewport) {
+                    let settled = false;
+                    const onViewportResize = () => {
+                        if (settled) return;
+                        settled = true;
+                        window.visualViewport.removeEventListener('resize', onViewportResize);
+                        scrollClueAboveKeyboard();
+                    };
+                    window.visualViewport.addEventListener('resize', onViewportResize);
+                    // Safety net: some browsers fire this early or not at
+                    // all — fall back to a timeout so the scroll still runs.
+                    setTimeout(() => {
+                        if (settled) return;
+                        settled = true;
+                        window.visualViewport.removeEventListener('resize', onViewportResize);
+                        scrollClueAboveKeyboard();
+                    }, 600);
+                } else {
+                    setTimeout(scrollClueAboveKeyboard, 300);
+                }
             };
         }
         
