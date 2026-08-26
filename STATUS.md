@@ -2,7 +2,7 @@
 
 *The "you are here" file. Read this first when you come back after a break, before touching anything. Everything else (`CORPUS.md`, `LAUNCH.md`, the briefs) is reference; this is your bookmark.*
 
-**Last updated: August 26, 2026 (mid-session update — items 4–7 all deployed)** — update the date and the two live sections whenever you stop work.
+**Last updated: August 26, 2026 (mid-session update — items 4–7 + ad-banner removal deployed; ROADMAP.md corrected/extended; Practice button tracked)** — update the date and the two live sections whenever you stop work.
 
 ---
 
@@ -24,7 +24,9 @@ The redesign and corpus pipeline are merged to `main` and deployed. Dogfooding w
 - **Item 7 (auto-enable "tap to type"):** the keyboard-activation logic was pulled into one shared function, `activateMobileKeyboard()`, and is now called automatically from both real taps that start a round — the round-1 "Start Round" button, and the `continueButton` tap that dismisses the round-summary modal and auto-starts rounds 2–5. Both are genuine user gestures with no async gap before the `.focus()` call, which is what makes this allowed under iOS/Android's rules.
 - **Follow-on hardening, same deploy:** rather than remove the manual "Tap to Type" button (redundant in the common case, but the underlying hidden input uses a zero-size/invisible pattern some browsers treat with suspicion), `activateMobileKeyboard()` now checks `document.activeElement === mobileInput` right after calling `.focus()`. If the browser actually honored it, the button hides as before. If not, the button stays visible as a real, working fallback instead of a decorative one that could disappear even on failure.
 
-**Not yet verified on a real device.** Both were tested via the browser's own dev tools, not a real iPhone/Android — see Open questions below. Plan: confirm on your own phone (Web Inspector over USB is the strongest option, since it gives real console/`visualViewport` access on live Safari, not just a resize simulation), then ask the Android tester specifically whether the clue and word boxes stay visible while typing.
+**Items 6 and 7: confirmed on iOS and laptop, Android still pending.** You've tested and it looks right on iOS and desktop. Android hasn't been checked on a real device yet (no tester reachable right now) — plan is still to ask the Android tester directly once reachable: "can you see the clue and word boxes the whole time you're typing?" not a generic "let me know if anything's broken."
+
+**Also removed this session: the "Advertisement Space • Remove ads with Premium" placeholder.** Found while reviewing the file — a permanent, unconditional `.ad-banner` div shown on every gameplay screen, referencing a Premium tier that doesn't exist and implying ads were being served when none were. No ad network, no payment infra, no product decision behind it — pure leftover scaffold. Removed (markup + its CSS) rather than either extreme (building real ads, or leaving a placeholder that misrepresents the product to strangers). Confirmed working on iOS and laptop and shipped. One thing worth a specific look when the Android tester checks in, not just "does the banner look gone": removing it shrinks the page's total height slightly, which — per the discussion at the time — has a real (if minor) mechanism for interacting with the item 6/7 keyboard-scroll fix on Android specifically, since that fix depends on how far the page is allowed to scroll.
 
 ---
 
@@ -41,7 +43,8 @@ The redesign and corpus pipeline are merged to `main` and deployed. Dogfooding w
 - **Up next together: items 6–7.** — **done, deployed (two separate deploys).**
   6. Android keyboard/viewport bug — scroll target switched from the letter tracker to the clue, timing now driven by the real `visualViewport` resize event instead of fixed timeouts/offsets.
   7. Auto-enable "tap to type" — keyboard now opens automatically on the round-1 Start tap and on the round-summary Continue tap (rounds 2–5's auto-start); manual button kept as a real fallback, verified via `document.activeElement` rather than just assumed to have worked.
-  **Not yet confirmed on a real device** — see Open questions. Confirm via Safari Web Inspector (USB) before treating this as fully closed, and ask the Android tester directly once confident.
+  **Confirmed on iOS + laptop.** Android still not checked on a real device — see Open questions.
+- ~~Ad-banner placeholder~~ — **done, deployed.** Removed the permanent "Advertisement Space • Remove ads with Premium" div (markup + CSS) — it referenced a Premium tier that doesn't exist. Confirmed working on iOS + laptop. See "Open questions" for the one thing worth double-checking on Android alongside items 6/7.
 - **Nothing currently in progress.** Next up, whenever ready: items 8–9 (level indicator, horizontal rank scale) — see below.
 
 **Not blocking, but worth doing before or shortly after the wider share:**
@@ -50,11 +53,13 @@ The redesign and corpus pipeline are merged to `main` and deployed. Dogfooding w
 9. **Horizontal rank scale on the final results modal**, achieved rank highlighted (Nate).
 10. Small fixes: share-text has no clickable link in a text message; round scores round to the nearest thousand for display; add a copyright line (low priority — copyright protection is automatic on creation, this is a courtesy notice, not a legal requirement); root words/etymology shown in the *per-round* modal, not just the final summary; iOS-only results-modal scroll bug.
 11. **Same-day replay lock** — confirm whether this exists (Dad's "shouldn't be able to play twice a day" note). Local streak + first-visit tracking are confirmed already built, so this is the one remaining unknown from the old Phase 1 retention item.
+15. **"Practice" button is a dead end.** Two entry points — the "Practice" button on the final results modal, and "Practice Mode" in the post-game hamburger menu (which just clicks the first one) — both currently show `alert('Practice mode coming soon!...')` with no real functionality behind them. Decided Aug 26: leave the honest "coming soon" alert as-is for now rather than build practice mode or remove the button — unlike the ad banner, this one isn't misrepresenting anything (it's explicit about being unbuilt), so it doesn't carry the same urgency. Revisit before wider sharing, or whenever practice mode actually gets built.
 
 **Not blocking, worth thinking about, no action needed yet:**
 
 12. **Beta/RC sharing via Netlify** — free branch/PR deploy previews already give you a shareable non-production URL with no extra cost. A password gate on that URL is a Pro-plan feature; if you want one on the free tier, a `_headers`-based Basic Auth workaround exists (native browser login prompt, functional but unpolished). For a beta shared only with people you already know, an unlisted branch-deploy URL with no password is probably sufficient.
 13. **Difficulty ramp / top-tier bar, and whether to surface "what's a perfect score."** Good instincts from Nate, but hold off on specific changes until there's real score-distribution data from more players — right now the signal is from a handful of word-savvy testers, which isn't enough to tell "too easy in general" from "too easy for these two people."
+14. **Monetization (ads / Premium) — explicitly undecided, not just unbuilt.** The old placeholder implied both existed; neither does, and nothing about *whether* Whence ever monetizes this way has actually been decided. Now tracked properly in `ROADMAP.md` Phase 6, alongside the social-scores decision it mirrors — added Aug 26.
 
 Full launch gate is in `LAUNCH.md`. Full phased plan is in `ROADMAP.md`/`TODO.md`. Full naming history is in `RENAME.md`.
 
@@ -63,8 +68,7 @@ Full launch gate is in `LAUNCH.md`. Full phased plan is in `ROADMAP.md`/`TODO.md
 ## 🔦 Open questions / unfinished
 
 - **Items 4/5 real-device look.** Deployed, but worth a direct look on an actual small screen (not just desktop-resized) — specifically the modal's internal scroll now that it's shorter than before, and whether 50% backdrop opacity reads as intended rather than too light/too dark in daylight vs. a dim room.
-- **Items 6/7 device confirmation.** Both deployed, but only tested via browser dev tools, not a real device. Plan: verify on your own iPhone via Safari Web Inspector over USB (Settings → Safari → Advanced → Web Inspector on the phone; Safari → Settings → Advanced → Show features for web developers on the Mac) — this gives real console/`visualViewport` access on live Safari. To load the page on the phone in the first place: same-Wi-Fi + your Mac's LAN IP (`http://<your-ip>:8888`, not `localhost`), or `netlify dev --live` for a public tunnel URL (worth checking Functions actually load through it — historically a rough edge). Once confirmed on iOS, ask the Android tester directly: "can you see the clue and word boxes the whole time you're typing?" — not a generic "let me know if anything's broken."
-- **Mobile keyboard scroll (iOS)** — no live complaints this dogfood round pre-fix, but never explicitly re-verified. The item 6/7 changes touch this same code path; verify together with the above.
+- **Android real-device confirmation — items 6, 7, and the ad-banner removal together.** iOS and laptop are confirmed working for all three. Android has not been checked on a real device (no tester currently reachable). When reachable, ask specifically: "can you see the clue and word boxes the whole time you're typing?" — and separately note whether anything looks visually cramped or clipped near the bottom of the screen now that the ad banner is gone (see the note above on why that's a real, if minor, related risk). Not a generic "let me know if anything's broken."
 - **Same-day replay lock** — not yet confirmed whether this exists (Dad's "shouldn't be able to play twice a day" note). Note: local streak and first-visit tracking themselves *are* confirmed built (see "Where the project is right now") — this is narrower than the old "local streak/history — status unclear" item.
 - **Preview vs. corpus prompt** — `scripts/preview-puzzles.js` still generates from the runtime prompt, not the stricter authoring prompt. Still unresolved.
 - **`servedFrom: "corpus"` confirmation** — expected to show since Aug 18; worth a direct one-line confirmation.
@@ -118,7 +122,7 @@ Should currently echo `2026-08-18 → 2026-09-05 (19 days)` until the corpus is 
 ## 🗺️ Where things live
 
 ```
-public/index.html                  the whole game (HTML/CSS/JS) — includes the Aug-22 fixes + Aug-26 keyboard/viewport + instructions-modal changes
+public/index.html                  the whole game (HTML/CSS/JS) — includes the Aug-22 fixes + Aug-26 keyboard/viewport + instructions-modal + ad-banner-removal changes
 public/manifest.json                PWA manifest — rename tail still pending
 public/corpus.json                  compiled puzzles the game serves (live: 19 days, 49/95 unreviewed)
 netlify/functions/                  get-daily-puzzle (serves), generate-daily-puzzle (scheduled fallback)
