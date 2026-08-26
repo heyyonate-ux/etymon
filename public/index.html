@@ -1755,13 +1755,21 @@
                     startTime = Date.now();
                     startTimer();
                     actionButton.style.display = 'none';
+                    // The Start Round tap is itself a genuine user gesture —
+                    // safe to open the keyboard synchronously from inside it,
+                    // so the player doesn't have to tap "Tap to Type" too.
+                    activateMobileKeyboard();
                 };
             } else {
-                // Rounds 2-5: Auto-start immediately
+                // Rounds 2-5: Auto-start immediately. This runs synchronously
+                // inside continueButton's onclick (the tap that dismissed the
+                // round-summary modal) — still the same user gesture, so the
+                // keyboard can open here without a separate tap.
                 actionButton.style.display = 'none';
                 roundStarted = true;
                 startTime = Date.now();
                 startTimer();
+                activateMobileKeyboard();
             }
         }
 
@@ -2484,41 +2492,53 @@
             }
         }
 
-        // Button click activates keyboard
-        if (keyboardButton) {
-            keyboardButton.onclick = () => {
-                mobileInput.focus();
-                // Hide button after keyboard opens
-                keyboardButton.style.display = 'none';
+        // Opens the native keyboard and scrolls the clue into view. Must be
+        // called synchronously from within a real tap/user-gesture handler —
+        // browsers block .focus() outside one. Shared by: the manual
+        // "Tap to Type" button (still rendered as a fallback in case
+        // auto-activation below doesn't succeed for some reason) and the
+        // automatic activation at round start / after dismissing the
+        // round-summary modal — both of those are themselves genuine taps,
+        // so calling this synchronously from inside them is safe.
+        function activateMobileKeyboard() {
+            if (window.innerWidth > 640) return; // desktop uses the on-screen keyboard instead
+            mobileInput.focus();
+            if (keyboardButton) keyboardButton.style.display = 'none';
 
-                // Drive the scroll off the real viewport resize the keyboard
-                // causes, rather than a fixed delay + fixed pixel offset.
-                // A guessed timing/offset (tuned against one platform's
-                // keyboard height and chrome behavior) doesn't transfer
-                // across devices — Android's keyboard is taller and its
-                // browser chrome doesn't auto-collapse the way iOS Safari's
-                // does, so the same numbers leave less room than assumed.
-                if (window.visualViewport) {
-                    let settled = false;
-                    const onViewportResize = () => {
-                        if (settled) return;
-                        settled = true;
-                        window.visualViewport.removeEventListener('resize', onViewportResize);
-                        scrollClueAboveKeyboard();
-                    };
-                    window.visualViewport.addEventListener('resize', onViewportResize);
-                    // Safety net: some browsers fire this early or not at
-                    // all — fall back to a timeout so the scroll still runs.
-                    setTimeout(() => {
-                        if (settled) return;
-                        settled = true;
-                        window.visualViewport.removeEventListener('resize', onViewportResize);
-                        scrollClueAboveKeyboard();
-                    }, 600);
-                } else {
-                    setTimeout(scrollClueAboveKeyboard, 300);
-                }
-            };
+            // Drive the scroll off the real viewport resize the keyboard
+            // causes, rather than a fixed delay + fixed pixel offset.
+            // A guessed timing/offset (tuned against one platform's
+            // keyboard height and chrome behavior) doesn't transfer
+            // across devices — Android's keyboard is taller and its
+            // browser chrome doesn't auto-collapse the way iOS Safari's
+            // does, so the same numbers leave less room than assumed.
+            if (window.visualViewport) {
+                let settled = false;
+                const onViewportResize = () => {
+                    if (settled) return;
+                    settled = true;
+                    window.visualViewport.removeEventListener('resize', onViewportResize);
+                    scrollClueAboveKeyboard();
+                };
+                window.visualViewport.addEventListener('resize', onViewportResize);
+                // Safety net: some browsers fire this early or not at
+                // all — fall back to a timeout so the scroll still runs.
+                setTimeout(() => {
+                    if (settled) return;
+                    settled = true;
+                    window.visualViewport.removeEventListener('resize', onViewportResize);
+                    scrollClueAboveKeyboard();
+                }, 600);
+            } else {
+                setTimeout(scrollClueAboveKeyboard, 300);
+            }
+        }
+
+        // Button click activates keyboard (manual fallback — the button
+        // stays visible if auto-activation didn't succeed, e.g. focus() was
+        // silently rejected for some reason)
+        if (keyboardButton) {
+            keyboardButton.onclick = activateMobileKeyboard;
         }
         
         // Handle input
