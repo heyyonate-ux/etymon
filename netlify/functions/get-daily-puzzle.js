@@ -78,6 +78,12 @@ exports.handler = async (event) => {
   if (fromCorpus) {
     const payload = buildPayload(today, fromCorpus, 'corpus');
     memoryCache = { date: today, payload };
+    // Explicit log for the success path, matching every other branch below —
+    // previously this was the one path with no log line at all, so
+    // "check the function logs for servedFrom: corpus" (per LAUNCH.md)
+    // wasn't actually possible; the field only ever showed up in the HTTP
+    // response body, not anywhere a log-based check could see it.
+    console.log(`Serving ${today} from corpus.`);
     return json(200, { ...payload, servedFrom: 'corpus' }, cacheHeaders);
   }
 
