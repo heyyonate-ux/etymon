@@ -1068,6 +1068,27 @@
             <div class="etymology-clue" id="etymologyClue"></div>
             
             <div class="word-display" id="wordDisplay"></div>
+
+            <!-- Hidden input for keyboard. Physically positioned here
+                 (right after the clue/word boxes), not down near the hint/
+                 pass buttons where it used to sit — some Android/Chrome
+                 versions apply their own native "scroll focused element
+                 into view" behavior when a real <input> receives focus,
+                 independent of and sometimes overriding our own JS scroll,
+                 so its DOM position needs to already be near what should
+                 stay on screen. It's zero-size and pointer-events:none, so
+                 this has no visual effect either way. -->
+            <input 
+                type="text" 
+                id="mobileKeyboardInput"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                inputmode="text"
+                style="position: absolute; opacity: 0; pointer-events: none; height: 0; width: 0;"
+                maxlength="1"
+            />
             
             <div class="game-stats">
                 <div class="stat">
@@ -1107,18 +1128,13 @@
                 ⌨️ Tap to Type
             </button>
             
-            <!-- Hidden input for keyboard -->
-            <input 
-                type="text" 
-                id="mobileKeyboardInput"
-                autocomplete="off"
-                autocorrect="off"
-                autocapitalize="characters"
-                spellcheck="false"
-                inputmode="text"
-                style="position: absolute; opacity: 0; pointer-events: none; height: 0; width: 0;"
-                maxlength="1"
-            />
+            <!-- Hidden input for keyboard lives up near the clue now (see
+                 above) — not here. Its actual DOM position matters even
+                 though it's invisible: some Android/Chrome versions apply
+                 their own native "scroll focused element into view"
+                 behavior on focus, independent of and sometimes overriding
+                 our own scroll logic, so it needs to physically sit near
+                 the content that should end up on screen. -->
             
             <div class="keyboard" id="keyboard"></div>
             
