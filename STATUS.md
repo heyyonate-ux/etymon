@@ -2,7 +2,7 @@
 
 *The "you are here" file. Read this first when you come back after a break, before touching anything. Everything else (`CORPUS.md`, `LAUNCH.md`, the briefs) is reference; this is your bookmark.*
 
-**Last updated: August 26, 2026 (mid-session update — items 4–7 + ad-banner removal deployed; ROADMAP.md corrected/extended; Practice button tracked)** — update the date and the two live sections whenever you stop work.
+**Last updated: August 26, 2026 (mid-session update — corpus extended to 54 days, committed and deployed; plumbing recheck still pending)** — update the date and the two live sections whenever you stop work.
 
 ---
 
@@ -24,9 +24,13 @@ The redesign and corpus pipeline are merged to `main` and deployed. Dogfooding w
 - **Item 7 (auto-enable "tap to type"):** the keyboard-activation logic was pulled into one shared function, `activateMobileKeyboard()`, and is now called automatically from both real taps that start a round — the round-1 "Start Round" button, and the `continueButton` tap that dismisses the round-summary modal and auto-starts rounds 2–5. Both are genuine user gestures with no async gap before the `.focus()` call, which is what makes this allowed under iOS/Android's rules.
 - **Follow-on hardening, same deploy:** rather than remove the manual "Tap to Type" button (redundant in the common case, but the underlying hidden input uses a zero-size/invisible pattern some browsers treat with suspicion), `activateMobileKeyboard()` now checks `document.activeElement === mobileInput` right after calling `.focus()`. If the browser actually honored it, the button hides as before. If not, the button stays visible as a real, working fallback instead of a decorative one that could disappear even on failure.
 
-**Items 6 and 7: confirmed on iOS and laptop, Android still pending.** You've tested and it looks right on iOS and desktop. Android hasn't been checked on a real device yet (no tester reachable right now) — plan is still to ask the Android tester directly once reachable: "can you see the clue and word boxes the whole time you're typing?" not a generic "let me know if anything's broken."
+**Items 6/7 Android test — found broken, root-caused, fixed, retested working.** Dad tested on a real Android device: the clue/word boxes were still not visible while typing (screenshot showed only the letter tracker + hint/pass buttons). Root cause: the hidden `<input>` that actually receives keyboard focus (`mobileKeyboardInput`) sat in the DOM down near the hint/pass buttons — some Android/Chrome versions apply their own native "scroll focused element into view" behavior on focus, independent of and apparently overriding our own `scrollIntoView` call, so it was scrolling to where the input *actually sits*, not where our JS was aiming. Fix: moved the (zero-size, invisible) input up in the markup to sit right after the clue and word boxes, so native and our-own scroll behavior now point the same direction regardless of which one wins on a given device. Retested and confirmed working.
 
-**Also removed this session: the "Advertisement Space • Remove ads with Premium" placeholder.** Found while reviewing the file — a permanent, unconditional `.ad-banner` div shown on every gameplay screen, referencing a Premium tier that doesn't exist and implying ads were being served when none were. No ad network, no payment infra, no product decision behind it — pure leftover scaffold. Removed (markup + its CSS) rather than either extreme (building real ads, or leaving a placeholder that misrepresents the product to strangers). Confirmed working on iOS and laptop and shipped. One thing worth a specific look when the Android tester checks in, not just "does the banner look gone": removing it shrinks the page's total height slightly, which — per the discussion at the time — has a real (if minor) mechanism for interacting with the item 6/7 keyboard-scroll fix on Android specifically, since that fix depends on how far the page is allowed to scroll.
+**New bug found during that same testing round, now fixed but not yet deployed:** force-quitting the app mid-round and reopening it left no way to get the keyboard back at all. Root cause: `resumeRound()` (which runs when the app loads and finds an in-progress round saved in `localStorage`) restarts the timer but never re-shows the manual "Tap to Type" fallback button — that only happens in `showReadyScreen()`, a different code path this one skips. A force-quit+reopen is a real page reload, so any previous keyboard focus is gone, and the fallback button had already been hidden the last time the keyboard opened successfully. Fix: the resume-with-already-started branch now re-shows the fallback button (deliberately *not* attempting an automatic `.focus()` here, since this runs on page load rather than from inside a real tap, and would likely be silently blocked the same way our other auto-focus attempts would be outside a genuine gesture). **Needs deploy + a fresh test:** force-quit the app mid-round, reopen, confirm the "Tap to Type" button is there.
+
+**Also removed this session: the "Advertisement Space • Remove ads with Premium" placeholder.** Found while reviewing the file — a permanent, unconditional `.ad-banner` div shown on every gameplay screen, referencing a Premium tier that doesn't exist and implying ads were being served when none were. No ad network, no payment infra, no product decision behind it — pure leftover scaffold. Removed (markup + its CSS) rather than either extreme (building real ads, or leaving a placeholder that misrepresents the product to strangers). Confirmed working on iOS and laptop and shipped.
+
+**Corpus extended to 54 days — committed and deployed.** Ran `corpus:generate -- --count 40` (`scholar` capped early at 54, the new bottleneck tier — `magister`/`etymologus` reached 99/88, contrary to the expectation that the hardest tiers would run dry first), then `corpus:compile -- --start 2026-08-18 --include-unreviewed`. Result: **2026-08-18 → 2026-10-10 (54 days)**, up from the previous 19. **This is a meaningfully bigger review-debt jump than the earlier "49/95 unreviewed" note** — the compile output flagged 390 unverified candidates in the eligible pool; only a small fraction of the full 270 shipped words (54 days × 5 tiers) were ever hand-reviewed, so treat this 54-day corpus as almost entirely unverified, not just "half reviewed" like before. Still fine for continued dogfooding with the small trusted group per the staging-flag precedent in `bulk-generator-brief.md`/`STATUS.md`, but the gap to a real launch-ready corpus (`LAUNCH.md`'s hard gate: re-compile *without* `--include-unreviewed` from a fully reviewed set) just got substantially wider. **Committed, pushed, and deployed — still needs the `LAUNCH.md` plumbing recheck** (play the live game, confirm function logs show `servedFrom: "corpus"`, confirm a date in the new range serves consistently on a second load) before treating this as fully verified live.
 
 ---
 
@@ -34,18 +38,19 @@ The redesign and corpus pipeline are merged to `main` and deployed. Dogfooding w
 
 **Currently being worked through, in this order (per session plan, Aug 26):**
 
-- ~~Corpus review completion~~ — skipped for now, by choice, not forgotten. Revisit before any wider/public link goes out.
+- ~~Corpus review completion~~ — **debt grew substantially, Aug 26.** Was 49/95 unreviewed; now ~390 unreviewed candidates in the pool feeding a 270-word (54-day) compiled corpus, almost entirely unverified. Still skipped by choice for now — fine for continued dogfooding — but this is a bigger gap to close before any wider/public link goes out than it was this morning. Revisit review cadence/plan (Phase 3 in `ROADMAP.md`) sooner rather than later given the size of this jump.
+- ~~Corpus extension — commit, push, deploy~~ — **done, Aug 26.** Committed and deployed. **Still open: the `LAUNCH.md` plumbing recheck** — play the live game, confirm function logs show `servedFrom: "corpus"` (not a fallback), and that a date within the new range serves consistently on a second load.
 - ~~CORS + rate limiting~~ — **done.** Verified against deployed `get-daily-puzzle.js`: real origin whitelist + 403 on mismatch, 10/IP/day cap on the generation path, $30/mo budget cap as backstop. No code change needed.
-- ~~Domain + rename~~ — skipped for now, by choice.
+- **Domain + rename — starting now (Aug 26).** Next step per plan: registrar availability check on `whence.app`/`whence.game`, then buy, then move the Netlify subdomain + share-URL string + `ALLOWED_ORIGINS` together as one deploy. **Critical, easy to miss:** `netlify/functions/get-daily-puzzle.js`'s `ALLOWED_ORIGINS` whitelist currently only contains the old domain — if the subdomain changes without this being updated in the *same* deploy, the game's own puzzle-fetching calls will get a `403 Forbidden origin` and the site will effectively break on the new URL, not just look untidy. Confirmed only one other hardcoded reference exists in the codebase: the `shareUrl` string in `index.html` (~line 2392). `public/manifest.json`'s `name`/`short_name` rename (still pending, separate from the URL) is a natural thing to bundle into this same pass since you'll already be in "rename mode" — not URL-critical, just cosmetic/PWA-branding, so it won't break anything if missed, but cheap to do together.
 - ~~Items 4 and 5~~ — **done, deployed.**
   4. Shrink the initial instructions modal (Nate) — height capped, backdrop lightened to 50% opacity so the game reads as visible/waiting behind it.
   5. Instruction copy edits (Susan) — welcome line no longer ends on "from"; Scoring bullets reworded off second-person "you."
-- **Up next together: items 6–7.** — **done, deployed (two separate deploys).**
-  6. Android keyboard/viewport bug — scroll target switched from the letter tracker to the clue, timing now driven by the real `visualViewport` resize event instead of fixed timeouts/offsets.
-  7. Auto-enable "tap to type" — keyboard now opens automatically on the round-1 Start tap and on the round-summary Continue tap (rounds 2–5's auto-start); manual button kept as a real fallback, verified via `document.activeElement` rather than just assumed to have worked.
-  **Confirmed on iOS + laptop.** Android still not checked on a real device — see Open questions.
-- ~~Ad-banner placeholder~~ — **done, deployed.** Removed the permanent "Advertisement Space • Remove ads with Premium" div (markup + CSS) — it referenced a Premium tier that doesn't exist. Confirmed working on iOS + laptop. See "Open questions" for the one thing worth double-checking on Android alongside items 6/7.
-- **Nothing currently in progress.** Next up, whenever ready: items 8–9 (level indicator, horizontal rank scale) — see below.
+- **Up next together: items 6–7.** — **done, deployed, and now confirmed on all three platforms (iOS, laptop, Android) after fixing a native-scroll conflict Dad's testing surfaced.**
+  6. Android keyboard/viewport bug — scroll target switched from the letter tracker to the clue, timing driven by the real `visualViewport` resize event; then a second Android-specific fix (moved the hidden keyboard-focus input's DOM position, which some Android/Chrome versions use for their own native scroll-into-view, overriding ours).
+  7. Auto-enable "tap to type" — keyboard opens automatically on the round-1 Start tap and the round-summary Continue tap; manual button kept as a real, verified fallback.
+  **One more fix pending deploy — see the force-quit/resume item above.** Don't consider 6/7 fully closed until that's shipped and retested.
+- ~~Ad-banner placeholder~~ — **done, deployed, confirmed working.** Removed the permanent "Advertisement Space • Remove ads with Premium" div (markup + CSS) — it referenced a Premium tier that doesn't exist.
+- **Nothing currently in progress.** Next up, whenever ready: items 8–9 (level indicator, horizontal rank scale), or the domain/rename work now starting — see below and above.
 
 **Not blocking, but worth doing before or shortly after the wider share:**
 
@@ -68,7 +73,7 @@ Full launch gate is in `LAUNCH.md`. Full phased plan is in `ROADMAP.md`/`TODO.md
 ## 🔦 Open questions / unfinished
 
 - **Items 4/5 real-device look.** Deployed, but worth a direct look on an actual small screen (not just desktop-resized) — specifically the modal's internal scroll now that it's shorter than before, and whether 50% backdrop opacity reads as intended rather than too light/too dark in daylight vs. a dim room.
-- **Android real-device confirmation — items 6, 7, and the ad-banner removal together.** iOS and laptop are confirmed working for all three. Android has not been checked on a real device (no tester currently reachable). When reachable, ask specifically: "can you see the clue and word boxes the whole time you're typing?" — and separately note whether anything looks visually cramped or clipped near the bottom of the screen now that the ad banner is gone (see the note above on why that's a real, if minor, related risk). Not a generic "let me know if anything's broken."
+- **Force-quit/resume keyboard fix — deploy and retest.** Written, not yet shipped. Test: start a round, force-quit the app entirely (not just background it), reopen mid-round, confirm the "Tap to Type" button is visible and works. Easiest to test on the dev build (separate origin/localStorage from production, so it doesn't disturb a day you've already completed) rather than needing incognito.
 - **Same-day replay lock** — not yet confirmed whether this exists (Dad's "shouldn't be able to play twice a day" note). Note: local streak and first-visit tracking themselves *are* confirmed built (see "Where the project is right now") — this is narrower than the old "local streak/history — status unclear" item.
 - **Preview vs. corpus prompt** — `scripts/preview-puzzles.js` still generates from the runtime prompt, not the stricter authoring prompt. Still unresolved.
 - **`servedFrom: "corpus"` confirmation** — expected to show since Aug 18; worth a direct one-line confirmation.
@@ -115,7 +120,7 @@ Confidence check after any compile:
 ```bash
 node -e "const c=require('./public/corpus.json');console.log(c.startDate,'→',c.endDate,'('+c.days+' days)')"
 ```
-Should currently echo `2026-08-18 → 2026-09-05 (19 days)` until the corpus is extended/recompiled without `--include-unreviewed`.
+Should currently echo `2026-08-18 → 2026-10-10 (54 days)` — committed and deployed Aug 26. Still worth the `LAUNCH.md` plumbing recheck (see Next actions) to confirm the live site is actually serving from this file, not a fallback.
 
 ---
 
@@ -124,7 +129,7 @@ Should currently echo `2026-08-18 → 2026-09-05 (19 days)` until the corpus is 
 ```
 public/index.html                  the whole game (HTML/CSS/JS) — includes the Aug-22 fixes + Aug-26 keyboard/viewport + instructions-modal + ad-banner-removal changes
 public/manifest.json                PWA manifest — rename tail still pending
-public/corpus.json                  compiled puzzles the game serves (live: 19 days, 49/95 unreviewed)
+public/corpus.json                  compiled puzzles the game serves (live: 54 days through 2026-10-10 as of Aug 26, ~390 unreviewed in the pool — plumbing recheck still pending, see Next actions)
 netlify/functions/                  get-daily-puzzle (serves), generate-daily-puzzle (scheduled fallback)
 netlify/lib/puzzles.js              runtime generation logic — CORS/rate-limit hardening lands here
 scripts/                            corpus pipeline: generate-corpus.js, review-corpus.js, compile-corpus.js, preview-puzzles.js
