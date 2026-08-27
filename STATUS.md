@@ -2,7 +2,7 @@
 
 *The "you are here" file. Read this first when you come back after a break, before touching anything. Everything else (`CORPUS.md`, `LAUNCH.md`, the briefs) is reference; this is your bookmark.*
 
-**Last updated: August 26, 2026 (mid-session update — corpus's 54-day extension deployed and plumbing-verified; LAUNCH.md log-check instruction corrected, fix written)** — update the date and the two live sections whenever you stop work.
+**Last updated: August 26, 2026 (mid-session update — force-quit/resume keyboard fix deployed; items 6/7 fully shipped, retest pending)** — update the date and the two live sections whenever you stop work.
 
 ---
 
@@ -26,7 +26,7 @@ The redesign and corpus pipeline are merged to `main` and deployed. Dogfooding w
 
 **Items 6/7 Android test — found broken, root-caused, fixed, retested working.** Dad tested on a real Android device: the clue/word boxes were still not visible while typing (screenshot showed only the letter tracker + hint/pass buttons). Root cause: the hidden `<input>` that actually receives keyboard focus (`mobileKeyboardInput`) sat in the DOM down near the hint/pass buttons — some Android/Chrome versions apply their own native "scroll focused element into view" behavior on focus, independent of and apparently overriding our own `scrollIntoView` call, so it was scrolling to where the input *actually sits*, not where our JS was aiming. Fix: moved the (zero-size, invisible) input up in the markup to sit right after the clue and word boxes, so native and our-own scroll behavior now point the same direction regardless of which one wins on a given device. Retested and confirmed working.
 
-**New bug found during that same testing round, now fixed but not yet deployed:** force-quitting the app mid-round and reopening it left no way to get the keyboard back at all. Root cause: `resumeRound()` (which runs when the app loads and finds an in-progress round saved in `localStorage`) restarts the timer but never re-shows the manual "Tap to Type" fallback button — that only happens in `showReadyScreen()`, a different code path this one skips. A force-quit+reopen is a real page reload, so any previous keyboard focus is gone, and the fallback button had already been hidden the last time the keyboard opened successfully. Fix: the resume-with-already-started branch now re-shows the fallback button (deliberately *not* attempting an automatic `.focus()` here, since this runs on page load rather than from inside a real tap, and would likely be silently blocked the same way our other auto-focus attempts would be outside a genuine gesture). **Needs deploy + a fresh test:** force-quit the app mid-round, reopen, confirm the "Tap to Type" button is there.
+**Deployed, Aug 26 — the force-quit/resume keyboard fix.** Force-quitting the app mid-round and reopening it previously left no way to get the keyboard back at all. Root cause: `resumeRound()` (which runs when the app loads and finds an in-progress round saved in `localStorage`) restarts the timer but never re-shows the manual "Tap to Type" fallback button — that only happens in `showReadyScreen()`, a different code path this one skips. A force-quit+reopen is a real page reload, so any previous keyboard focus is gone, and the fallback button had already been hidden the last time the keyboard opened successfully. Fix: the resume-with-already-started branch now re-shows the fallback button (deliberately *not* attempting an automatic `.focus()` here, since this runs on page load rather than from inside a real tap, and would likely be silently blocked the same way our other auto-focus attempts would be outside a genuine gesture). **Deployed. Not yet explicitly retested** — worth confirming directly: force-quit mid-round, reopen, confirm the "Tap to Type" button is there.
 
 **Also removed this session: the "Advertisement Space • Remove ads with Premium" placeholder.** Found while reviewing the file — a permanent, unconditional `.ad-banner` div shown on every gameplay screen, referencing a Premium tier that doesn't exist and implying ads were being served when none were. No ad network, no payment infra, no product decision behind it — pure leftover scaffold. Removed (markup + its CSS) rather than either extreme (building real ads, or leaving a placeholder that misrepresents the product to strangers). Confirmed working on iOS and laptop and shipped.
 
@@ -50,7 +50,7 @@ The redesign and corpus pipeline are merged to `main` and deployed. Dogfooding w
 - **Up next together: items 6–7.** — **done, deployed, and now confirmed on all three platforms (iOS, laptop, Android) after fixing a native-scroll conflict Dad's testing surfaced.**
   6. Android keyboard/viewport bug — scroll target switched from the letter tracker to the clue, timing driven by the real `visualViewport` resize event; then a second Android-specific fix (moved the hidden keyboard-focus input's DOM position, which some Android/Chrome versions use for their own native scroll-into-view, overriding ours).
   7. Auto-enable "tap to type" — keyboard opens automatically on the round-1 Start tap and the round-summary Continue tap; manual button kept as a real, verified fallback.
-  **One more fix pending deploy — see the force-quit/resume item above.** Don't consider 6/7 fully closed until that's shipped and retested.
+  **The force-quit/resume fix is also deployed now** (see "Where the project is right now") — not yet explicitly retested. Do that force-quit-mid-round check before fully closing 6/7 out.
 - ~~Ad-banner placeholder~~ — **done, deployed, confirmed working.** Removed the permanent "Advertisement Space • Remove ads with Premium" div (markup + CSS) — it referenced a Premium tier that doesn't exist.
 - **Nothing currently in progress.** Next up, whenever ready: items 8–9 (level indicator, horizontal rank scale), or the domain/rename work now starting — see below and above.
 
@@ -122,7 +122,7 @@ Confidence check after any compile:
 ```bash
 node -e "const c=require('./public/corpus.json');console.log(c.startDate,'→',c.endDate,'('+c.days+' days)')"
 ```
-Should currently echo `2026-08-18 → 2026-10-10 (54 days)` — committed and deployed Aug 26. Still worth the `LAUNCH.md` plumbing recheck (see Next actions) to confirm the live site is actually serving from this file, not a fallback.
+Should currently echo `2026-08-18 → 2026-10-10 (54 days)` — committed and deployed Aug 26, plumbing gate already confirmed live (see "Where the project is right now").
 
 ---
 
