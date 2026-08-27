@@ -1631,6 +1631,20 @@
             if (roundStarted && startTime) {
                 // Resume the live tick
                 startTimer();
+
+                // A killed-and-reopened app is a fresh page load, not a
+                // soft background/foreground cycle — any previous keyboard
+                // focus is gone. This branch (unlike showReadyScreen)
+                // never showed the manual "Tap to Type" fallback, so
+                // without this a player who force-quits mid-round has no
+                // way back into the keyboard at all. We don't attempt an
+                // automatic .focus() here — this code runs on page load,
+                // not from inside a real tap, so browsers would likely
+                // block it silently anyway.
+                const keyboardButton = document.getElementById('mobileKeyboardButton');
+                if (keyboardButton && window.innerWidth <= 640) {
+                    keyboardButton.style.display = 'block';
+                }
             } else {
                 // Round was set up but never started — show the Start button
                 showReadyScreen();
