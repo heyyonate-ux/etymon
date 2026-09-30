@@ -150,12 +150,20 @@ async function fillTier(tier, apiKey, state) {
 
   while (need > 0 && barren < 3) {
     const batch = Math.min(need, CONCURRENCY);
-    const avoid = [...state.usedWords];
+    // Tell the model about EVERY word already in the corpus, not just the most
+    // recent 120. With 450+ words on disk, a trailing slice left out most of
+    // this tier's earlier words, so the model kept re-suggesting them and they
+    // all bounced as duplicates (scholar stalled at 59/95 this way, Sep 2026).
+    // This tier's own words go last so they sit closest to the instruction.
+    const avoid = [
+      ...[...state.usedWords].filter(w => !state.tierWords[tier.level].has(w)),
+      ...state.tierWords[tier.level]
+    ];
 
     const results = await Promise.all(
       Array.from({ length: batch }, async () => {
         try {
-          const raw = await callModel(buildPrompt(tier, avoid.slice(-120)), apiKey);
+          const raw = await callModel(buildPrompt(tier, avoid), apiKey);
           return normalise(raw, tier.level);
         } catch (err) {
           return { __error: err.message };
@@ -189,6 +197,7 @@ async function fillTier(tier, apiKey, state) {
       }
 
       state.usedWords.add(cand.word);
+      state.tierWords[tier.level].add(cand.word);
       state.accepted.push({
         ...cand,
         status: 'unreviewed',
@@ -241,6 +250,9 @@ async function fillTier(tier, apiKey, state) {
     accepted,
     rejected,
     usedWords: new Set(accepted.map(a => a.word)),
+    tierWords: Object.fromEntries(TIER_LEVELS.map(t => [
+      t, new Set(accepted.filter(a => a.difficulty === t).map(a => a.word))
+    ])),
     reasonCounts: {},
     errors: []
   };
