@@ -1,6 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+    // ---------------------------------------------------------------
+    // STREAK HANDOFF — carries a player's saved progress from the old
+    // address to the new one. localStorage belongs to one address, so
+    // without this a redirect would reset everyone's streak.
+    //
+    // Old address: packs the whence:* keys into the URL fragment (never
+    // sent to any server) and forwards to the new address.
+    // New address: unpacks them, ONLY fills in what it doesn't already
+    // have, and strips the fragment. Any failure = player starts fresh,
+    // which is exactly what would happen without a handoff at all.
+    //
+    // HANDOFF_LIVE stays false until whence.gg is confirmed working.
+    // Local rehearsal: open http://localhost:8888/?handoff-test
+    // (forwards to 127.0.0.1:8888, a separate storage origin).
+    // ---------------------------------------------------------------
+    (function () {
+        var HANDOFF_LIVE = false;
+        var OLD_HOST = 'etymon-game.netlify.app';
+        var NEW_ORIGIN = 'https://whence.gg';
+        var TEST_ORIGIN = 'http://127.0.0.1:8888';
+        var PREFIX = '#whence-handoff=';
+
+        function utcDate(offsetMs) {
+            return new Date(Date.now() - (offsetMs || 0)).toISOString().split('T')[0];
+        }
+        function keysToCarry() {
+            return ['whence:streak', 'whence:visited', 'whence:' + utcDate()];
+        }
+
+        // ---- Sending side (old address) ----
+        var target = null;
+        if (HANDOFF_LIVE && location.hostname === OLD_HOST) target = NEW_ORIGIN;
+        if (location.hostname === 'localhost' && /[?&]handoff-test\b/.test(location.search)) target = TEST_ORIGIN;
+        if (target) {
+            document.documentElement.style.visibility = 'hidden';
+            var data = {};
+            try {
+                keysToCarry().forEach(function (k) {
+                    var v = localStorage.getItem(k);
+                    if (v !== null) data[k] = v;
+                });
+            } catch (e) { data = {}; }
+            var hash = Object.keys(data).length
+                ? PREFIX + encodeURIComponent(JSON.stringify({ v: 1, data: data }))
+                : '';
+            location.replace(target + '/' + hash);
+            return;
+        }
+
+        // ---- Receiving side (new address) ----
+        if (location.hash.indexOf(PREFIX) !== 0) return;
+        var raw = location.hash.slice(PREFIX.length);
+        try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+        try {
+            var parsed = JSON.parse(decodeURIComponent(raw));
+            if (!parsed || parsed.v !== 1 || typeof parsed.data !== 'object') return;
+            var incoming = parsed.data;
+            var allowed = keysToCarry();
+
+            Object.keys(incoming).forEach(function (k) {
+                var val = incoming[k];
+                if (allowed.indexOf(k) === -1 || typeof val !== 'string' || val.length > 200000) return;
+                var existing = localStorage.getItem(k);
+
+                if (k === 'whence:streak') {
+                    var inS = JSON.parse(val);
+                    if (typeof inS.count !== 'number' || (inS.lastDate !== null && typeof inS.lastDate !== 'string')) return;
+                    if (existing) {
+                        // Both addresses have a streak: keep the more recent one,
+                        // or the longer one if they were last played the same day.
+                        var hereS = JSON.parse(existing);
+                        var inNewer = (inS.lastDate || '') > (hereS.lastDate || '');
+                        var sameDayLonger = inS.lastDate === hereS.lastDate && inS.count > hereS.count;
+                        if (!inNewer && !sameDayLonger) return;
+                    }
+                    localStorage.setItem(k, val);
+                    return;
+                }
+
+                if (existing !== null) return; // never overwrite progress already here
+                if (k === 'whence:visited' && val !== '1') return;
+                if (k !== 'whence:visited' && JSON.parse(val).puzzlesDate !== utcDate()) return;
+                localStorage.setItem(k, val);
+            });
+        } catch (e) { /* malformed or storage blocked: start fresh */ }
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Whence - Daily Word Origins Puzzle</title>
@@ -1708,8 +1796,6 @@
             currentScore = 0;
             startTime = null; // Don't start timer yet
             
-            console.log(`Starting Round ${currentRound + 1}: ${currentPuzzle.word}`);
-            console.log(`Cleared sets - Revealed: ${revealedLetters.size}, Guessed: ${guessedLetters.size}`);
 
             // Update challenge indicator
             const indicator = document.getElementById('challengeIndicator');
