@@ -6,7 +6,8 @@
 [functions]
   node_bundler = "esbuild"
 
-# Runs once per day at 00:00 UTC to generate and store that day's puzzles.
-# Only fires on published production deploys, not deploy previews.
-[functions."generate-daily-puzzle"]
-  schedule = "@daily"
+# The scheduled daily generator (generate-daily-puzzle) was removed Oct 2026:
+# the static corpus serves every date, and the job was paying for a gpt-4o
+# call each day and then failing to save it. get-daily-puzzle still generates
+# live as a fallback if the corpus ever runs out. Restore from git history if
+# a scheduled generator is ever needed again.

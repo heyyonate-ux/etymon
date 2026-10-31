@@ -14,10 +14,10 @@ const {
  *
  * Read path, cheapest first:
  *   1. In-memory cache  — free, but dies with the container
- *   2. Netlify Blobs    — shared across all instances; written once per day by
- *                         the scheduled generate-daily-puzzle function
- *   3. Generate on demand — self-healing if the scheduled run hasn't happened
- *                           yet (e.g. first deploy), then persisted to Blobs
+ *   2. Netlify Blobs    — shared across all instances; holds any puzzle this
+ *                         function generated earlier the same day
+ *   3. Generate on demand — fallback when no corpus entry or stored puzzle
+ *                           exists for today, then persisted to Blobs
  *
  * Blobs are treated as an optimization, not a hard dependency: if the store is
  * unavailable the endpoint still works, it just regenerates more often.
