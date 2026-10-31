@@ -130,6 +130,20 @@ async function callModel(prompt, apiKey, attempt = 0) {
   }
 }
 
+// Each request asks for a word starting with a random letter. Without this the
+// model keeps reaching for the same few hundred "obvious" Greek/Latin words, and
+// once those are used up nearly every candidate bounces as a duplicate
+// (Oct 2026: 394 duplicate rejects, every tier stalled well short of target).
+// W, X, Y, Z are left out: few recognisable Greek/Latin words start with them.
+const STARTING_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUV'.split('');
+function withStartingLetter(prompt) {
+  const letter = STARTING_LETTERS[Math.floor(Math.random() * STARTING_LETTERS.length)];
+  return prompt.replace(
+    '- It must have clear, real Greek or Latin roots.',
+    `- It must have clear, real Greek or Latin roots.\n- The word must begin with the letter ${letter}.`
+  );
+}
+
 /** Generate until this tier hits its target, or we give up making progress. */
 async function fillTier(tier, apiKey, state) {
   const existing = state.accepted.filter(a => a.difficulty === tier.level);
@@ -148,7 +162,7 @@ async function fillTier(tier, apiKey, state) {
   let barren = 0;
   let barrenHadErrors = false;
 
-  while (need > 0 && barren < 3) {
+  while (need > 0 && barren < 5) {
     const batch = Math.min(need, CONCURRENCY);
     // Tell the model about EVERY word already in the corpus, not just the most
     // recent 120. With 450+ words on disk, a trailing slice left out most of
@@ -163,7 +177,7 @@ async function fillTier(tier, apiKey, state) {
     const results = await Promise.all(
       Array.from({ length: batch }, async () => {
         try {
-          const raw = await callModel(buildPrompt(tier, avoid), apiKey);
+          const raw = await callModel(withStartingLetter(buildPrompt(tier, avoid)), apiKey);
           return normalise(raw, tier.level);
         } catch (err) {
           return { __error: err.message };
@@ -222,10 +236,10 @@ async function fillTier(tier, apiKey, state) {
 
   const got = state.accepted.filter(a => a.difficulty === tier.level).length;
   let note = '';
-  if (barren >= 3) {
+  if (barren >= 5) {
     note = barrenHadErrors
       ? `${c.red} (stopped — API errors, see summary below)${c.reset}`
-      : `${c.yellow} (stopped — no new words in last 3 batches)${c.reset}`;
+      : `${c.yellow} (stopped — no new words in last 5 batches)${c.reset}`;
   }
   console.log(` ${got}/${TARGET_PER_TIER}${note}`);
 }
