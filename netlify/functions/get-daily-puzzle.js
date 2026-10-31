@@ -26,6 +26,8 @@ const {
  */
 
 const ALLOWED_ORIGINS = [
+  'https://whence.gg',
+  'https://www.whence.gg',
   'https://etymon-game.netlify.app',
   'http://localhost:8888',
   'http://127.0.0.1:8888'

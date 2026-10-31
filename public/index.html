@@ -2482,7 +2482,7 @@
             }).join('');
             
             const completedCount = roundResults.filter(r => !r.passed).length;
-            const shareUrl = 'https://etymon-game.netlify.app';
+            const shareUrl = 'https://whence.gg';
             const text = `Whence Daily ${new Date().toLocaleDateString()}\nScore: ${totalScore.toLocaleString()} (${completedCount}/5)\n${emoji}\n\nGuess words from their roots!\n${shareUrl}`;
 
             if (navigator.share) {

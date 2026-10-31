@@ -11,3 +11,35 @@
 # call each day and then failing to save it. get-daily-puzzle still generates
 # live as a fallback if the corpus ever runs out. Restore from git history if
 # a scheduled generator is ever needed again.
+
+# ── Canonical domain: whence.gg ─────────────────────────────────────────────
+# Every other domain 301-redirects here, keeping the path. Host-based rules
+# never match deploy previews or localhost, so those keep working as before.
+# Only deploy this AFTER whence.gg shows a working HTTPS certificate in Netlify.
+[[redirects]]
+  from = "https://whence.games/*"
+  to = "https://whence.gg/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.whence.games/*"
+  to = "https://whence.gg/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://whencegame.com/*"
+  to = "https://whence.gg/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.whencegame.com/*"
+  to = "https://whence.gg/:splat"
+  status = 301
+  force = true
+
+# The old etymon-game.netlify.app URL is deliberately NOT redirected here.
+# A server redirect would skip the streak handoff in index.html, which moves
+# players' saved progress to whence.gg and then forwards them itself.
